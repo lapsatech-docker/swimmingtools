@@ -15,8 +15,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include <cstring>
 #include "fit_buffer_encode.hpp"
 #include "fit_crc.hpp"
+
 
 namespace fit
 {

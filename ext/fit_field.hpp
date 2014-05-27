@@ -34,7 +34,7 @@ class Field
       Field(void);
       Field(const Field &field);
       Field(const Profile::MESG_INDEX mesgIndex, const FIT_UINT16 fieldIndex);
-      Field(const FIT_UINT16 mesgNum, const FIT_UINT8 fieldNum);
+      Field(const FIT_UINT16 mesgNum, const FIT_UINT8 fieldNum, const FIT_UINT8 fieldType);
       Field(const std::string& mesgName, const std::string& fieldName);
       FIT_BOOL IsValid(void) const;
       FIT_UINT16 GetIndex(void) const;
@@ -88,6 +88,8 @@ class Field
       const Profile::MESG* profile;
       FIT_UINT16 profileIndex;
       std::vector<std::vector<FIT_BYTE> > values;
+      FIT_UINT8 fieldNum;
+      FIT_UINT8 fieldType;
 };
 
 } // namespace fit

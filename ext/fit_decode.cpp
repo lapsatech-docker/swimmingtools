@@ -439,7 +439,9 @@ Decode::RETURN Decode::ReadByte(FIT_UINT8 data)
                   }
                }
 
-               Field field(mesg.GetNum(), localMesgDefs[localMesgIndex].GetFieldByIndex(fieldIndex)->GetNum());
+               Field field(mesg.GetNum(), 
+                           localMesgDefs[localMesgIndex].GetFieldByIndex(fieldIndex)->GetNum(),
+                           localMesgDefs[localMesgIndex].GetFieldByIndex(fieldIndex)->GetType());
                if (field.IsValid()) // If known field type.
                {
                   field.Read(&fieldData, localMesgDefs[localMesgIndex].GetFieldByIndex(fieldIndex)->GetSize());
@@ -456,7 +458,8 @@ Decode::RETURN Decode::ReadByte(FIT_UINT8 data)
 
                            if (component->num != FIT_FIELD_NUM_INVALID)
                            {
-                              Field componentField(mesg.GetNum(), component->num);
+                              FIT_UINT8 componentType = Profile::GetField(mesg.GetNum(), component->num)->type;
+                              Field componentField(mesg.GetNum(), component->num, componentType);
                               FIT_FLOAT64 value;
 
                               if (componentField.IsSignedInteger())

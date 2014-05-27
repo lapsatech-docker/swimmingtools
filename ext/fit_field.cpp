@@ -16,6 +16,7 @@
 
 
 #include <sstream>
+#include <cstring>
 #include "fit_field.hpp"
 #include "fit_mesg.hpp"
 #include "fit_unicode.hpp"
@@ -29,28 +30,32 @@ Field::Field(void) :
 }
 
 Field::Field(const Field &field) :
-   profile(field.profile), profileIndex(field.profileIndex), values(field.values)
+   profile(field.profile), profileIndex(field.profileIndex), values(field.values),
+   fieldNum(field.fieldNum), fieldType(field.fieldType)
 {
 }
 
 Field::Field(const Profile::MESG_INDEX mesgIndex, const FIT_UINT16 fieldIndex) :
-   profile(&Profile::mesgs[mesgIndex]), profileIndex(fieldIndex)
+   profile(&Profile::mesgs[mesgIndex]), profileIndex(fieldIndex),
+   fieldNum(FIT_UINT8_INVALID), fieldType(FIT_UINT8_INVALID)
 {
 }
 
-Field::Field(const FIT_UINT16 mesgNum, const FIT_UINT8 fieldNum) :
-   profile(Profile::GetMesg(mesgNum)), profileIndex(Profile::GetFieldIndex(mesgNum, fieldNum))
+Field::Field(const FIT_UINT16 mesgNum, const FIT_UINT8 fieldNum, const FIT_UINT8 fieldType) :
+   profile(Profile::GetMesg(mesgNum)), profileIndex(Profile::GetFieldIndex(mesgNum, fieldNum)),
+   fieldNum(fieldNum), fieldType(fieldType)
 {
 }
 
 Field::Field(const std::string& mesgName, const std::string& fieldName) :
-   profile(Profile::GetMesg(mesgName)), profileIndex(Profile::GetFieldIndex(mesgName, fieldName))
+   profile(Profile::GetMesg(mesgName)), profileIndex(Profile::GetFieldIndex(mesgName, fieldName)),
+   fieldNum(FIT_UINT8_INVALID), fieldType(FIT_UINT8_INVALID)
 {
 }
 
 FIT_BOOL Field::IsValid(void) const
 {
-   return profileIndex != FIT_UINT16_INVALID;
+   return true; // profileIndex != FIT_UINT16_INVALID && fieldNum != FIT_UINT8_INVALID;
 }
 
 FIT_UINT16 Field::GetIndex(void) const
@@ -71,14 +76,14 @@ std::string Field::GetName(const FIT_UINT16 subFieldIndex) const
 FIT_UINT8 Field::GetNum(void) const
 {
    if ((profile == NULL) || (profileIndex >= profile->numFields))
-      return FIT_FIELD_NUM_INVALID;
+      return fieldNum; // FIT_FIELD_NUM_INVALID;
    return profile->fields[profileIndex].num;
 }
 
 FIT_UINT8 Field::GetType(const FIT_UINT16 subFieldIndex) const
 {
    if ((profile == NULL) || (profileIndex >= profile->numFields))
-      return FIT_UINT8_INVALID;
+      return fieldType; // FIT_UINT8_INVALID;
    else if (subFieldIndex >= profile->fields[profileIndex].numSubFields)
       return profile->fields[profileIndex].type;
    else
@@ -160,8 +165,8 @@ FIT_UINT8 Field::GetSize(void) const
 {
    FIT_UINT8 size = 0;
 
-	if ((profile == NULL) || (profileIndex >= profile->numFields))
-      return 0;
+   // if ((profile == NULL) || (profileIndex >= profile->numFields))
+   //   return 0;
 
    for (FIT_UINT8 valueIndex = 0; valueIndex < values.size(); valueIndex++)
       size += values[valueIndex].size();
@@ -171,8 +176,8 @@ FIT_UINT8 Field::GetSize(void) const
 
 FIT_UINT8 Field::GetNumValues(void) const
 {
-   if ((profile == NULL) || (profileIndex >= profile->numFields))
-      return 0;
+   // if ((profile == NULL) || (profileIndex >= profile->numFields))
+   //   return 0;
 
    return (FIT_UINT8) values.size();
 }
@@ -328,8 +333,8 @@ FIT_FLOAT32 Field::GetFLOAT32Value(const FIT_UINT8 fieldArrayIndex, const FIT_UI
 {
    FIT_FLOAT32 float32Value;
 
-   if ((profile == NULL) || (profileIndex >= profile->numFields))
-      return FIT_FLOAT32_INVALID;
+   // if ((profile == NULL) || (profileIndex >= profile->numFields))
+   //    return FIT_FLOAT32_INVALID;
 
    switch (GetType()) { // Note: This checks the type of the MAIN field since data is aligned according to that type
       case FIT_BASE_TYPE_BYTE:
@@ -479,8 +484,8 @@ FIT_FLOAT64 Field::GetFLOAT64Value(const FIT_UINT8 fieldArrayIndex, const FIT_UI
 {
    FIT_FLOAT64 float64Value;
 
-   if ((profile == NULL) || (profileIndex >= profile->numFields))
-      return FIT_FLOAT64_INVALID;
+   // if ((profile == NULL) || (profileIndex >= profile->numFields))
+   //    return FIT_FLOAT64_INVALID;
 
    switch (GetType()) { // Note: This checks the type of the MAIN field since data is aligned according to that type
       case FIT_BASE_TYPE_BYTE:
@@ -767,8 +772,8 @@ void Field::SetFLOAT32Value(const FIT_FLOAT32 value, const FIT_UINT8 fieldArrayI
 
 void Field::SetFLOAT64Value(const FIT_FLOAT64 value, const FIT_UINT8 fieldArrayIndex, const FIT_UINT16 subFieldIndex)
 {
-   if ((profile == NULL) || (profileIndex >= profile->numFields))
-      return;
+   // if ((profile == NULL) || (profileIndex >= profile->numFields))
+   //   return;
 
    FIT_FLOAT64 recalculatedValue = (value + GetOffset(subFieldIndex)) * GetScale(subFieldIndex);
    // Make sure floating point representations trunc to the expected integer
@@ -1115,12 +1120,12 @@ void Field::SetSTRINGValue(const FIT_WSTRING& value, const FIT_UINT8 fieldArrayI
 FIT_BOOL Field::Read(const void *data, const FIT_UINT8 size)
 {
    int bytesLeft = size;
-   FIT_UINT8 typeSize = baseTypeSizes[profile->fields[profileIndex].type & FIT_BASE_TYPE_NUM_MASK];
+   FIT_UINT8 typeSize = baseTypeSizes[GetType() & FIT_BASE_TYPE_NUM_MASK];  // [profile->fields[profileIndex].type & FIT_BASE_TYPE_NUM_MASK];
    FIT_BYTE *byteData = (FIT_BYTE *) data;
 
    values.clear();
    
-   switch (profile->fields[profileIndex].type)
+   switch (GetType())  // (profile->fields[profileIndex].type)
    {
       case FIT_BASE_TYPE_STRING:
       {
@@ -1179,7 +1184,7 @@ FIT_BOOL Field::Read(const void *data, const FIT_UINT8 size)
          {
             std::vector<FIT_BYTE> value;
 
-            if (memcmp(byteData, baseTypeInvalids[profile->fields[profileIndex].type & FIT_BASE_TYPE_NUM_MASK], typeSize) != 0)
+            if (memcmp(byteData,  baseTypeInvalids[GetType() & FIT_BASE_TYPE_NUM_MASK], typeSize) != 0) //baseTypeInvalids[profile->fields[profileIndex].type & FIT_BASE_TYPE_NUM_MASK], typeSize) != 0)
                invalid = FIT_FALSE;
 
             for (int i = 0; i < typeSize; i++)
@@ -1190,8 +1195,8 @@ FIT_BOOL Field::Read(const void *data, const FIT_UINT8 size)
             bytesLeft -= typeSize;
          }
 
-         if (invalid)
-            values.clear();
+//         if (invalid)
+//            values.clear();
       }
       break;
    }

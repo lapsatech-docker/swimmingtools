@@ -24,27 +24,35 @@ namespace fit
 {
 
 Mesg::Mesg()
-: profile(FIT_NULL), localNum(0), fields()
+: profile(FIT_NULL), localNum(0), fields(), num(FIT_MESG_NUM_INVALID)
 {
 }
 
 Mesg::Mesg(const Mesg &mesg)
-: profile(mesg.profile), localNum(mesg.localNum), fields(mesg.fields)
+: profile(mesg.profile), localNum(mesg.localNum), fields(mesg.fields), num(mesg.num)
 {
 }
 
 Mesg::Mesg(const Profile::MESG_INDEX index)
-: profile(&Profile::mesgs[index]), localNum(0), fields()
+: profile(&Profile::mesgs[index]), localNum(0), fields(), num(profile->num)
 {
+  if (profile != FIT_NULL)
+    num = profile->num;
+  else
+    num = FIT_MESG_NUM_INVALID;
 }
 
 Mesg::Mesg(const std::string& name)
 : profile(Profile::GetMesg(name)), localNum(0), fields()
 {
+  if (profile != FIT_NULL)
+    num = profile->num;
+  else
+    num = FIT_MESG_NUM_INVALID;
 }
 
 Mesg::Mesg(const FIT_UINT16 num)
-: profile(Profile::GetMesg(num)), localNum(0), fields()
+: profile(Profile::GetMesg(num)), localNum(0), fields(), num(num)
 {
 }
 
@@ -121,7 +129,7 @@ std::string Mesg::GetName() const
 FIT_UINT16 Mesg::GetNum() const
 {
    if (profile == FIT_NULL)
-      return FIT_MESG_NUM_INVALID;
+      return num; // FIT_MESG_NUM_INVALID;
 
    return profile->num;
 }
@@ -162,8 +170,13 @@ Field* Mesg::AddField(const FIT_UINT8 fieldNum)
 
    if (field == FIT_NULL)
    {
-      fields.push_back(Field(profile->num, fieldNum));
-      field = &fields[fields.size() - 1];
+       
+      const Profile::FIELD *profileField = Profile::GetField(profile->num, fieldNum);
+      
+      if (profileField != FIT_NULL) {
+         fields.push_back(Field(profile->num, fieldNum, Profile::GetField(profile->num, fieldNum)->type));
+         field = &fields[fields.size() - 1];
+      }
    }
 
    return field;

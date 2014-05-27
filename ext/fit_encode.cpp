@@ -16,6 +16,7 @@
 
 
 #include <iostream>
+#include <cstring>
 #include "fit_encode.hpp"
 #include "fit_crc.hpp"
 

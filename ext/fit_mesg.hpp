@@ -36,6 +36,7 @@ class Mesg
       Mesg(const Profile::MESG_INDEX index);
       Mesg(const std::string& name);
       Mesg(const FIT_UINT16 num);
+      virtual ~Mesg() {};
       FIT_BOOL IsValid(void) const;
       int Write(std::ostream& file, const MesgDefinition* mesgDef = FIT_NULL) const;
       std::string GetName() const;
@@ -92,6 +93,7 @@ class Mesg
       const Profile::MESG* profile;
       FIT_UINT8 localNum;
       std::vector<Field> fields;
+      FIT_UINT16 num; // contains profile num of custom mesgs
 };
 
 } // namespace fit

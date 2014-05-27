@@ -611,10 +611,23 @@ Garmin.DeviceDisplay.prototype = {
 		}.bind(this);
 		
 		this.options.sendDataOptions.onFailure = function(xhr) {
-			error = new Error(xhr.statusText);
-			error.name = exceptionName;
-			error.xhr = xhr;
-			this.handleException(error);
+			this.xhr = xhr;
+			if( this.options.afterFinishSendData != null) {
+				try {
+					this.options.afterFinishSendData.call(this, 
+						this.xhr, 
+						this.currentActivityStatusElement(),
+						this.activityDirectory, 
+						this);
+				} catch (error) {
+					this.handleException(error);
+				}
+			}
+			callback.call(this);
+			//error = new Error(xhr.statusText);
+			//error.name = exceptionName;
+			//error.xhr = xhr;
+			//this.handleException(error);
 		}.bind(this);
 		
 		// Make the request
