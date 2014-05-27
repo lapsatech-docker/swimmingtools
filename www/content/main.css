@@ -1,0 +1,391 @@
+body {
+    margin: 0;
+}
+
+.header { 
+    height: 70px; 
+    background-color: #4d92cc;
+}
+
+.header .header-content { 
+    margin: auto;
+    width: 900px; 
+}
+
+.header h1 { 
+    float: left; 
+    padding-top: 32px; 
+    margin: 0;
+    height: 30px;
+    font-size: 30px; 
+    color: white;
+}
+
+
+.tabs { 
+    display: block;
+    float: left; 
+    list-style: none; 
+    margin: 0; 
+    padding-left: 30px; 
+    padding-top: 30px; 
+    height : 40px; 
+}
+
+.tabs li {
+    float: left;
+    margin: 0 5px;
+    height: 38px;
+ }
+
+.tabs a {
+    display: block;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border: 1px solid #bbb;
+    border-bottom-width: 0;
+    padding: 10px;
+    height: 19px;
+    text-decoration: none;
+    background: #7AAFD6;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+	
+.tabs a:hover, .tabs a.selected {
+    background: white;
+    color: #4d92cc;
+}
+
+.content {
+    margin: auto;
+    width: 900px;
+    
+}
+
+.section {
+    margin: 20px auto;
+    border: 1px solid #c8c8c8;
+    padding: 0 0 20px 0;
+    width: 900px;
+    background-color: rgb(238, 238, 238);
+ }
+ 
+.centered 
+{
+    text-align:center;
+}
+
+.section h2 {
+    margin: 0 0 20px 0;
+    padding: 10px;
+    height: 20px;
+    background-color: #bbb;
+    font-size: 1em;
+    font-weight: bold;
+    text-align: left;
+}
+
+.section p 
+{
+    margin-left: 30px;
+    margin-right: 30px; 
+}
+
+.section p.indented {
+    margin-left: 4em;
+    font-style: italic
+}
+
+.section ul {
+    width: 800px;
+    margin: 10px auto 20px auto;
+}
+
+
+.status-label-container 
+{
+    position:relative;
+    margin:auto;
+    padding-right:10px;
+    width:790px;
+    background-color:White;
+    text-align:right;    
+}
+
+#statusLbl 
+{
+    display:inline-block;
+}
+
+#chartContainer {
+    position: relative;
+    margin:auto; 
+    width: 800px; 
+    height: 400px;
+    background-color: white;
+}
+
+.toolbar {
+    display: block;
+    list-style: none; 
+    margin: auto;
+    padding: 5px; 
+    width: 790px;
+    height: 30px;
+    background-color: #bbb;
+}
+
+.toolbar button {
+    height: 30px;
+}
+
+ul.statusbar {
+    display: block;
+    list-style: none; 
+    margin: auto;
+    padding: 5px 5px 5px 7px; 
+    width: 790px;
+    height: 28px;
+    background-color: #bbb;
+}
+
+
+.statusbar li {
+    float: left;
+    background-color: rgb(238, 238, 238);
+    margin:  0 5px 0 0;
+    padding: 2px 3px;
+    line-height: 24px;
+}
+
+.warning {
+    border-radius: 6px;
+    border: 1px solid #ffd100;
+    padding: 3px 3px 3px 38px;
+    background: #fff6cc url('warning.png') 15px 50% no-repeat;
+    color: #000;
+      
+}
+
+.tooltip 
+{
+    margin: 3px;
+    border: solid 2px black;
+    padding: 4px;
+}
+
+.tooltip span 
+{
+    font-weight:bold;
+}
+
+
+.tooltip span.freestyle 
+{
+    color:#c43dbf;
+}
+
+.tooltip span.backstroke
+{
+    color:#1f8ef0;
+}
+
+.tooltip span.breaststroke
+{
+    color:#95de2b;
+}
+
+.tooltip span.butterfly
+{
+    color:#eb3d3d;
+}
+
+.tooltip span.drill
+{
+    color:#ff7c05;
+}
+
+.tooltip span.unknown
+{
+    color:gray;
+}
+
+.dialog {
+    display:none; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width:100%;
+    height:100%;
+    z-index:1000;  
+}
+
+.dialog-overlay {
+    position: fixed;
+    width:100%;
+    height:100%;
+    z-index: 1001;
+    background-color:black;
+    opacity:0.6;
+    filter:alpha(opacity=60);
+    text-align:center;
+    
+}
+
+
+.dialog-content 
+{
+    position:absolute;
+    background-color: white;
+    border: 4px solid #bbb;
+    margin-left: -7.5em;
+    margin-top: -7.5em;
+    padding: 1em 0 1em 0;
+    top: 50%;
+    left: 50%;
+    width: 15em;
+    height: 15em;    
+    z-index: 1002;
+    text-align: center;
+}
+
+.dialog-cancel-button {
+    position:absolute;
+    top:-12px; 
+    right:-12px; 
+    z-index:50;
+}
+
+
+.button {
+    display: block;
+    width: 300px;
+    height:30px;
+    margin:auto;
+}
+
+.validation-summary-errors {
+    color: red;
+}
+
+
+/* CSS for Garmin Communicator */
+
+#garminDisplay {
+	position: relative;
+	height: 400px;
+	width: 800px;
+	margin:auto;
+	border:1px solid #B4CFEC;
+	background: #FFFFFF url(garmin-white.gif) no-repeat 12px 12px;
+    padding-top: 45px;
+}
+
+#statusBox {
+    margin-top: 1em;
+}
+
+#statusText {
+ 	text-align: center;
+	width: 100%;
+	height: 2em;
+	font-weight: bold;
+}
+
+#progressBar {
+	border:1px solid black;
+	margin:auto;
+	height:20px;
+    width: 95%;
+    background-color:#CCCAC1;
+}
+
+#progressBarDisplay {
+
+    height:20px;
+    background-color:#005E9D;
+}
+
+#deviceSelectBox {
+    margin: auto;
+	width: 259px;
+	height: 101px;
+    background-color: #B4CFEC;
+	text-align: center;
+}
+
+
+#deviceSelectLabel {
+	padding:15px 0;
+	font-weight: bold;
+}
+
+#deviceSelectBox select { 
+	font-size:14px;
+	font-weight: bold;
+	background-color: #FFFFFF;
+    color: #005E9D;
+ }
+
+
+#readBox {
+    text-align: center;
+}
+
+#readDataButton, #readSelectedButton, #startEditorButton{
+	display:block;
+	margin: 1em auto;
+	border: 0;
+	width: 259px;
+	height: 51px;
+	cursor: pointer;
+	text-align: center;
+	background: url(button_bg.jpg) no-repeat 0 top;
+	color: #fff;
+	font-size: 16px;
+}
+
+
+#readDataButton:hover, #readSelectedButton:hover, startEditorButton:hover {
+	background: url(button_bg.jpg) no-repeat 0 bottom;
+}
+
+#readDataButton:active, #readSelectedButton:active {
+	background: url(button_bg.jpg) no-repeat 0 top;
+}
+
+#activityDirectory {
+   margin: auto;
+   width: 55%;
+   
+ }
+
+#activityTableHeader {
+    width:100%;
+    color: #FFFFFF;
+    background-color: #0077AA;
+}
+
+#activityDirectoryData {
+    height: 200px;
+    overflow: auto;
+}
+
+#activityTable  {
+    width: 100%;
+    color: #000000;
+    background-color: #D0D0D0;
+}
+
+#activityTable td, #activityTableHeader td {
+    padding:.2em;
+}
+
+#aboutElement {
+    position: absolute;
+    right: 8px;
+    bottom: 5px;
+    color: #5e5e5e;
+}
