@@ -7,11 +7,11 @@ try {
 
   unset($_SESSION['client_filename']);
   unset($_SESSION['internal_filename']);
-  
+
   $error = '';
   $temp_dir = realpath(swt\Functions::TEMP_DIR).DIRECTORY_SEPARATOR;
   $upload_dir = realpath(swt\Functions::UPLOAD_DIR).DIRECTORY_SEPARATOR;
-  $download_dir = realpath(swt\Functions::DOWNLOAD_DIR).DIRECTORY_SEPARATOR;
+  $edit_dir = realpath(swt\Functions::EDIT_DIR).DIRECTORY_SEPARATOR;
 
   if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -34,17 +34,17 @@ try {
       // Remove illegal character when saving file to windows
       $temp_filename = preg_replace('/[\\\\\/\:\*\?\<\>\"\|]/', '', $client_filename);
       $temp_filename .= uniqid();
-      $temp_filename = $temp_dir.$temp_filename;
 
-      if (!move_uploaded_file($_FILES['fitFile']['tmp_name'], $temp_filename)) {
-        throw new Exception('Cannot move uploaded file');
+      if (!move_uploaded_file($_FILES['fitFile']['tmp_name'], $temp_dir.$temp_filename)) {
+        throw new Exception('Cannot move uploaded file to temp directory');
       }
-      $swim_file = new swt\SwimFile($temp_filename);
-      $internal_filename = $swim_file->getSerialNumber().'_'.basename($temp_filename);
+      $swim_file = new swt\SwimFile($temp_dir.$temp_filename);
+      $internal_filename = $swim_file->getSerialNumber().'_'.$temp_filename;
 
-      if (!(copy($temp_filename, $upload_dir.$internal_filename) && 
-        rename($temp_filename, $download_dir.$internal_filename)))
-        throw new Exception('Cannot copy file');
+      if (!(copy($temp_dir.$temp_filename, $upload_dir.$internal_filename) && 
+        rename($temp_dir.$temp_filename, $edit_dir.$internal_filename))) {
+          throw new Exception('Cannot copy file to editing directory');
+      }
 
       $_SESSION['internal_filename'] = $internal_filename;
       $_SESSION['client_filename'] = $client_filename;

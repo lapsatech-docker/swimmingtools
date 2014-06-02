@@ -6,6 +6,7 @@ class Functions {
   
   const TEMP_DIR = 'data/temp/';
   const UPLOAD_DIR = 'data/upload/';
+  const EDIT_DIR = 'data/edit/';
   const DOWNLOAD_DIR = 'data/download/';
 
   static function errorHandler($errno, $errstr, $errfile, $errline) {

@@ -10,7 +10,7 @@ try {
 
   $temp_dir = realpath(swt\Functions::TEMP_DIR).DIRECTORY_SEPARATOR;
   $upload_dir = realpath(swt\Functions::UPLOAD_DIR).DIRECTORY_SEPARATOR;
-  $download_dir = realpath(swt\Functions::DOWNLOAD_DIR).DIRECTORY_SEPARATOR;
+  $edit_dir = realpath(swt\Functions::EDIT_DIR).DIRECTORY_SEPARATOR;
   
   header('Content-type: application/json');
   header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -23,21 +23,20 @@ try {
   if (is_uploaded_file($_FILES['fitFile']['tmp_name'])) {
 
     $internal_filename = $_POST['SN'].'_'.$_FILES['fitFile']['name'].uniqid();
-    $temp_filename = $temp_dir.$internal_filename;
     $client_filename = $_FILES['fitFile']['name'];
     
     $rhandle = fopen($_FILES['fitFile']['tmp_name'], 'r');
     stream_filter_append($rhandle, 'convert.base64-decode');
 
-    $whandle = fopen($temp_filename, 'w');
+    $whandle = fopen($temp_dir.$internal_filename, 'w');
     stream_copy_to_stream($rhandle, $whandle);
     fclose($rhandle);
     fclose($whandle);
 
-    $swim_file = new swt\SwimFile($temp_filename);
+    $swim_file = new swt\SwimFile($temp_dir.$internal_filename);
 
-    if (!(copy($temp_filename, $upload_dir.$internal_filename) && 
-      rename($temp_filename, $download_dir.$internal_filename)))
+    if (!(copy($temp_dir.$internal_filename, $upload_dir.$internal_filename) && 
+      rename($temp_dir.$internal_filename, $edit_dir.$internal_filename)))
       throw new Exception('Cannot copy file');
 
     $_SESSION['internal_filename'] = $internal_filename;

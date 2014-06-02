@@ -9,7 +9,7 @@ if (!isset($_SESSION['internal_filename'])) {
 }
 
 try {
-  $swim_file = new \swt\Swimfile(realpath(swt\Functions::DOWNLOAD_DIR.$_SESSION['internal_filename']));
+  $swim_file = new \swt\Swimfile(realpath(swt\Functions::EDIT_DIR.$_SESSION['internal_filename']));
   $time_created = new DateTime('31DEC89');
   $time_created->setTimestamp($time_created->getTimestamp() + $swim_file->getDateCreated());
   $time_created = '<script type="text/javascript">var date = new Date(Date.UTC('
@@ -23,6 +23,7 @@ try {
 } catch (Exception $ex) {
   $time_created = '';
   swt\Functions::errorLog($ex);
+  echo swt\Functions::EDIT_DIR.$_SESSION['internal_filename'];
 }
 \swt\Layout::header('Swimming Watch Data Editor', \swt\Layout::TAB_EDITOR);
 ?>

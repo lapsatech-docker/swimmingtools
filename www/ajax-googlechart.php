@@ -13,6 +13,9 @@ try {
 
   $req_id = '' ;
  
+  $upload_dir = realpath(swt\Functions::UPLOAD_DIR).DIRECTORY_SEPARATOR;
+  $edit_dir = realpath(swt\Functions::EDIT_DIR).DIRECTORY_SEPARATOR;
+  
   if (isset($_GET['tqx'])) {
     if (preg_match('/reqId\s?:\s?\d+/', $_GET['tqx'], $matches) == 1) 
       $req_id = $matches[0].',';
@@ -24,19 +27,19 @@ try {
     ob_end_flush();
     exit();
   }
+  $internal_filename = $_SESSION['internal_filename'];
   
-  $swim_file = new swt\SwimFile(realpath(swt\Functions::DOWNLOAD_DIR.$_SESSION['internal_filename']));
+  $swim_file = new swt\SwimFile($edit_dir.$internal_filename);
   
   if (isset($_GET['action'])) {
 
     switch ($_GET['action']) {
 
     case 'undoAll':
-      if (!copy(realpath(swt\Functions::UPLOAD_DIR.$_SESSION['internal_filename']), 
-      realpath(swt\Functions::DOWNLOAD_DIR.$_SESSION['internal_filename']))) 
-      throw new Exception('Could not undo');
+      if (!copy($upload_dir.$internal_filename, $edit_dir.$internal_filename)) 
+        throw new Exception('Could not copy file to editing directory');
 
-      $swim_file = new swt\SwimFile(realpath(swt\Functions::DOWNLOAD_DIR.$_SESSION['internal_filename']));    
+      $swim_file = new swt\SwimFile($edit_dir.$internal_filename);    
       break;
     case 'merge':
       $swim_file->merge($_GET['messageIndex']);
@@ -218,7 +221,7 @@ HEREDOC;
     ."swimTime:'%s',avgPace:'%s min/100%3\$s',avgStrokes:'%.0f/length'}}})",
     $status, $pool_length, $pool_length_units, $distance, $time, $pace, $avg_strokes_per_length);
 
-  $swim_file->save(realpath(swt\Functions::DOWNLOAD_DIR.$_SESSION['internal_filename']));
+  $swim_file->save($edit_dir.$internal_filename);
   ob_end_flush();
 
 } catch (Exception $ex) {
