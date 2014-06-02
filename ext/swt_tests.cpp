@@ -635,7 +635,7 @@ void swt::Tests::WriteMesg(const std::string &filename,
 void swt::Tests::TestSwimFile() {
 
 
-  std::string fit_path = "/home/stefqc/swt/fit_files/test/";
+  std::string fit_path = "/home/stephane/swt/fit_files/test/";
   std::string garmin_swim_file = fit_path + "3872642880_20131125-170823-1-1499-ANTFS-4-0.FIT";
   std::string garmin_fr910_file = fit_path + "3864554663_20131119-195816-1-1328-ANTFS-4-0.FIT";
   std::string garmin_fenix_file = fit_path + "3881241990_2014-05-06-20-14-22-Piscine.fit";
@@ -726,7 +726,7 @@ void swt::Tests::TestSwimFile() {
   swim_file->Save(fit_path + "output/fr910_delete_convert_lap_to_rest.fit");
 
   swim_file = file_reader.Read(fit_path + "3842314005_20140112-124550-1-1328-ANTFS-4-0.FIT");
-  swim_file->Delete(41);
+  swim_file->Delete(35);
   swim_file->Save(fit_path + "output/fr910_delete_duplicate.fit");
 
   // Fénix 2
