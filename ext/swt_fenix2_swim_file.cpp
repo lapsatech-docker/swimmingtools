@@ -20,6 +20,9 @@ void swt::Fenix2SwimFile::AddMesg(const void *mesg) {
 
 void swt::Fenix2SwimFile::Initialize() {
 
+  RepairPoolLength();
+  RepairLapNumLengths();
+
   for (fit::LengthMesg * length : lengths_) {
     if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
       length->SetAvgSpeed(session_->GetPoolLength() / length->GetTotalTimerTime());
@@ -47,6 +50,44 @@ void swt::Fenix2SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
 
   UpdateLap(GetLap(length_index));
   UpdateSession();
+}
+
+void swt::Fenix2SwimFile::RepairLapNumLengths() {
+
+  if (laps_.size() > 0 && lengths_.size() > 0) {
+    if (lengths_[0]->GetStartTime() < laps_[0]->GetStartTime()) {
+        throw swt::FileNotValidException("File Failed Validation (Fénix 2 start_time bug)");
+    } else {
+
+      for (fit::LapMesg *lap : laps_) {
+
+        FIT_UINT16 num_lengths = 0;  
+        FIT_DATE_TIME lap_start_time = lap->GetStartTime();
+        FIT_DATE_TIME lap_timestamp  = lap->GetTimestamp();
+
+        for (fit::LengthMesg *  length : lengths_) {
+          FIT_DATE_TIME length_start_time = length->GetStartTime();
+
+          if (length_start_time == FIT_DATE_TIME_INVALID) 
+            throw std::runtime_error("Length start time is invalid");
+
+          if (length_start_time >= lap_start_time && length_start_time < lap_timestamp) {
+            num_lengths++;
+          }
+        }
+        lap->SetNumLengths(num_lengths);
+      }
+    }
+  }
+}
+
+void swt::Fenix2SwimFile::RepairPoolLength() {
+ FIT_FLOAT32 pool_length = session_->GetPoolLength();
+
+  if (pool_length == FIT_FLOAT32_INVALID || pool_length < 1) {
+    session_->SetPoolLength(25);
+    session_->SetPoolLengthUnit(FIT_DISPLAY_MEASURE_METRIC);
+  }
 }
 
 void swt::Fenix2SwimFile::Save(const std::string &filename) const {

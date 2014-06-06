@@ -19,27 +19,24 @@ swt::Tests::Tests() {
 
   TestSwimFile();
 
-  //DIR *dp;
-  //struct dirent *ep;
+  DIR *dp;
+  struct dirent *ep;
 
-  ////dp = opendir("/home/stefqc/php_swt/fit_files");
-  //dp = opendir("/mnt/hgfs/fit_files");
-  //if (dp != NULL) {
-  //    
-  //    while (ep = readdir(dp)) 
-  //    {
-  //      if (ep->d_type == DT_REG) {
-  //      std::string filename = "/mnt/hgfs/fit_files/";
-  //      //std::string filename = "/home/stefqc/php_swt/fit_files/";
-  //      filename += ep->d_name;
-  //      std::cout << filename << std::endl;
-  //      tests.CheckUpdateLapAndSession(filename);
-  //      }
-  //    }
-  //    closedir(dp);
-  //}
+  //dp = opendir("/home/stephane/swt/backup/data/upload");
+  dp = opendir("/home/stephane/swt/fit_files/fenix2");
+  if (dp != NULL) {
 
-
+    while (ep = readdir(dp)) 
+    {
+      if (ep->d_type == DT_REG) {
+        std::string filename = "/home/stephane/swt/fit_files/fenix2/";
+        filename += ep->d_name;
+        std::cout << filename << std::endl;
+        CheckUpdateLapAndSession(filename);
+      }
+    }
+    closedir(dp);
+  }
 }
 
 swt::Tests::~Tests() {
@@ -101,109 +98,91 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
       log << filename << "," << device << "," << version << ",session,avg_cadence," 
         << static_cast<int>(session_before.GetAvgCadence()) << "," 
         << static_cast<int>(session_after->GetAvgCadence()) << endl;
-      error = true;
     }
     if (fabs(session_before.GetAvgSpeed() - session_after->GetAvgSpeed()) > .01) {
 
       log << filename << "," << device << "," << version << ",session,avg_speed," 
         << session_before.GetAvgSpeed() << "," 
         << session_after->GetAvgSpeed() << endl;
-      error = true;
     }
-    //fr910 only, GS use custom field for same value
     if (fabs(session_before.GetAvgStrokeCount() - session_after->GetAvgStrokeCount()) > .11) { 
 
       log << filename << "," << device << "," << version << ",session,avg_stroke_count," 
         << session_before.GetAvgStrokeCount() << ","  << session_after->GetAvgStrokeCount() 
         << endl;
-      error = true;
     }
-    //fr910 only
     if (fabs(session_before.GetAvgStrokeDistance() - session_after->GetAvgStrokeDistance()) > .011) { 
 
       log << filename << "," << device << "," << version << ",session,avg_stroke_distance," 
         << session_before.GetAvgStrokeDistance() << ","  << session_after->GetAvgStrokeDistance() 
         << endl;
-      error = true;
     }
     if (session_before.GetFirstLapIndex() != session_after->GetFirstLapIndex()) {
 
       log << filename << "," << device << "," << version << ",session,first_lap_index," 
         << session_before.GetFirstLapIndex() << ","  << session_after->GetFirstLapIndex() 
         << endl;
-      error = true;
     }
     if (abs((session_before.GetMaxCadence() -  session_after->GetMaxCadence())) > 0) {
 
       log << filename << "," << device << "," << version << ",session,max_cadence," 
         << static_cast<int>(session_before.GetMaxCadence()) << "," 
         << static_cast<int>(session_after->GetMaxCadence()) << endl;
-      error = true;
     }
     if (fabs(session_before.GetMaxSpeed() - session_after->GetMaxSpeed()) > .01) {
 
       log << filename << "," << device << "," << version << ",session ,max_speed," 
         << session_before.GetMaxSpeed() << "," << session_after->GetMaxSpeed() << endl;
-      error = true;
     }
     if (session_before.GetNumActiveLengths() != session_after->GetNumActiveLengths()) {
 
       log << filename << "," << device << "," << version << ",session,num_active_lengths," 
         << session_before.GetNumActiveLengths() << ","  << session_after->GetNumActiveLengths() 
         << endl;
-      error = true;
     }
     if (session_before.GetNumLaps() != session_after->GetNumLaps()) {
       log << filename << "," << device << "," << version << ",session,num_laps," 
         << session_before.GetNumLaps() << ","  << session_after->GetNumLaps() << endl;
-      error = true;
     }
     if (fabs(session_before.GetPoolLength() - session_after->GetPoolLength()) > .01) {
       log << filename << "," << device << "," << version << ",session,pool_length," 
         << session_before.GetPoolLength() << ","  << session_after->GetPoolLength() << endl;
-      error = true;
     }
     if (session_before.GetPoolLengthUnit() != session_after->GetPoolLengthUnit()) {
 
       log << filename << "," << device << "," << version << ",session,pool_length_unit," 
         << static_cast<int>(session_before.GetPoolLengthUnit()) << "," 
         << static_cast<int>(session_after->GetPoolLengthUnit()) << endl;
-      error = true;
     }
     if (session_before.GetSwimStroke() != session_after->GetSwimStroke()) {
 
       log << filename << "," << device << "," << version << ",session,swim_stroke," 
         << static_cast<int>(session_before.GetSwimStroke()) << "," 
         << static_cast<int>(session_after->GetSwimStroke()) << endl;
-      error = true;
     }
     if (abs(session_before.GetTotalCalories() - session_after->GetTotalCalories()) > 1) {
 
       log << filename << "," << device << "," << version << ",session,total_calories," 
         << session_before.GetTotalCalories() << "," << session_after->GetTotalCalories() 
         << endl;
-      error = true;
     }
     if (abs(session_before.GetTotalCycles() - session_after->GetTotalCycles()) > 0 ) {
 
       log << filename << "," << device << "," << version << ",session,total_cycles," 
         << session_before.GetTotalCycles() << "," << session_after->GetTotalCycles() 
         << endl;
-      error = true;
     }
     if (fabs(session_before.GetTotalDistance() - session_after->GetTotalDistance()) > .01)
     {
       log << filename << "," << device << "," << version << ",session,total_distance," 
         << session_before.GetTotalDistance() << "," << session_after->GetTotalDistance() 
         << endl;
-      error = true;
     }
     if (abs(session_before.GetTotalFatCalories() - session_after->GetTotalFatCalories()) > 1)
     {
       log << filename << "," << device << "," << version << ",session,total_fat_falories," 
         << session_before.GetTotalFatCalories() << "," << session_after->GetTotalFatCalories() 
         << endl;
-      error = true;
     }
 
     if (fit_file->GetDevice() == kGarminSwim)
@@ -251,7 +230,6 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
         log << filename << "," << device << "," << version << ",session,num_lengths,"
           << session_before.GetFieldUINT16Value(kSessionNumLengthsFieldNum) << "," 
           << session_after->GetFieldUINT16Value(kSessionNumLengthsFieldNum) << endl;
-        error = true;
       }
     } else if (fit_file->GetDevice() == kGarminFenix2) { 
       const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
@@ -283,156 +261,138 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
 
     for (unsigned int i = 0 ; i < laps_before.size(); ++i) {
 
-//      if (laps_before[i].GetNumActiveLengths() > 0) {
+      if (abs(laps_before[i].GetAvgCadence() - laps_after[i]->GetAvgCadence()) > 1) {
 
-        if (abs(laps_before[i].GetAvgCadence() - laps_after[i]->GetAvgCadence()) > 1) {
+        log << filename << "," << device << "," << version
+          << ",lap" + std::to_string(i) + ",avg_cadence," 
+          << static_cast<int>(laps_before[i].GetAvgCadence()) << "," 
+          << static_cast<int>(laps_after[i]->GetAvgCadence()) << endl;
+      }
+      if (fabs(laps_before[i].GetAvgSpeed() - laps_after[i]->GetAvgSpeed()) > .01) {
 
-          log << filename << "," << device << "," << version
-            << ",lap" + std::to_string(i) + ",avg_cadence," 
-            << static_cast<int>(laps_before[i].GetAvgCadence()) << "," 
-            << static_cast<int>(laps_after[i]->GetAvgCadence()) << endl;
-          error = true;
-        }
-        if (fabs(laps_before[i].GetAvgSpeed() - laps_after[i]->GetAvgSpeed()) > .01) {
+        log << filename << "," << device << "," << version
+          << ",lap" + std::to_string(i) + ",avg_speed," 
+          << laps_before[i].GetAvgSpeed() << "," << laps_after[i]->GetAvgSpeed() << endl;
+      }
+      if (fabs(laps_before[i].GetAvgStrokeDistance() - laps_after[i]->GetAvgStrokeDistance()) > .011) { 
 
-          log << filename << "," << device << "," << version
-            << ",lap" + std::to_string(i) + ",avg_speed," 
-            << laps_before[i].GetAvgSpeed() << "," << laps_after[i]->GetAvgSpeed() << endl;
-          error = true;
-        }
-        if (fabs(laps_before[i].GetAvgStrokeDistance() - laps_after[i]->GetAvgStrokeDistance()) > .011) { 
+        log << filename << "," << device << "," << version
+          << ",lap" + std::to_string(i) + ",avg_stroke_distance," 
+          << laps_before[i].GetAvgStrokeDistance() << "," << laps_after[i]->GetAvgStrokeDistance() << endl;
+      }
+      if (laps_before[i].GetFirstLengthIndex() != laps_after[i]->GetFirstLengthIndex()) {
 
-          log << filename << "," << device << "," << version
-            << ",lap" + std::to_string(i) + ",avg_stroke_distance," 
-            << laps_before[i].GetAvgStrokeDistance() << "," << laps_after[i]->GetAvgStrokeDistance() << endl;
-          error = true;
-        }
-        if (laps_before[i].GetFirstLengthIndex() != laps_after[i]->GetFirstLengthIndex()) {
+        log << filename << "," << device << "," << version
+          << ",lap" + std::to_string(i) + ",first_length_index," 
+          << laps_before[i].GetFirstLengthIndex() << "," << laps_after[i]->GetFirstLengthIndex() << endl;
+      }
+      if (abs((laps_before[i].GetMaxCadence() -  laps_after[i]->GetMaxCadence())) > 0) {
 
-          log << filename << "," << device << "," << version
-            << ",lap" + std::to_string(i) + ",first_length_index," 
-            << laps_before[i].GetFirstLengthIndex() << "," << laps_after[i]->GetFirstLengthIndex() << endl;
-          error = true;
-        }
-        if (abs((laps_before[i].GetMaxCadence() -  laps_after[i]->GetMaxCadence())) > 0) {
+        log << filename << "," << device << "," << version
+          << ",lap" + std::to_string(i) + ",max_cadence," 
+          << static_cast<int>(laps_before[i].GetMaxCadence()) << "," 
+          << static_cast<int>(laps_after[i]->GetMaxCadence()) << endl;
+      }
+      if (fabs(laps_before[i].GetMaxSpeed() - laps_after[i]->GetMaxSpeed()) > 0.01f) {
 
-          log << filename << "," << device << "," << version
-            << ",lap" + std::to_string(i) + ",max_cadence," 
-            << static_cast<int>(laps_before[i].GetMaxCadence()) << "," 
-            << static_cast<int>(laps_after[i]->GetMaxCadence()) << endl;
-          error = true;
-        }
-        if (fabs(laps_before[i].GetMaxSpeed() - laps_after[i]->GetMaxSpeed()) > 0.01f) {
+        log << filename << "," << device << "," << version
+          << ",lap" + std::to_string(i) + ",max_speed," 
+          << laps_before[i].GetMaxSpeed() << "," << laps_after[i]->GetMaxSpeed() << endl;
+      }
+      if (laps_before[i].GetNumActiveLengths() != laps_after[i]->GetNumActiveLengths()) {
 
-          log << filename << "," << device << "," << version
-            << ",lap" + std::to_string(i) + ",max_speed," 
-            << laps_before[i].GetMaxSpeed() << "," << laps_after[i]->GetMaxSpeed() << endl;
-          error = true;
-        }
-        if (laps_before[i].GetNumActiveLengths() != laps_after[i]->GetNumActiveLengths()) {
+        log << filename << "," << device << "," << version 
+          << ",lap" + std::to_string(i) + ",num_active_lengths," 
+          << laps_before[i].GetNumActiveLengths() << "," << laps_after[i]->GetNumActiveLengths() 
+          << endl;
+      }
+      if (laps_before[i].GetNumLengths() != laps_after[i]->GetNumLengths()) {
+        log << filename << "," << device << "," << version 
+          << ",lap" + std::to_string(i) + ",num_lengths," 
+          << laps_before[i].GetNumLengths() << "," << laps_after[i]->GetNumLengths() 
+          << endl;
+      }
+      if (laps_before[i].GetSwimStroke() != laps_after[i]->GetSwimStroke()) {
+
+        log << filename << "," << device << "," << version 
+          << ",lap" + std::to_string(i) + ",swim_stroke," 
+          << static_cast<int>(laps_before[i].GetSwimStroke()) << "," 
+          << static_cast<int>(laps_after[i]->GetSwimStroke()) << endl;
+      }
+      if (abs(laps_before[i].GetTotalCalories() - laps_after[i]->GetTotalCalories()) > 1) {
+
+        log << filename << "," << device << "," << version 
+          << ",lap" + std::to_string(i) + ",total_calories," 
+          << laps_before[i].GetTotalCalories() << "," << laps_after[i]->GetTotalCalories() 
+          << endl;
+      }
+      if (laps_before[i].GetTotalCycles() != laps_after[i]->GetTotalCycles()) {
+
+        log << filename << "," << device << "," << version 
+          << ",lap" + std::to_string(i) + ",total_cycles," 
+          << laps_before[i].GetTotalCycles() << "," << laps_after[i]->GetTotalCycles() << endl;
+      }
+      if (fabs(laps_before[i].GetTotalDistance() - laps_after[i]->GetTotalDistance()) > .01)
+      {
+        log << filename << "," << device << "," << version 
+          << ",lap" + std::to_string(i) + ",total_distance," 
+          << laps_before[i].GetTotalDistance() << "," << laps_after[i]->GetTotalDistance() 
+          << endl;
+      }
+      if (abs(laps_before[i].GetTotalFatCalories() - laps_after[i]->GetTotalFatCalories()) > 1)
+      {
+        log << filename << "," << device << "," << version 
+          << ",lap" + std::to_string(i) + ",Total_fat_falories," 
+          << laps_before[i].GetTotalFatCalories() << "," << laps_after[i]->GetTotalFatCalories() 
+          << endl;
+      }
+
+      if (fit_file->GetDevice() == kGarminSwim)
+      { 
+        const FIT_UINT8 kLapAvgStrokeCountFieldNum = 72;
+        const FIT_UINT8 kLapMovingTimeFieldNum = 70;
+        const FIT_UINT8 kLapSwolfFieldNum = 73;
+
+        if (abs(laps_before[i].GetFieldUINT16Value(kLapAvgStrokeCountFieldNum) - 
+              laps_after[i]->GetFieldUINT16Value(kLapAvgStrokeCountFieldNum)) > 1) {
 
           log << filename << "," << device << "," << version 
-            << ",lap" + std::to_string(i) + ",num_active_lengths," 
-            << laps_before[i].GetNumActiveLengths() << "," << laps_after[i]->GetNumActiveLengths() 
-            << endl;
-          error = true;
+            << ",lap" + std::to_string(i) + ",avg_stroke_count,"
+            << laps_before[i].GetFieldUINT16Value(kLapAvgStrokeCountFieldNum) << "," 
+            << laps_after[i]->GetFieldUINT16Value(kLapAvgStrokeCountFieldNum) << endl;
         }
-        if (laps_before[i].GetNumLengths() != laps_after[i]->GetNumLengths()) {
-          log << filename << "," << device << "," << version 
-            << ",lap" + std::to_string(i) + ",num_lengths," 
-            << laps_before[i].GetNumLengths() << "," << laps_after[i]->GetNumLengths() 
-            << endl;
-          error = true;
-        }
-        if (laps_before[i].GetSwimStroke() != laps_after[i]->GetSwimStroke()) {
+        if (abs(laps_before[i].GetFieldUINT32Value(kLapMovingTimeFieldNum) -
+              laps_after[i]->GetFieldUINT32Value(kLapMovingTimeFieldNum)) > 1) {
 
           log << filename << "," << device << "," << version 
-            << ",lap" + std::to_string(i) + ",swim_stroke," 
-            << static_cast<int>(laps_before[i].GetSwimStroke()) << "," 
-            << static_cast<int>(laps_after[i]->GetSwimStroke()) << endl;
-          error = true;
+            << ",lap" + std::to_string(i) + ",moving_time,"
+            << laps_before[i].GetFieldUINT32Value(kLapMovingTimeFieldNum) << "," 
+            << laps_after[i]->GetFieldUINT32Value(kLapMovingTimeFieldNum) << endl;
         }
-        if (abs(laps_before[i].GetTotalCalories() - laps_after[i]->GetTotalCalories()) > 1) {
+        if (abs(laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) - 
+              laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum)) > 1) {
 
           log << filename << "," << device << "," << version 
-            << ",lap" + std::to_string(i) + ",total_calories," 
-            << laps_before[i].GetTotalCalories() << "," << laps_after[i]->GetTotalCalories() 
-            << endl;
-          error = true;
+            << ",lap" + std::to_string(i) + ",swolf,"
+            << laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) << "," 
+            << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
         }
-        if (laps_before[i].GetTotalCycles() != laps_after[i]->GetTotalCycles()) {
+
+      } else if (fit_file->GetDevice() == kGarminFr910) {
+        // fr910 has no custom lap fields
+      } else if (fit_file->GetDevice() == kGarminFenix2) {
+        const FIT_UINT8 kLapSwolfFieldNum = 73;
+        if (abs(laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) - 
+              laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum)) > 1) {
 
           log << filename << "," << device << "," << version 
-            << ",lap" + std::to_string(i) + ",total_cycles," 
-            << laps_before[i].GetTotalCycles() << "," << laps_after[i]->GetTotalCycles() << endl;
-          error = true;
+            << ",lap" + std::to_string(i) + ",swolf,"
+            << laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) << "," 
+            << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
         }
-        if (fabs(laps_before[i].GetTotalDistance() - laps_after[i]->GetTotalDistance()) > .01)
-        {
-          log << filename << "," << device << "," << version 
-            << ",lap" + std::to_string(i) + ",total_distance," 
-            << laps_before[i].GetTotalDistance() << "," << laps_after[i]->GetTotalDistance() 
-            << endl;
-          error = true;
-        }
-        if (abs(laps_before[i].GetTotalFatCalories() - laps_after[i]->GetTotalFatCalories()) > 1)
-        {
-          log << filename << "," << device << "," << version 
-            << ",lap" + std::to_string(i) + ",Total_fat_falories," 
-            << laps_before[i].GetTotalFatCalories() << "," << laps_after[i]->GetTotalFatCalories() 
-            << endl;
-          error = true;
-        }
-
-        if (fit_file->GetDevice() == kGarminSwim)
-        { 
-          const FIT_UINT8 kLapAvgStrokeCountFieldNum = 72;
-          const FIT_UINT8 kLapMovingTimeFieldNum = 70;
-          const FIT_UINT8 kLapSwolfFieldNum = 73;
-
-          if (abs(laps_before[i].GetFieldUINT16Value(kLapAvgStrokeCountFieldNum) - 
-                laps_after[i]->GetFieldUINT16Value(kLapAvgStrokeCountFieldNum)) > 1) {
-
-            log << filename << "," << device << "," << version 
-              << ",lap" + std::to_string(i) + ",avg_stroke_count,"
-              << laps_before[i].GetFieldUINT16Value(kLapAvgStrokeCountFieldNum) << "," 
-              << laps_after[i]->GetFieldUINT16Value(kLapAvgStrokeCountFieldNum) << endl;
-          }
-          if (abs(laps_before[i].GetFieldUINT32Value(kLapMovingTimeFieldNum) -
-                laps_after[i]->GetFieldUINT32Value(kLapMovingTimeFieldNum)) > 1) {
-
-            log << filename << "," << device << "," << version 
-              << ",lap" + std::to_string(i) + ",moving_time,"
-              << laps_before[i].GetFieldUINT32Value(kLapMovingTimeFieldNum) << "," 
-              << laps_after[i]->GetFieldUINT32Value(kLapMovingTimeFieldNum) << endl;
-          }
-          if (abs(laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) - 
-                laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum)) > 1) {
-
-            log << filename << "," << device << "," << version 
-              << ",lap" + std::to_string(i) + ",swolf,"
-              << laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) << "," 
-              << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
-          }
-
-        } else if (fit_file->GetDevice() == kGarminFr910) {
-          // fr910 has no custom fields
-        } else if (fit_file->GetDevice() == kGarminFenix2) {
-          const FIT_UINT8 kLapSwolfFieldNum = 73;
-          if (abs(laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) - 
-                laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum)) > 1) {
-
-            log << filename << "," << device << "," << version 
-              << ",lap" + std::to_string(i) + ",swolf,"
-              << laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) << "," 
-              << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
-          }
-        }
-      //}
+      }
     }
   }
-  //if (error)
-  //System.IO.File.Copy(file, @"C:\Users\SD\Desktop\fitFileTest\" << Path.GetFileName(file));
 }
 
 
@@ -468,6 +428,21 @@ void swt::Tests::ReadDefs(const std::string &filename) {
 
     }
     log << std::endl;
+  }
+}
+
+// allow to copy Fenix files to a working directory
+void swt::Tests::CopyFenixFile(const std::string &filename) {
+
+  FIT_UINT16 product;
+  FIT_FLOAT32 version;
+  ReadFile(filename, &product, &version);
+  std::string dest_filename = "/home/stephane/swt/fit_files/fenix2/";
+  dest_filename += basename(const_cast<char*>(filename.c_str()));
+  if (product == swt::kGarminFenix2) {
+    std::ifstream source(filename, std::fstream::binary);
+    std::ofstream dest(dest_filename, std::fstream::trunc|std::fstream::binary);
+    dest << source.rdbuf();
   }
 }
 
@@ -633,7 +608,6 @@ void swt::Tests::WriteMesg(const std::string &filename,
 
 
 void swt::Tests::TestSwimFile() {
-
 
   std::string fit_path = "/home/stephane/swt/fit_files/test/";
   std::string garmin_swim_file = fit_path + "3872642880_20131125-170823-1-1499-ANTFS-4-0.FIT";

@@ -23,7 +23,6 @@ try {
 } catch (Exception $ex) {
   $time_created = '';
   swt\Functions::errorLog($ex);
-  echo swt\Functions::EDIT_DIR.$_SESSION['internal_filename'];
 }
 \swt\Layout::header('Swimming Watch Data Editor', \swt\Layout::TAB_EDITOR);
 ?>

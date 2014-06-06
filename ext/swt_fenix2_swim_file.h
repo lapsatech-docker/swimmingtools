@@ -13,6 +13,8 @@ namespace swt
       Device GetDevice() const {return Device::kGarminFenix2;}
       void Initialize();
       void Delete(FIT_MESSAGE_INDEX length_index);
+      void RepairLapNumLengths();
+      void RepairPoolLength();
       void Save(const std::string &filename) const;
 
     private:
