@@ -9,5 +9,5 @@ ext/*la
 fit_files/*
 !fit_files/test
 fit_files/test/output
-www/data/**/*.[fF][iI][tT]*
+www/data/**/*
 **/*.swp

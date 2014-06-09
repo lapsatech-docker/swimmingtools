@@ -162,6 +162,6 @@ spl_autoload_register();
   <img src="content/gc_manualUpload2.jpg" alt="Garmin Connect Select File dialog" 
   style="display: block; height: 398px; width: 683px; margin: auto">
 </div>
-@Analytics.GetGoogleHtml("UA-44807897-1")
-\swt\Layout::footer()
-
+<?php
+swt\Layout::analytics();
+swt\Layout::footer();

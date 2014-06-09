@@ -94,8 +94,8 @@ try {
   <ul>
     <li>Upload from Computer if you are using Garmin Express or 
     you don't want to install the Communicator Plug-in</li>
-    <li>Only activity files (FIT format) from Garmin Swim or
-    Forerunner 910 devices are allowed, </li>
+    <li>Only activity files (FIT format) from Garmin Swim/Forerunner
+    910/Fénix 2 devices are allowed, </li>
     <li>TCX file exported from Garmin Connect will NOT work.</li>
     <li>If you don't know where to find activity files on your computer,
     check those FAQs from garmin:<br>

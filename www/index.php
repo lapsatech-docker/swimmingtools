@@ -8,7 +8,7 @@ spl_autoload_register();
 ?>
 <div class="section">
   <h2>
-    Training with a Garmin Swim or Forerunner 910 watch?
+    Training with a swimming watch?
   </h2>
   <ul >
     <li>Did you ever notice an extra or missing length, or wrong stroke
@@ -18,6 +18,7 @@ spl_autoload_register();
     <li>This is what Swimming Watch Data Editor is about. Post-editing 
     your data by deleting, merging or splitting length, 
     and changing Stroke, or pool size</li>
+    <li>Supported devices: Garmin Swim, Forerunner 910 and fénix 2.
     <li>Read the <a href="help">User's Guide</a>
     and start editing your data.</li>
   </ul>
@@ -66,9 +67,9 @@ spl_autoload_register();
   </ul>
   <p>If you follow this advice, you data will be fine most of the time. 
   If you still have errors in you data, feel free to use this site. At 
-  this time, it is only compatible with the Garmin Swim and FR910 devices, 
-  but if there is enough interest. Support could be expanded to other 
-  devices.</p>
+  this time, it is only compatible with the Garmin Swim, forerunner 910
+  and Fénix 2 devices, but if there is enough interest. Support could be
+  expanded to other devices.</p>
 
   <p>If you don't train with a swimming watch yet, and considering buying
   one, here are links to manufacturers and excellent independent reviews form 
@@ -101,9 +102,6 @@ spl_autoload_register();
       target="_blank">Garmin Fénix 2</a> / 
     <a href="http://www.dcrainmaker.com/2014/03/garmin-fenix2-multisport.html" 
       target="_blank">Review</a></li>
-    <li><a href="http://www.polar.com/en/products/maximize_performance/running_multisport/V800" 
-      target="_blank">Polar V800 (available Spring 2014)</a> / 
-    <a href="http://www.dcrainmaker.com/2014/01/polar-v800-triathlon.html">Review</a></li>
     <li><a href="http://www.suunto.com/ambit/" target="_blank">Suunto Ambit 2 </a> / 
     <a href="http://www.dcrainmaker.com/2013/04/suunto-ambit2-review.html" 
       target="_blank">Review</a></li>
@@ -112,7 +110,6 @@ spl_autoload_register();
       target="_blank">Review</a></li>
   </ul>
 </div>
-
 <?php
 swt\Layout::analytics();
 swt\Layout::footer();
