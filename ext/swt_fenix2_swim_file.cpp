@@ -52,6 +52,9 @@ void swt::Fenix2SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
   UpdateSession();
 }
 
+// This is require because as of firmware 3.1, the num_lengths field of lap
+// containing rest lengths (when the user rest without pressing the lap
+// button) doesn't include those length 
 void swt::Fenix2SwimFile::RepairLapNumLengths() {
 
   if (laps_.size() > 0 && lengths_.size() > 0) {
@@ -60,22 +63,27 @@ void swt::Fenix2SwimFile::RepairLapNumLengths() {
     } else {
 
       for (fit::LapMesg *lap : laps_) {
+        // There is a special case when a drill lap is last lap of the file
+        // in these case lap starttime equals lap timestamp, so we should
+        // not compute num length in these cases. There is never a rest length
+        // within a drill lap so it doesn't matter
+        if (lap->GetSwimStroke() != FIT_SWIM_STROKE_DRILL) { 
+          FIT_UINT16 num_lengths = 0;  
+          FIT_DATE_TIME lap_start_time = lap->GetStartTime();
+          FIT_DATE_TIME lap_timestamp  = lap->GetTimestamp();
 
-        FIT_UINT16 num_lengths = 0;  
-        FIT_DATE_TIME lap_start_time = lap->GetStartTime();
-        FIT_DATE_TIME lap_timestamp  = lap->GetTimestamp();
+          for (fit::LengthMesg *  length : lengths_) {
+            FIT_DATE_TIME length_start_time = length->GetStartTime();
 
-        for (fit::LengthMesg *  length : lengths_) {
-          FIT_DATE_TIME length_start_time = length->GetStartTime();
+            if (length_start_time == FIT_DATE_TIME_INVALID) 
+              throw std::runtime_error("Length start time is invalid");
 
-          if (length_start_time == FIT_DATE_TIME_INVALID) 
-            throw std::runtime_error("Length start time is invalid");
-
-          if (length_start_time >= lap_start_time && length_start_time < lap_timestamp) {
-            num_lengths++;
+            if (length_start_time >= lap_start_time && length_start_time < lap_timestamp) {
+              num_lengths++;
+            }
           }
+          lap->SetNumLengths(num_lengths);
         }
-        lap->SetNumLengths(num_lengths);
       }
     }
   }
