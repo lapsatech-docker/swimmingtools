@@ -195,7 +195,9 @@ HEREDOC;
     $distance *= 1.09361;
   }
 
+  
   $time  = new DateTime();
+  $time->setTimezone(new DateTimeZone('UTC'));
   $time->setTimestamp($moving_time);
   if ($time->format('H') > 0)
     $time = $time->format('G:i:s');
@@ -203,6 +205,7 @@ HEREDOC;
     $time = intval($time->format('i')).':'.$time->format('s');
 
   $pace = new DateTime();
+  $pace->setTimezone(new DateTimeZone('UTC'));
   $pace->setTimestamp(100 * $avg_time_per_length / $pool_length);
   $pace = intval($pace->format('i')).':'.$pace->format('s');
 
