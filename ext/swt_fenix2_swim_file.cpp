@@ -57,35 +57,24 @@ void swt::Fenix2SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
 // button) doesn't include those length 
 void swt::Fenix2SwimFile::RepairLapNumLengths() {
 
-  if (laps_.size() > 0 && lengths_.size() > 0) {
-    if (lengths_[0]->GetStartTime() < laps_[0]->GetStartTime()) {
-        throw swt::FileNotValidException("File Failed Validation (Fénix 2 start_time bug)");
-    } else {
+  if (laps_.size() > 1 && lengths_.size() > 0) {
+    std::size_t nbr_laps = laps_.size();
+    for (std::size_t i = 0; i < nbr_laps - 1; ++i) {
+      fit::LapMesg *lap = laps_[i];
+      fit::LapMesg *next_lap = laps_[i+1];
 
-      for (fit::LapMesg *lap : laps_) {
-        // There is a special case when a drill lap is last lap of the file
-        // in these case lap starttime equals lap timestamp, so we should
-        // not compute num length in these cases. There is never a rest length
-        // within a drill lap so it doesn't matter
-        if (lap->GetSwimStroke() != FIT_SWIM_STROKE_DRILL) { 
-          FIT_UINT16 num_lengths = 0;  
-          FIT_DATE_TIME lap_start_time = lap->GetStartTime();
-          FIT_DATE_TIME lap_timestamp  = lap->GetTimestamp();
-
-          for (fit::LengthMesg *  length : lengths_) {
-            FIT_DATE_TIME length_start_time = length->GetStartTime();
-
-            if (length_start_time == FIT_DATE_TIME_INVALID) 
-              throw std::runtime_error("Length start time is invalid");
-
-            if (length_start_time >= lap_start_time && length_start_time < lap_timestamp) {
-              num_lengths++;
-            }
-          }
-          lap->SetNumLengths(num_lengths);
-        }
+      if (lap->GetFirstLengthIndex() == FIT_UINT16_INVALID || 
+          next_lap->GetFirstLengthIndex() == FIT_UINT16_INVALID) {
+        throw std::runtime_error("First length index is invalid"); 
       }
+
+      lap->SetNumLengths(next_lap->GetFirstLengthIndex() - lap->GetFirstLengthIndex());
     }
+  }
+
+  if (laps_.size() > 0) {
+    fit::LapMesg *last_lap = laps_.back();
+    laps_.back()->SetNumLengths(lengths_.size() - last_lap->GetFirstLengthIndex());
   }
 }
 
