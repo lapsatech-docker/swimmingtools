@@ -1,4 +1,4 @@
-google.load('visualization', '1.1', {packages: ['corechart', 'controls']});
+google.load('visualization', '1', {packages: ['corechart', 'controls']});
 
 var chart;
 var dataTable;
