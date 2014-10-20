@@ -17,27 +17,43 @@ try {
 
     if ($_FILES['fitFile']['size'] == 0) {
       $error = 'Select a file to upload';
-    } else {
+    } else if (is_uploaded_file($_FILES['fitFile']['tmp_name'])) {
+      // Garmin Connect exports activity file as  zip files containing the
+      // original fit file. This code Checks if the uploaded file is a zip
+      // file and extract the fit file
+      $zip_file = new ZipArchive();
+      if ( $zip_file->open($_FILES['fitFile']['tmp_name']) === true) {
+        $client_filename = basename($zip_file->getNameIndex(0));
 
-      $client_filename = $_FILES['fitFile']['name'];
+        // Remove illegal character when saving file to windows
+        $temp_filename = preg_replace('/[\\\\\/\:\*\?\<\>\"\|]/', '', $client_filename);
+        $temp_filename .= uniqid();
+        if (!copy ('zip://'.$zip_file->filename.'#'.$zip_file->getNameIndex(0), $temp_dir.$temp_filename)) {
+          throw new Exception('Cannot extract fit file from zip');
+        }
+        $zip_file->close();
+      } else {
+        // File is a fit file
+        $client_filename = $_FILES['fitFile']['name'];
+        // IE sometimes send complete path to filename on user machine, if
+        // this is the case, we just want the filename, this pattern match
+        // a windows path
+        $pattern =  '/^(?:[a-zA-Z]\:(\\\\|\/)|file\:\/\/|\\\\\\\\|\.(\/|\\\\))([^\\\\\\/\:\*\?\<\>\"\|]+(\\\\|\/){0,1})+$/';
 
-      // IE sometimes send complete path to filename on user machine, if
-      // this is the case, we just want the filename, this pattern match
-      // a windows path  
-      $pattern =  '/^(?:[a-zA-Z]\:(\\\\|\/)|file\:\/\/|\\\\\\\\|\.(\/|\\\\))([^\\\\\\/\:\*\?\<\>\"\|]+(\\\\|\/){0,1})+$/';
+        if (preg_match($pattern, $client_filename) == 1) {
+          if (preg_match('/[^\\\\\/]*$/', $client_filename, $matches) == 1)
+            $client_filename = $matches[0];
+        }
 
-      if (preg_match($pattern, $client_filename) == 1) {
-        if (preg_match('/[^\\\\\/]*$/', $client_filename, $matches) == 1) 
-          $client_filename = $matches[0];
-      } 
+        // Remove illegal character when saving file to windows
+        $temp_filename = preg_replace('/[\\\\\/\:\*\?\<\>\"\|]/', '', $client_filename);
+        $temp_filename .= uniqid();
 
-      // Remove illegal character when saving file to windows
-      $temp_filename = preg_replace('/[\\\\\/\:\*\?\<\>\"\|]/', '', $client_filename);
-      $temp_filename .= uniqid();
-
-      if (!move_uploaded_file($_FILES['fitFile']['tmp_name'], $temp_dir.$temp_filename)) {
-        throw new Exception('Cannot move uploaded file to temp directory');
+        if (!move_uploaded_file($_FILES['fitFile']['tmp_name'], $temp_dir.$temp_filename)) {
+          throw new Exception('Cannot move uploaded file to temp directory');
+        }
       }
+
       $swim_file = new swt\SwimFile($temp_dir.$temp_filename);
       $internal_filename = $swim_file->getSerialNumber().'_'.$temp_filename;
 
@@ -92,21 +108,12 @@ try {
     Upload Activity file from Computer (Manual Upload)
   </h2>
   <ul>
-    <li>Upload from Computer if you are using Garmin Express or 
-    you don't want to install the Communicator Plug-in</li>
-    <li>Only activity files (FIT format) from Garmin Swim/Forerunner
-    910/Fénix 2 devices are allowed, </li>
-    <li>TCX file exported from Garmin Connect will NOT work.</li>
-    <li>If you don't know where to find activity files on your computer,
-    check those FAQs from garmin:<br>
-
-    <p><strong>Garmin Express users: </strong> 
-    <a href="http://support.garmin.com/support/searchSupport/case.faces?caseId={afea30d0-9b70-11e3-d5f4-000000000000}" 
-      target="_blank">Where does Garmin Express store my activity files</a></p>
-    <p><strong>Garmin ANT Agent users: </strong> 
-    <a href="https://support.garmin.com/support/searchSupport/case.faces?caseId=%7B6e1aa610-6d25-11dc-6782-000000000000%7D" 
-      target="_blank">Where does ANT agent store my history</a></p>
-    </li>
+    <li>Only Lap Swimming activity files from the following devices are allowed: Garmin Swim/Forerunner 910/Fénix 2, </li>
+    <li>Files must be FIT files, or zip files exported from Garmin Connect,
+    <li>Activity files can be exported form Garmin Connect (Modern version) by going
+    to the activity page, clicking on the gear icon to the left, and selecting
+    'export original'. Check <a href="help#upload" target="_blank">User's Guide</a>
+    for details.</li>
   </ul>
 <?php
 if (!empty($error)) {

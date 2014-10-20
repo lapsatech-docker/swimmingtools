@@ -8,43 +8,33 @@ spl_autoload_register();
 ?>
 <div class="section">
   <h2>
-    Uploading Activities
+    <a id="upload">Uploading Activities</a> 
   </h2>
-  <p>There are two ways to upload activities depending on which Garmin 
-  Software is installed on your computer. Ant Agent and the Communicator 
-  plug-in have been around for a long time time, but as Garmin is 
-  planning a major upgrade to Garmin Connect, the old Ant Agent/Communicator 
-  will be replaced with the newer Garmin Express software 
-  in the first quarter of 2014. Unfortunately, Garmin Express 
-  only works with Garmin Connect and does not allow uploading files to 
-  third party web sites.</p>
+  <p>First, you must get a copy of an activity file to upload to this web site.
+  Your Garmin device stores data in activity files (with a .FIT extension).
+  Garmin Express picks up this data from the device, and uploads it to
+  Garmin Connect.</p>
 
-  <p><strong>ANT Agent/Communicator Users</strong></p>
+  <p>The most convenient way to get a copy of this data, is exporting it from
+  Garmin Connect. You can do this by going to the activity page, clicking on
+  the gear icon to the left, and selecting 'export as original' as shown
+  below. </p>
 
-  <p>If you use Ant Agent but don't have the Communicator Plug-in 
-  installed, you can download it form Garmin. The plugin is compatible 
-  with most browsers and operating systems. Visit the 
-  <a href="http://software.garmin.com/gcp.html" 
-    target="_blank">Garmin web site</a>
-  to check the requirements and install.</p>
+  <img src="content/gc_export.jpg" alt="how to export from Garmin Connect"
+  style="display:block; height: 268px; width:838px; margin:auto">
 
-  <p><strong>Garmin Express Users or those who prefer to manually upload 
-    files</strong></p>
+  <p>Garmin Express also saves a copy of files on your computer before
+  uploading them to Garmin Connect. You can find where Garmin Express
+  saves files in this
+  <a href="http://support.garmin.com/support/searchSupport/case.faces?caseId={afea30d0-9b70-11e3-d5f4-000000000000}"
+    target="_blank">FAQ</a> on the garmin web site.</p>
 
-  <p>Both Garmin Express and Ant agent save a copy of your activity files 
-  on your computer. If you want to manually upload files to this web site, 
-  you first have to locate the folder to which each software is storing your 
-  files.</p>
+  <p>Finally, you can access activity files on the Fénix 2, by connecting it to
+  your computer with a USB cable. Once connected, the Fénix 2 appears as a USB
+  drive.</p>
 
-  <ul>
-    <li>Garmin Express users: 
-    <a href="http://support.garmin.com/support/searchSupport/case.faces?caseId={afea30d0-9b70-11e3-d5f4-000000000000}" 
-      target="_blank">Where does Garmin Express store my activity files</a></li>
-    <li>Garmin ANT Agent users: 
-    <a href="https://support.garmin.com/support/searchSupport/case.faces?caseId=%7B6e1aa610-6d25-11dc-6782-000000000000%7D" 
-      target="_blank">Where does ANT agent store my history</a></li>
-  </ul>
-  <p>When you're ready, <a href="upload">Go to the upload page</a> and start editing your activities</p>
+  <p>When you're ready, <a href="upload">Go to the upload page</a> and
+  start editing your activities</p>
 </div>
 <div class="section">
   <h2>
@@ -129,38 +119,32 @@ spl_autoload_register();
   <h2>
     <a id="manualUpload">Uploading the new activity file to Garmin Connect</a>
   </h2>
-  
-  <p>Login to you Garmin Connect account, go to activity list, and delete 
-  the version of the activity (the one with errors) that was uploaded by 
-  ANT Agent or Garmin Express.</p>
-  
+
+  <p>Login to you Garmin Connect account. Go to Activity list by selecting
+  'Activities' from the main menu, and delete the version of the activity that was
+  uploaded by Garmin Express (the one with errors).</p>
+
+  <img src="content/gc_activities.jpg"  alt="Garmin Connect activities menu"
+  style="display: block; height: 167px; width: 297px; margin: auto">
+
   <p class="warning"><strong>Important:</strong> Garmin Connect doesn't 
   allow two versions of the same activity in your account. This is why
   you have to delete the original version of the activity before you upload 
   the new one. Be aware that by deleting the activity, you will lost any 
   custom information you added that is not part of the data file, like activity
-  name, comments etc. Beside that, you can safely delete this activity from 
-  your account. This tool create a new version of the activity file and 
-  doesn't overwrite the original one. You still have the original activity 
-  file on your computer. If things go wrong with the new version, you will be 
-  able to restore the old version.</p>
+  name, comments etc.</p>
 
-  <p>After the original activity is deleted, click on the 'Upload' button at 
-  the top right of the page,</p>
+  <p>After the original activity is deleted, click on the 'Import' link at
+  the top left of the page,</p>
 
-  <img src="content/gc_uploadBtn.jpg"  alt="Garmin Connect Upload button"
-  style="display: block; height: 29px; width: 80px; margin: auto">
-  
-  <p>On the upload page, click on the 'Manual upload' link at the bottom</p>
-
-  <img src="content/gc_manualUpload.jpg" alt="Garmin Connect Manual upload link" 
-  style="display: block; height: 436px; width: 387px; margin: auto">
+  <img src="content/gc_import1.jpg"  alt="Garmin Connect import link"
+  style="display: block; height: 59px; width: 235px; margin: auto">
 
   <p>Select the new activity file, and click the 'Upload activity from file' 
   button</p>
-  
-  <img src="content/gc_manualUpload2.jpg" alt="Garmin Connect Select File dialog" 
-  style="display: block; height: 398px; width: 683px; margin: auto">
+
+  <img src="content/gc_import2.jpg" alt="Garmin Connect Select File dialog"
+  style="display: block; height: 411px; width: 521px; margin: auto">
 </div>
 <?php
 swt\Layout::analytics();
