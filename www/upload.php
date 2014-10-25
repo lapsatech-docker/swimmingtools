@@ -12,9 +12,15 @@ try {
   $temp_dir = realpath(swt\Functions::TEMP_DIR).DIRECTORY_SEPARATOR;
   $upload_dir = realpath(swt\Functions::UPLOAD_DIR).DIRECTORY_SEPARATOR;
   $edit_dir = realpath(swt\Functions::EDIT_DIR).DIRECTORY_SEPARATOR;
+  $show_gcp = false;
+
+
 
   if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
+    if (isset($_COOKIE['show_gcp']))
+      setcookie('show_gcp', '0', time() - 3600, '/');
+    
     if ($_FILES['fitFile']['size'] == 0) {
       $error = 'Select a file to upload';
     } else if (is_uploaded_file($_FILES['fitFile']['tmp_name'])) {
@@ -70,7 +76,13 @@ try {
       header('Location: editor');
       exit;
     }
+  } else { // HTTP_METHOD = 'GET'
+    if (isset($_GET['show_gcp']) || isset($_COOKIE['show_gcp'])) {
+      setcookie('show_gcp', '1', time() + 60*60*24*90, '/');
+      $show_gcp = true;
+    }
   }
+
 } catch (swt\FileNotValidException $ex) {
   if (isset($_FILES['fitFile']['name']))
     $error = $_FILES['fitFile']['name'];
@@ -87,27 +99,30 @@ try {
 }
 
 \swt\Layout::header('Swimming Watch Data Editor - Upload', \swt\Layout::TAB_EDITOR);
+if ($show_gcp) {
 ?>
 <div class="section">
   <h2>
-    Upload Activity file from Device 
+    Upload Activity file using Garmin Communicator Plug-in
   </h2>
-  <div class="warning" style="width:756px; margin: 10px auto">
-    If you have installed <b>Garmin Express</b> software, you will have to 
-    manually upload your activity files. Check the
-    <a href="help" target="_blank">User's Guide</a>
-    for how to proceed
-  </div>
   <div id="garminDisplayContainer">
     <div id="garminDisplay">
     </div>
   </div>
 </div>
+<?php
+} else {
+  echo '<div class="warning" style="margin: 20px auto">'
+  .'Still using Old Garmin Communicator Plug-in? '
+  .'<a href="upload?show_gcp=1">Click here</a>'
+  .'</div>';
+}
+?>
 <div class="section">
   <h2>
-    Upload Activity file from Computer (Manual Upload)
+    Upload Activity file
   </h2>
-  <ul>
+ <ul>
     <li>Only Lap Swimming activity files from the following devices are allowed: Garmin Swim/Forerunner 910/Fénix 2, </li>
     <li>Files must be FIT files, or zip files exported from Garmin Connect,
     <li>Activity files can be exported form Garmin Connect (Modern version) by going
@@ -129,6 +144,9 @@ if (!empty($error)) {
     </form>
   </div>
 </div>
+<?php
+if ($show_gcp) {
+?>
 <script type="text/javascript" src="scripts/prototype/prototype.js"></script>
 <script type="text/javascript" src="scripts/garmin/device/GarminDeviceDisplay.js"></script>
 <script type="text/javascript">
@@ -236,5 +254,6 @@ function manualUploadForm_Onsubmit() {
 document.body.onload = onLoad;
 </script>
 <?php 
+}
 swt\Layout::analytics();
 swt\Layout::footer();
