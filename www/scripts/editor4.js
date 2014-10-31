@@ -33,9 +33,9 @@ var options = {
   width: 800,
   height: 450,
   isStacked: true,
-  legend: {position: 'none'},
-  tooltip: {isHtml: true },
-  focusTarget: 'category'
+  legend: {position: 'none'}
+//  tooltip: {isHtml: true },
+//  focusTarget: 'category'
 };
 
 function initialize() {
