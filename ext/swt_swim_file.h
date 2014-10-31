@@ -15,6 +15,7 @@ namespace swt
   enum Device {
     kGarminSwim = 1499,
     kGarminFr910 = 1328,
+    kGarminFr920 = 1765,
     kGarminFenix2 = 1967
   }; 
 

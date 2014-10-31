@@ -123,7 +123,8 @@ if ($show_gcp) {
     Upload Activity file
   </h2>
  <ul>
-    <li>Only Lap Swimming activity files from the following devices are allowed: Garmin Swim/Forerunner 910/Fénix 2, </li>
+    <li>Only Lap Swimming activity files from the following devices are allowed: 
+    Garmin Swim ,Forerunner 910/920, Fénix 2, </li>
     <li>Files must be FIT files, or zip files exported from Garmin Connect,
     <li>Activity files can be exported form Garmin Connect (Modern version) by going
     to the activity page, clicking on the gear icon to the left, and selecting

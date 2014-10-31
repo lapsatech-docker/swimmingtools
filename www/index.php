@@ -18,7 +18,7 @@ spl_autoload_register();
     <li>This is what Swimming Watch Data Editor is about. Post-editing 
     your data by deleting, merging or splitting length, 
     and changing Stroke, or pool size</li>
-    <li>Supported devices: Garmin Swim, Forerunner 910 and fénix 2.
+    <li>Supported devices: Garmin Swim, Forerunner 910/920 and fénix 2.
     <li>Read the <a href="help">User's Guide</a>
     and start editing your data.</li>
   </ul>
@@ -67,7 +67,7 @@ spl_autoload_register();
   </ul>
   <p>If you follow this advice, you data will be fine most of the time. 
   If you still have errors in you data, feel free to use this site. At 
-  this time, it is only compatible with the Garmin Swim, forerunner 910
+  this time, it is only compatible with the Garmin Swim, forerunner 910/920
   and Fénix 2 devices, but if there is enough interest. Support could be
   expanded to other devices.</p>
 
@@ -97,6 +97,10 @@ spl_autoload_register();
     <li><a href="http://sites.garmin.com/forerunner910xt/" 
       target="_blank">Garmin Forerunner 910</a> / 
     <a href="http://www.dcrainmaker.com/2011/10/garmin-forerunner-910xt-in-depth-review.html" 
+      target="_blank">Review</a></li>
+    <li><a href="http://forerunner920.garmin.com" 
+      target="_blank">Garmin Forerunner 920</a> / 
+    <a href="http://www.dcrainmaker.com/2014/10/fr920xt-triathlon-details.html" 
       target="_blank">Review</a></li>
     <li><a href="https://buy.garmin.com/en-US/US/prod159116.html" 
       target="_blank">Garmin Fénix 2</a> / 

@@ -92,9 +92,9 @@ bool swt::SwimFile::CanSplitChangeStrokeDelete(FIT_MESSAGE_INDEX length_index, s
     *error = "Length doesn't exist";
   } else {
     if (lengths_[length_index]->GetLengthType() != FIT_LENGTH_TYPE_ACTIVE)
-      *error = "Length to be split must be an Active length (not rest)";
+      *error = "Length to be edited must be an Active length (not rest)";
     else if (lengths_[length_index]->GetSwimStroke() == FIT_SWIM_STROKE_DRILL)
-      *error = "Cannot split drill lengths";
+      *error = "Cannot edit  drill lengths";
   }
   return error->empty();
 }

@@ -19,24 +19,23 @@ swt::Tests::Tests() {
 
   TestSwimFile();
 
-  DIR *dp;
-  struct dirent *ep;
+  //DIR *dp;
+  //struct dirent *ep;
 
-  //dp = opendir("/home/stephane/swt/backup/data/upload");
-  dp = opendir("/home/stephane/swt/fit_files/fenix2");
-  if (dp != NULL) {
-
-    while (ep = readdir(dp)) 
-    {
-      if (ep->d_type == DT_REG) {
-        std::string filename = "/home/stephane/swt/fit_files/fenix2/";
-        filename += ep->d_name;
-        std::cout << filename << std::endl;
-        CheckUpdateLapAndSession(filename);
-      }
-    }
-    closedir(dp);
-  }
+  //dp = opendir("../fit_files/fr920");
+  //if (dp != NULL) {
+  //  
+  //  while (ep = readdir(dp)) 
+  //  {
+  //    if (ep->d_type == DT_REG) {
+  //      std::string filename = "../fit_files/fr920/";
+  //      filename += ep->d_name;
+  //      std::cout << filename << std::endl;
+  //      CheckUpdateLapAndSession(filename);
+  //   }
+  //  }
+  //  closedir(dp);
+  //}
 }
 
 swt::Tests::~Tests() {
@@ -185,7 +184,7 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
         << endl;
     }
 
-    if (fit_file->GetDevice() == kGarminSwim)
+    if (fit_file->GetDevice() == kGarminSwim || fit_file->GetDevice() == kGarminFr920)
     { 
       const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
       const FIT_UINT8 kSessionMovingTimeFieldNum = 78;
@@ -390,6 +389,36 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
             << laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) << "," 
             << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
         }
+      } else if (fit_file->GetDevice() == kGarminFr920) { 
+        const FIT_UINT8 kLapAvgStrokeCountFieldNum = 90;
+        const FIT_UINT8 kLapMovingTimeFieldNum = 70;
+        const FIT_UINT8 kLapSwolfFieldNum = 73;
+
+        if (abs(laps_before[i].GetFieldUINT16Value(kLapAvgStrokeCountFieldNum) - 
+              laps_after[i]->GetFieldUINT16Value(kLapAvgStrokeCountFieldNum)) > 1) {
+
+          log << filename << "," << device << "," << version 
+            << ",lap" + std::to_string(i) + ",avg_stroke_count,"
+            << laps_before[i].GetFieldUINT16Value(kLapAvgStrokeCountFieldNum) << "," 
+            << laps_after[i]->GetFieldUINT16Value(kLapAvgStrokeCountFieldNum) << endl;
+        }
+        if (abs(laps_before[i].GetFieldUINT32Value(kLapMovingTimeFieldNum) -
+              laps_after[i]->GetFieldUINT32Value(kLapMovingTimeFieldNum)) > 1) {
+
+          log << filename << "," << device << "," << version 
+            << ",lap" + std::to_string(i) + ",moving_time,"
+            << laps_before[i].GetFieldUINT32Value(kLapMovingTimeFieldNum) << "," 
+            << laps_after[i]->GetFieldUINT32Value(kLapMovingTimeFieldNum) << endl;
+        }
+        if (abs(laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) - 
+              laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum)) > 1) {
+
+          log << filename << "," << device << "," << version 
+            << ",lap" + std::to_string(i) + ",swolf,"
+            << laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) << "," 
+            << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
+        }
+
       }
     }
   }
@@ -609,9 +638,10 @@ void swt::Tests::WriteMesg(const std::string &filename,
 
 void swt::Tests::TestSwimFile() {
 
-  std::string fit_path = "/home/stephane/swt/fit_files/test/";
+  std::string fit_path = "../fit_files/test/";
   std::string garmin_swim_file = fit_path + "3872642880_20131125-170823-1-1499-ANTFS-4-0.FIT";
   std::string garmin_fr910_file = fit_path + "3864554663_20131119-195816-1-1328-ANTFS-4-0.FIT";
+  std::string garmin_fr920_file = fit_path + "3892502708_20141014_075500_1765.FIT";
   std::string garmin_fenix_file = fit_path + "3881241990_2014-05-06-20-14-22-Piscine.fit";
   std::string saveAs;
 
@@ -741,5 +771,48 @@ void swt::Tests::TestSwimFile() {
   swim_file->Delete(20);
   swim_file->Save(fit_path + "output/fenix_delete_convert_lap_to_rest.fit");
 
+  // FR920 
+
+  swim_file = file_reader.Read(garmin_fr920_file);
+  swim_file->Recalculate();
+  swim_file->Save(fit_path + "output/fr920_no_changes.fit");
+
+  swim_file = file_reader.Read(garmin_fr920_file);
+  swim_file->Merge(5);
+  swim_file->Save(fit_path + "output/fr920_merge.fit");
+
+  swim_file = file_reader.Read(garmin_fr920_file);
+  swim_file->Split(9);
+  swim_file->Save(fit_path + "output/fr920_split.fit");
+
+  swim_file = file_reader.Read(garmin_fr920_file);
+  swim_file->ChangeStroke(5, FIT_SWIM_STROKE_BREASTSTROKE, ChangeStrokeOption::kLengthOnly);
+  swim_file->Save(fit_path + "output/fr920_change_stroke_length_only.fit");
+
+  swim_file = file_reader.Read(garmin_fr920_file);
+  swim_file->ChangeStroke(5, FIT_SWIM_STROKE_BUTTERFLY, ChangeStrokeOption::kLap);
+  swim_file->Save(fit_path + "output/fr920_change_stroke_lap.fit");
+
+  swim_file = file_reader.Read(garmin_fr920_file);
+  swim_file->ChangeStroke(5, FIT_SWIM_STROKE_BACKSTROKE, ChangeStrokeOption::kAll);
+  swim_file->Save(fit_path + "output/fr920_change_stroke_all.fit");
+
+  swim_file = file_reader.Read(garmin_fr920_file);
+  swim_file->ChangePoolLength(50, FIT_DISPLAY_MEASURE_METRIC);
+  swim_file->Save(fit_path + "output/fr920_change_pool_length.fit");
+
+  swim_file = file_reader.Read(garmin_fr920_file);
+  swim_file->Delete(5);
+  swim_file->Save(fit_path + "output/fr920_delete_simple.fit");
+
+  swim_file = file_reader.Read(garmin_fr920_file);
+  swim_file->Delete(47);
+  swim_file->Delete(48);
+  swim_file->Delete(49);
+  swim_file->Delete(50);
+  swim_file->Delete(51);
+  swim_file->Delete(52);
+  swim_file->Delete(53);
+  swim_file->Save(fit_path + "output/fr920_delete_convert_lap_to_rest.fit");
 }
 

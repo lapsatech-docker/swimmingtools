@@ -3,6 +3,7 @@
 #include "fit_decode.hpp"
 #include "fit_file_id_mesg.hpp"
 #include "swt_fr910_swim_file.h"
+#include "swt_fr920_swim_file.h"
 #include "swt_gs_swim_file.h"
 #include "swt_fenix2_swim_file.h"
 
@@ -45,11 +46,14 @@ void swt::FileReader::OnMesg(fit::Mesg& mesg) {
     } else if (fileId.GetProduct() == Device::kGarminFr910) {
       swim_file.reset(new Fr910SwimFile());
       swim_file->AddMesg(&mesg);
+    } else if (fileId.GetProduct() == Device::kGarminFr920) {
+      swim_file.reset(new Fr920SwimFile());
+      swim_file->AddMesg(&mesg);
     } else if (fileId.GetProduct() == Device::kGarminFenix2) {
       swim_file.reset(new Fenix2SwimFile());
       swim_file->AddMesg(&mesg);
     } else {
-      std::string message = "This application is compatible with Garmin Swim/FR910/Fenix 2 only ("
+      std::string message = "This application is compatible with Garmin Swim/FR910/FR920/Fenix 2 only ("
         + std::to_string(fileId.GetManufacturer()) + "/" 
         + std::to_string(fileId.GetProduct()) + ")";
       throw FileNotValidException(message);
