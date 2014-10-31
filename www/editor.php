@@ -124,7 +124,7 @@ try {
   </form>
 </div>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-<script type="text/javascript" src="/scripts/editor3.js"></script>
+<script type="text/javascript" src="/scripts/editor4.js"></script>
 <?php
 swt\layout::analytics();
 swt\Layout::footer();
