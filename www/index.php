@@ -100,7 +100,7 @@ spl_autoload_register();
       target="_blank">Review</a></li>
     <li><a href="http://forerunner920.garmin.com" 
       target="_blank">Garmin Forerunner 920</a> / 
-    <a href="http://www.dcrainmaker.com/2014/10/fr920xt-triathlon-details.html" 
+    <a href="http://www.dcrainmaker.com/2014/11/garmin-forerunner-920xt-depth-review.html" 
       target="_blank">Review</a></li>
     <li><a href="https://buy.garmin.com/en-US/US/prod159116.html" 
       target="_blank">Garmin Fénix 2</a> / 
