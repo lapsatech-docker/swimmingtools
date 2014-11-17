@@ -40,17 +40,17 @@ void swt::FileReader::OnMesg(fit::Mesg& mesg) {
     if (fileId.GetType() != FIT_FILE_ACTIVITY) {
       throw FileNotValidException("File is not an activity file");
     }
-    if (fileId.GetProduct() == Device::kGarminSwim) {
+    if (fileId.GetProduct() == FIT_GARMIN_PRODUCT_SWIM) {
       swim_file.reset(new GarminSwimFile());
       swim_file->AddMesg(&mesg);
-    } else if (fileId.GetProduct() == Device::kGarminFr910) {
+    } else if (fileId.GetProduct() == FIT_GARMIN_PRODUCT_FR910XT) {
       swim_file.reset(new Fr910SwimFile());
       swim_file->AddMesg(&mesg);
-    } else if (fileId.GetProduct() == Device::kGarminFr920) {
-      swim_file.reset(new Fr920SwimFile());
-      swim_file->AddMesg(&mesg);
-    } else if (fileId.GetProduct() == Device::kGarminFenix2) {
+    } else if (fileId.GetProduct() == FIT_GARMIN_PRODUCT_FENIX2) {
       swim_file.reset(new Fenix2SwimFile());
+      swim_file->AddMesg(&mesg);
+   } else if (fileId.GetProduct() == FIT_GARMIN_PRODUCT_FR920XT) {
+      swim_file.reset(new Fr920SwimFile());
       swim_file->AddMesg(&mesg);
     } else {
       std::string message = "This application is compatible with Garmin Swim/FR910/FR920/Fenix 2 only ("

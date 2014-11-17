@@ -7,7 +7,7 @@ namespace swt
   class GarminSwimFile: public SwimFile
   {
     public:
-      Device GetDevice() const {return Device::kGarminSwim;}
+      Product GetProduct() const {return Product::kGarminSwim;}
       void Delete(FIT_MESSAGE_INDEX length_index);
       void Save(const std::string &filename) const;
 

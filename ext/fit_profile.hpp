@@ -616,11 +616,14 @@ typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_FR70                                                  ((FIT_GARMIN_PRODUCT)1436)
 #define FIT_GARMIN_PRODUCT_FR310XT_4T                                            ((FIT_GARMIN_PRODUCT)1446)
 #define FIT_GARMIN_PRODUCT_AMX                                                   ((FIT_GARMIN_PRODUCT)1461)
+#define FIT_GARMIN_PRODUCT_SWIM                                                  ((FIT_GARMIN_PRODUCT)1499) 
+#define FIT_GARMIN_PRODUCT_FR920XT                                               ((FIT_GARMIN_PRODUCT)1765) 
+#define FIT_GARMIN_PRODUCT_FENIX2                                                ((FIT_GARMIN_PRODUCT)1967) 
 #define FIT_GARMIN_PRODUCT_SDM4                                                  ((FIT_GARMIN_PRODUCT)10007) // SDM4 footpod
 #define FIT_GARMIN_PRODUCT_TRAINING_CENTER                                       ((FIT_GARMIN_PRODUCT)20119)
 #define FIT_GARMIN_PRODUCT_ANDROID_ANTPLUS_PLUGIN                                ((FIT_GARMIN_PRODUCT)65532)
 #define FIT_GARMIN_PRODUCT_CONNECT                                               ((FIT_GARMIN_PRODUCT)65534) // Garmin Connect website
-#define FIT_GARMIN_PRODUCT_COUNT                                                 26
+#define FIT_GARMIN_PRODUCT_COUNT                                                 29
 
 typedef FIT_UINT8 FIT_DEVICE_TYPE;
 #define FIT_DEVICE_TYPE_INVALID                                                  FIT_UINT8_INVALID

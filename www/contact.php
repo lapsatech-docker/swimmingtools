@@ -57,7 +57,7 @@ try {
     }
   }
 } catch (Exception $ex) {
-  swt\Functions::errorLog($ex);
+  swt\DB::addErrorLogEntry(NULL, $ex->getFile(), $ex);
   $action = OUTPUT_ERROR;
 }
 swt\Layout::header('Swimming Watch Data Editor - Contact',

@@ -184,7 +184,7 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
         << endl;
     }
 
-    if (fit_file->GetDevice() == kGarminSwim || fit_file->GetDevice() == kGarminFr920)
+    if (fit_file->GetProduct() == kGarminSwim || fit_file->GetProduct() == kGarminFr920)
     { 
       const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
       const FIT_UINT8 kSessionMovingTimeFieldNum = 78;
@@ -220,7 +220,7 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
           << session_after->GetFieldUINT16Value(kSessionSwolfFieldNum) << endl;
       }
 
-    } else if (fit_file->GetDevice() == kGarminFr910) {
+    } else if (fit_file->GetProduct() == kGarminFr910) {
       const FIT_UINT8 kSessionNumLengthsFieldNum = 33;
 
       if (session_before.GetFieldUINT16Value(kSessionNumLengthsFieldNum) != 
@@ -230,7 +230,7 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
           << session_before.GetFieldUINT16Value(kSessionNumLengthsFieldNum) << "," 
           << session_after->GetFieldUINT16Value(kSessionNumLengthsFieldNum) << endl;
       }
-    } else if (fit_file->GetDevice() == kGarminFenix2) { 
+    } else if (fit_file->GetProduct() == kGarminFenix2) { 
       const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
       const FIT_UINT8 kSessionNumLengthsFieldNum = 33;
       const FIT_UINT8 kSessionSwolfFieldNum = 80;
@@ -346,7 +346,7 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
           << endl;
       }
 
-      if (fit_file->GetDevice() == kGarminSwim)
+      if (fit_file->GetProduct() == kGarminSwim)
       { 
         const FIT_UINT8 kLapAvgStrokeCountFieldNum = 72;
         const FIT_UINT8 kLapMovingTimeFieldNum = 70;
@@ -377,9 +377,9 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
             << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
         }
 
-      } else if (fit_file->GetDevice() == kGarminFr910) {
+      } else if (fit_file->GetProduct() == kGarminFr910) {
         // fr910 has no custom lap fields
-      } else if (fit_file->GetDevice() == kGarminFenix2) {
+      } else if (fit_file->GetProduct() == kGarminFenix2) {
         const FIT_UINT8 kLapSwolfFieldNum = 73;
         if (abs(laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) - 
               laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum)) > 1) {
@@ -389,7 +389,7 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
             << laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) << "," 
             << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
         }
-      } else if (fit_file->GetDevice() == kGarminFr920) { 
+      } else if (fit_file->GetProduct() == kGarminFr920) { 
         const FIT_UINT8 kLapAvgStrokeCountFieldNum = 90;
         const FIT_UINT8 kLapMovingTimeFieldNum = 70;
         const FIT_UINT8 kLapSwolfFieldNum = 73;
@@ -672,7 +672,7 @@ void swt::Tests::TestSwimFile() {
   swim_file->Save(fit_path + "output/gs_change_stroke_all.fit");
 
   swim_file = file_reader.Read(garmin_swim_file);
-  swim_file->ChangePoolLength(50, FIT_DISPLAY_MEASURE_METRIC);
+  swim_file->ChangePoolSize(50, FIT_DISPLAY_MEASURE_METRIC);
   swim_file->Save(fit_path + "output/gs_change_pool_length.fit");
 
   swim_file = file_reader.Read(garmin_swim_file);
@@ -717,7 +717,7 @@ void swt::Tests::TestSwimFile() {
   swim_file->Save(fit_path + "output/fr910_change_stroke_all.fit");
 
   swim_file = file_reader.Read(garmin_fr910_file);
-  swim_file->ChangePoolLength(25, FIT_DISPLAY_MEASURE_METRIC);
+  swim_file->ChangePoolSize(25, FIT_DISPLAY_MEASURE_METRIC);
   swim_file->Save(fit_path + "output/fr910_change_pool_length.fit");
 
   swim_file = file_reader.Read(garmin_fr910_file);
@@ -760,7 +760,7 @@ void swt::Tests::TestSwimFile() {
   swim_file->Save(fit_path + "output/fenix_change_stroke_all.fit");
 
   swim_file = file_reader.Read(garmin_fenix_file);
-  swim_file->ChangePoolLength(25, FIT_DISPLAY_MEASURE_METRIC);
+  swim_file->ChangePoolSize(25, FIT_DISPLAY_MEASURE_METRIC);
   swim_file->Save(fit_path + "output/fenix_change_pool_length.fit");
 
   swim_file = file_reader.Read(garmin_fenix_file);
@@ -798,7 +798,7 @@ void swt::Tests::TestSwimFile() {
   swim_file->Save(fit_path + "output/fr920_change_stroke_all.fit");
 
   swim_file = file_reader.Read(garmin_fr920_file);
-  swim_file->ChangePoolLength(50, FIT_DISPLAY_MEASURE_METRIC);
+  swim_file->ChangePoolSize(50, FIT_DISPLAY_MEASURE_METRIC);
   swim_file->Save(fit_path + "output/fr920_change_pool_length.fit");
 
   swim_file = file_reader.Read(garmin_fr920_file);

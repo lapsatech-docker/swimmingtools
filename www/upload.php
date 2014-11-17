@@ -4,74 +4,31 @@ swt\Functions::registerErrorHandler();
 
 try {
   session_start();
+  unset($_SESSION['file_id']);
 
-  unset($_SESSION['client_filename']);
-  unset($_SESSION['internal_filename']);
-
+  $file_id = NULL;
   $error = '';
-  $temp_dir = realpath(swt\Functions::TEMP_DIR).DIRECTORY_SEPARATOR;
-  $upload_dir = realpath(swt\Functions::UPLOAD_DIR).DIRECTORY_SEPARATOR;
-  $edit_dir = realpath(swt\Functions::EDIT_DIR).DIRECTORY_SEPARATOR;
   $show_gcp = false;
-
-
 
   if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (isset($_COOKIE['show_gcp']))
       setcookie('show_gcp', '0', time() - 3600, '/');
-    
+
     if ($_FILES['fitFile']['size'] == 0) {
       $error = 'Select a file to upload';
     } else if (is_uploaded_file($_FILES['fitFile']['tmp_name'])) {
-      // Garmin Connect exports activity file as  zip files containing the
-      // original fit file. This code Checks if the uploaded file is a zip
-      // file and extract the fit file
-      $zip_file = new ZipArchive();
-      if ( $zip_file->open($_FILES['fitFile']['tmp_name']) === true) {
-        $client_filename = basename($zip_file->getNameIndex(0));
+      
+      $file_id = swt\DB::createFileFromUpload('fitFile');
+      $activity = new swt\Activity($file_id);
 
-        // Remove illegal character when saving file to windows
-        $temp_filename = preg_replace('/[\\\\\/\:\*\?\<\>\"\|]/', '', $client_filename);
-        $temp_filename .= uniqid();
-        if (!copy ('zip://'.$zip_file->filename.'#'.$zip_file->getNameIndex(0), $temp_dir.$temp_filename)) {
-          throw new Exception('Cannot extract fit file from zip');
-        }
-        $zip_file->close();
-      } else {
-        // File is a fit file
-        $client_filename = $_FILES['fitFile']['name'];
-        // IE sometimes send complete path to filename on user machine, if
-        // this is the case, we just want the filename, this pattern match
-        // a windows path
-        $pattern =  '/^(?:[a-zA-Z]\:(\\\\|\/)|file\:\/\/|\\\\\\\\|\.(\/|\\\\))([^\\\\\\/\:\*\?\<\>\"\|]+(\\\\|\/){0,1})+$/';
+      $path = swt\DB::convertFileIdToPath($file_id);
+      if (!(copy($path.'UPLOAD', $path.'EDIT'))) 
+          throw new Exception('Cannot copy file');
 
-        if (preg_match($pattern, $client_filename) == 1) {
-          if (preg_match('/[^\\\\\/]*$/', $client_filename, $matches) == 1)
-            $client_filename = $matches[0];
-        }
+      $_SESSION['file_id'] = $file_id;
 
-        // Remove illegal character when saving file to windows
-        $temp_filename = preg_replace('/[\\\\\/\:\*\?\<\>\"\|]/', '', $client_filename);
-        $temp_filename .= uniqid();
-
-        if (!move_uploaded_file($_FILES['fitFile']['tmp_name'], $temp_dir.$temp_filename)) {
-          throw new Exception('Cannot move uploaded file to temp directory');
-        }
-      }
-
-      $swim_file = new swt\SwimFile($temp_dir.$temp_filename);
-      $internal_filename = $swim_file->getSerialNumber().'_'.$temp_filename;
-
-      if (!(copy($temp_dir.$temp_filename, $upload_dir.$internal_filename) && 
-        rename($temp_dir.$temp_filename, $edit_dir.$internal_filename))) {
-          throw new Exception('Cannot copy file to editing directory');
-      }
-
-      $_SESSION['internal_filename'] = $internal_filename;
-      $_SESSION['client_filename'] = $client_filename;
-
-      $serial_number = $swim_file->getSerialNumber();
+      $serial_number = $activity->serial_number;
       setcookie('SN', $serial_number, time() + 60*60*24*7);
       header('Location: editor');
       exit;
@@ -84,21 +41,20 @@ try {
   }
 
 } catch (swt\FileNotValidException $ex) {
+  swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
+  
   if (isset($_FILES['fitFile']['name']))
     $error = $_FILES['fitFile']['name'];
 
-  swt\Functions::errorLog($ex, $error);
   $error .= ': '.$ex->getMessage();
 } catch (Exception $ex) {
-  if (isset($_FILES['fitFile']['name']))
-    $error = $_FILES['fitFile']['name'];
+  swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
 
-  swt\Functions::errorLog($ex, $error);
   $error = 'Unexpected error has been logged, try again or '
     .'<a href="contact">Contact web site owner</a>';
 }
 
-\swt\Layout::header('Swimming Watch Data Editor - Upload', \swt\Layout::TAB_EDITOR);
+swt\Layout::header('Swimming Watch Data Editor - Upload', swt\Layout::TAB_EDITOR);
 if ($show_gcp) {
 ?>
 <div class="section">

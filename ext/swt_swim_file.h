@@ -12,11 +12,11 @@
 
 namespace swt
 {
-  enum Device {
-    kGarminSwim = 1499,
-    kGarminFr910 = 1328,
-    kGarminFr920 = 1765,
-    kGarminFenix2 = 1967
+  enum Product {
+    kGarminSwim = 1,
+    kGarminFr910 = 2,
+    kGarminFenix2 = 3,
+    kGarminFr920 = 4
   }; 
 
   enum ChangeStrokeOption {
@@ -41,9 +41,9 @@ namespace swt
       bool CanMerge(FIT_MESSAGE_INDEX length_index, std::string *error) const;
       bool CanSplitChangeStrokeDelete(FIT_MESSAGE_INDEX length_index,std::string *error) const;
       void ChangeStroke(FIT_MESSAGE_INDEX length_index, FIT_SWIM_STROKE stroke, ChangeStrokeOption option);
-      void ChangePoolLength(FIT_FLOAT32 new_length_metric, FIT_DISPLAY_MEASURE display_measure); 
+      void ChangePoolSize(FIT_FLOAT32 new_size_metric, FIT_DISPLAY_MEASURE display_measure); 
       virtual void Delete(FIT_MESSAGE_INDEX length_index) = 0;
-      virtual Device GetDevice() const = 0;
+      virtual Product GetProduct() const = 0;
       float GetSoftwareVersion() const {return software_version_;}
       unsigned int GetSerialNumber() const {return serial_number_;}
       const std::vector<fit::LapMesg*> &GetLaps() const {return laps_;};

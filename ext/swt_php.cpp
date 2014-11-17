@@ -83,15 +83,15 @@ PHP_METHOD(swt_SwimFile, changeStroke) {
 }
 
 
-PHP_METHOD(swt_SwimFile, changePoolLength) {
+PHP_METHOD(swt_SwimFile, changePoolSize) {
   swimfile_object *obj = (swimfile_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
   swt::SwimFile *swim_file = obj->swim_file;
 
-  double new_length_metric = 0;
+  double new_size_metric = 0;
   long display_measure = FIT_DISPLAY_MEASURE_INVALID;
   
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "dl", 
-        &new_length_metric, &display_measure) == FAILURE) {
+        &new_size_metric, &display_measure) == FAILURE) {
     php_error_docref(NULL TSRMLS_CC, E_ERROR, "Must provide new length and display measure");
     RETURN_FALSE;
   }
@@ -106,7 +106,7 @@ PHP_METHOD(swt_SwimFile, changePoolLength) {
   }
 
   try {
-    swim_file->ChangePoolLength(new_length_metric, display_measure);
+    swim_file->ChangePoolSize(new_size_metric, display_measure);
   } catch (std::exception &ex) {
     zend_throw_exception(zend_exception_get_default(TSRMLS_C), ex.what(), 0 TSRMLS_CC);
   }
@@ -137,7 +137,10 @@ PHP_METHOD(swt_SwimFile, getDateCreated)
   unsigned long date_created;
 
   try {
-    date_created = swim_file->GetSession()->GetStartTime();
+    //FIT define date as seconds since UTC 00:00 Dec 31 1989
+    //PHP define date as seconds since UTC 00:00 jan 1 1970
+    //Add the difference to date returned by fit
+    date_created = swim_file->GetSession()->GetStartTime() + 631065600;
     RETURN_LONG(date_created);
   } catch (std::exception &ex) {
     zend_throw_exception(zend_exception_get_default(TSRMLS_C), ex.what(), 0 TSRMLS_CC);
@@ -153,71 +156,41 @@ PHP_METHOD(swt_SwimFile, getLengths)
 
   try {
     unsigned long current_lap = 0;
-    // if (swim_file->GetDevice() == swt::kGarminSwim) {
-    //  for (const std::unique_ptr<fit::Mesg> &mesg : swim_file->GetMesgs()) {
-    //    if (typeid(*mesg) == typeid(fit::LengthMesg)) {
+    const std::vector<fit::LapMesg*> &laps = swim_file->GetLaps();
+    const std::vector<fit::LengthMesg*> &lengths = swim_file->GetLengths();
 
-    //      fit::LengthMesg *fit_length = 
-    //        dynamic_cast<fit::LengthMesg*>(mesg.get());
+    for (fit::LapMesg *lap : laps) {
+      if (lap->GetNumActiveLengths() > 0) {
+        ++current_lap;
+        FIT_UINT16 first_length_index = lap->GetFirstLengthIndex();
+        FIT_UINT16 last_length_index = first_length_index + lap->GetNumLengths() - 1;
 
-    //      zval * zval_length;
-    //      MAKE_STD_ZVAL(zval_length);
-    //      array_init(zval_length);
-    //      add_assoc_long(zval_length, "lap", current_lap);
-    //      add_assoc_long(zval_length, "type", fit_length->GetLengthType());
-    //      add_assoc_double(zval_length, "time", fit_length->GetTotalTimerTime());
-    //      add_assoc_long(zval_length, "stroke_count", 
-    //          fit_length->GetTotalStrokes());
-    //      add_assoc_long(zval_length, "stroke", fit_length->GetSwimStroke());
-    //      std::string error;
-    //      add_assoc_bool(zval_length, "can_edit", 
-    //          swim_file->CanSplitChangeStrokeDelete(fit_length->GetMessageIndex(), &error));
-    //      add_assoc_bool(zval_length, "can_merge", 
-    //          swim_file->CanMerge(fit_length->GetMessageIndex(), &error));
-    //      add_assoc_bool(zval_length, "is_duplicate", 
-    //          swim_file->IsDuplicate(fit_length->GetMessageIndex()));
-    //      add_next_index_zval(return_value, zval_length); 
+        for(unsigned int length_index = first_length_index;
+            length_index <= last_length_index; ++length_index) {
+          fit::LengthMesg *fit_length = lengths[length_index];
 
-    //    } else if (typeid(*mesg) == typeid(fit::LapMesg)) {
-    //      ++current_lap;
-    //    }
-    //  }
-    // } else {
-      const std::vector<fit::LapMesg*> &laps = swim_file->GetLaps();
-      const std::vector<fit::LengthMesg*> &lengths = swim_file->GetLengths();
-
-      for (fit::LapMesg *lap : laps) {
-        if (lap->GetNumActiveLengths() > 0) {
-          ++current_lap;
-          FIT_UINT16 first_length_index = lap->GetFirstLengthIndex();
-          FIT_UINT16 last_length_index = first_length_index + lap->GetNumLengths() - 1;
-
-          for(unsigned int length_index = first_length_index;
-              length_index <= last_length_index; ++length_index) {
-            fit::LengthMesg *fit_length = lengths[length_index];
-
-            zval *zval_length;
-            MAKE_STD_ZVAL(zval_length);
-            array_init(zval_length);
-            add_assoc_long(zval_length, "lap", current_lap);
-            add_assoc_long(zval_length, "type", fit_length->GetLengthType());
-            add_assoc_double(zval_length, "time", fit_length->GetTotalTimerTime());
-            add_assoc_long(zval_length, "stroke_count", 
-                fit_length->GetTotalStrokes());
-            add_assoc_long(zval_length, "stroke", fit_length->GetSwimStroke());
-            std::string error;
-            add_assoc_bool(zval_length, "can_edit", 
-                swim_file->CanSplitChangeStrokeDelete(fit_length->GetMessageIndex(), &error));
-            add_assoc_bool(zval_length, "can_merge", 
-                swim_file->CanMerge(fit_length->GetMessageIndex(), &error));
-            add_assoc_bool(zval_length, "is_duplicate", 
-                swim_file->IsDuplicate(fit_length->GetMessageIndex()));
-            add_assoc_long(zval_length, "message_index",
-                fit_length->GetMessageIndex());
-            add_next_index_zval(return_value, zval_length); 
-          }
+          zval *zval_length;
+          MAKE_STD_ZVAL(zval_length);
+          array_init(zval_length);
+          add_assoc_long(zval_length, "lap", current_lap);
+          add_assoc_long(zval_length, "type", fit_length->GetLengthType());
+          add_assoc_double(zval_length, "time", fit_length->GetTotalTimerTime());
+          add_assoc_long(zval_length, "stroke_count", 
+              fit_length->GetTotalStrokes());
+          add_assoc_long(zval_length, "stroke", fit_length->GetSwimStroke());
+          std::string error;
+          add_assoc_bool(zval_length, "can_edit", 
+              swim_file->CanSplitChangeStrokeDelete(fit_length->GetMessageIndex(), &error));
+          add_assoc_bool(zval_length, "can_merge", 
+              swim_file->CanMerge(fit_length->GetMessageIndex(), &error));
+          add_assoc_bool(zval_length, "is_duplicate", 
+              swim_file->IsDuplicate(fit_length->GetMessageIndex()));
+          add_assoc_long(zval_length, "length_index",
+              fit_length->GetMessageIndex());
+          add_next_index_zval(return_value, zval_length); 
         }
       }
+    }
     // }
   } catch (std::exception &ex) {
     zend_throw_exception(zend_exception_get_default(TSRMLS_C), ex.what(), 0 TSRMLS_CC);
@@ -225,34 +198,47 @@ PHP_METHOD(swt_SwimFile, getLengths)
   return;
 }
 
-PHP_METHOD(swt_SwimFile, getPoolLength)
+PHP_METHOD(swt_SwimFile, getPoolSize)
 {
   swimfile_object *obj = (swimfile_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
   swt::SwimFile *swim_file = obj->swim_file;
-  double pool_length;
+  double pool_size;
 
   try {
-    pool_length = swim_file->GetSession()->GetPoolLength();
-    RETURN_DOUBLE(pool_length);
+    pool_size = swim_file->GetSession()->GetPoolLength();
+    RETURN_DOUBLE(pool_size);
   } catch (std::exception &ex) {
     zend_throw_exception(zend_exception_get_default(TSRMLS_C), ex.what(), 0 TSRMLS_CC);
   }
 }
 
-PHP_METHOD(swt_SwimFile, getPoolLengthUnits)
+PHP_METHOD(swt_SwimFile, getPoolSizeUnits)
 {
   swimfile_object *obj = (swimfile_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
   swt::SwimFile *swim_file = obj->swim_file;
-  unsigned long pool_length_units;
+  unsigned long pool_size_units;
 
   try {
-    pool_length_units = swim_file->GetSession()->GetPoolLengthUnit();
-    RETURN_LONG(pool_length_units);
+    pool_size_units = swim_file->GetSession()->GetPoolLengthUnit();
+    RETURN_LONG(pool_size_units);
   } catch (std::exception &ex) {
     zend_throw_exception(zend_exception_get_default(TSRMLS_C), ex.what(), 0 TSRMLS_CC);
   }
 }
 
+PHP_METHOD(swt_SwimFile, getProduct)
+{
+  swimfile_object *obj = (swimfile_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+  swt::SwimFile *swim_file = obj->swim_file;
+  unsigned long product;
+
+  try {
+    product = swim_file->GetProduct();
+    RETURN_LONG(product);
+  } catch (std::exception &ex) {
+    zend_throw_exception(zend_exception_get_default(TSRMLS_C), ex.what(), 0 TSRMLS_CC);
+  }
+}
 
 PHP_METHOD(swt_SwimFile, getSerialNumber)
 { 
@@ -263,6 +249,20 @@ PHP_METHOD(swt_SwimFile, getSerialNumber)
   try {
     serial_number = swim_file->GetSerialNumber();
     RETURN_LONG(serial_number);
+  } catch (std::exception &ex) {
+    zend_throw_exception(zend_exception_get_default(TSRMLS_C), ex.what(), 0 TSRMLS_CC);
+  }
+}
+
+PHP_METHOD(swt_SwimFile, getSoftwareVersion)
+{ 
+  swimfile_object *obj = (swimfile_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+  swt::SwimFile *swim_file = obj->swim_file;
+  unsigned long software_version;
+
+  try {
+    software_version = swim_file->GetSoftwareVersion();
+    RETURN_LONG(software_version);
   } catch (std::exception &ex) {
     zend_throw_exception(zend_exception_get_default(TSRMLS_C), ex.what(), 0 TSRMLS_CC);
   }
@@ -359,14 +359,16 @@ static zend_object_value php_swt_swimfile_create_handler(zend_class_entry *type 
 
 static zend_function_entry php_swt_swimfile_functions[] = {
   PHP_ME(swt_SwimFile, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
-  PHP_ME(swt_SwimFile, changePoolLength, NULL, ZEND_ACC_PUBLIC)
+  PHP_ME(swt_SwimFile, changePoolSize, NULL, ZEND_ACC_PUBLIC)
   PHP_ME(swt_SwimFile, changeStroke, NULL, ZEND_ACC_PUBLIC)
   PHP_ME(swt_SwimFile, delete, NULL, ZEND_ACC_PUBLIC)
   PHP_ME(swt_SwimFile, getDateCreated, NULL, ZEND_ACC_PUBLIC)
-  PHP_ME(swt_SwimFile, getPoolLengthUnits, NULL, ZEND_ACC_PUBLIC)
+  PHP_ME(swt_SwimFile, getPoolSizeUnits, NULL, ZEND_ACC_PUBLIC)
   PHP_ME(swt_SwimFile, getLengths, NULL, ZEND_ACC_PUBLIC)
-  PHP_ME(swt_SwimFile, getPoolLength, NULL, ZEND_ACC_PUBLIC)
+  PHP_ME(swt_SwimFile, getPoolSize, NULL, ZEND_ACC_PUBLIC)
+  PHP_ME(swt_SwimFile, getProduct, NULL, ZEND_ACC_PUBLIC)
   PHP_ME(swt_SwimFile, getSerialNumber, NULL, ZEND_ACC_PUBLIC)
+  PHP_ME(swt_SwimFile, getSoftwareVersion, NULL, ZEND_ACC_PUBLIC)
   PHP_ME(swt_SwimFile, merge, NULL, ZEND_ACC_PUBLIC)
   PHP_ME(swt_SwimFile, save, NULL, ZEND_ACC_PUBLIC)
   PHP_ME(swt_SwimFile, split, NULL, ZEND_ACC_PUBLIC)
@@ -398,7 +400,7 @@ PHP_MINIT_FUNCTION(swt)
   REGISTER_NS_LONG_CONSTANT("swt", "STROKE_BUTTERFLY", FIT_SWIM_STROKE_BUTTERFLY, CONST_CS | CONST_PERSISTENT);
   REGISTER_NS_LONG_CONSTANT("swt", "STROKE_DRILL", FIT_SWIM_STROKE_DRILL, CONST_CS | CONST_PERSISTENT);
   REGISTER_NS_LONG_CONSTANT("swt", "STROKE_FREESTYLE", FIT_SWIM_STROKE_FREESTYLE, CONST_CS | CONST_PERSISTENT);
-  REGISTER_NS_LONG_CONSTANT("swt", "STROKE_INVALID", FIT_SWIM_STROKE_INVALID, CONST_CS | CONST_PERSISTENT);
+  REGISTER_NS_LONG_CONSTANT("swt", "STROKE_UNKNOWN", FIT_SWIM_STROKE_INVALID, CONST_CS | CONST_PERSISTENT);
   REGISTER_NS_LONG_CONSTANT("swt", "STROKE_MIXED", FIT_SWIM_STROKE_MIXED, CONST_CS | CONST_PERSISTENT);
   REGISTER_NS_LONG_CONSTANT("swt", "LENGTH_ACTIVE", FIT_LENGTH_TYPE_ACTIVE, CONST_CS | CONST_PERSISTENT);
   REGISTER_NS_LONG_CONSTANT("swt", "LENGTH_IDLE", FIT_LENGTH_TYPE_IDLE, CONST_CS | CONST_PERSISTENT);

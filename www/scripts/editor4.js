@@ -1,5 +1,20 @@
 google.load('visualization', '1', {packages: ['corechart', 'controls']});
 
+var EDITOR_ACTION_MERGE = 1;
+var EDITOR_ACTION_SPLIT = 2;
+var EDITOR_ACTION_CHANGE_STROKE = 3;
+var EDITOR_ACTION_DELETE = 4;
+var EDITOR_ACTION_CHANGE_POOL_SIZE = 5;
+var EDITOR_ACTION_UNDO_ALL = 6;
+
+var STROKE_FREESTYLE = 0;
+var STROKE_BACKSTROKE = 1;
+var STROKE_BREASTSTROKE = 2;
+var STROKE_BUTTERFLY = 3;
+var STROKE_DRILL = 4;
+var STROKE_MIXED = 5;
+var STROKE_UNKNOWN = 0xff;
+
 var chart;
 var dataTable;
 var selection;
@@ -8,7 +23,7 @@ var undoAllBtn;
 var mergeBtn;
 var splitBtn;
 var changeStrokeBtn;
-var changePoolLengthBtn;
+var changePoolSizeBtn;
 var deleteBtn;
 var distanceLbl;
 var swimTimeLbl;
@@ -38,6 +53,28 @@ var options = {
 //  focusTarget: 'category'
 };
 
+function strokeLookup(stroke) {
+  var returnValue = 'Unknown';
+  switch(stroke) {
+    case STROKE_FREESTYLE:
+      returnValue = 'Freestyle';
+      break;
+    case STROKE_BACKSTROKE:
+      returnValue = 'Backstroke';
+      break;
+    case STROKE_BREASTSTROKE:
+      returnValue = 'Breaststroke';
+      break;
+    case STROKE_BUTTERFLY:
+      returnValue = 'Butterfly';
+      break;
+    case STROKE_DRILL:
+      returnValue = 'Drill';
+    default:
+      returnValue = 'Unknown';
+  }
+  return returnValue;
+}
 function initialize() {
   chart = new google.visualization.ComboChart(document.getElementById('chart'));
 
@@ -58,12 +95,12 @@ function initialize() {
   changeStrokeBtn.onclick = changeStrokeBtn_onClick;
   document.changeStrokeForm.onsubmit = changeStrokeForm_onSubmit;
   document.getElementById('changeStrokeDlgCancelBtn').onclick = ChangeStrokeDlgCancelBtn_onclick;
-  changePoolLengthBtn = document.getElementById('changePoolLengthBtn');
-  changePoolLengthBtn.onclick = changePoolLengthBtn_onClick;
+  changePoolSizeBtn = document.getElementById('changePoolSizeBtn');
+  changePoolSizeBtn.onclick = changePoolSizeBtn_onClick;
   deleteBtn = document.getElementById('deleteBtn');
   deleteBtn.onclick = deleteBtn_onClick;
-  document.changePoolLengthForm.onsubmit = changePoolLengthForm_onSubmit;
-  document.getElementById('changePoolLengthDlgCancelBtn').onclick = ChangePoolLengthDlgCancelBtn_onclick;
+  document.changePoolSizeForm.onsubmit = changePoolSizeForm_onSubmit;
+  document.getElementById('changePoolSizeDlgCancelBtn').onclick = ChangePoolSizeDlgCancelBtn_onclick;
 
   google.visualization.events.addListener(chart, 'select', chart_onSelect);
 
@@ -78,7 +115,8 @@ function undoAllBtn_onClick() {
   updateToolbar(true);
   statusLbl.innerHTML = 'Undoing All...';
 
-  var query = new google.visualization.Query('ajax-googlechart.php?action=undoAll');
+  var query = new google.visualization.Query(
+      'ajax-googlechart.php?action=' + EDITOR_ACTION_UNDO_ALL);
   query.send(handleQueryResponse);
 }
 
@@ -88,9 +126,10 @@ function mergeBtn_onClick() {
   updateToolbar(true);
   statusLbl.innerHTML = 'Merging...';
 
-  var messageIndex = dataTable.getRowProperty(selection.row, 'messageIndex');
+  var lengthIndex = dataTable.getRowProperty(selection.row, 'lengthIndex');
 
-  var query = new google.visualization.Query('ajax-googlechart.php?action=merge&messageIndex=' + messageIndex);
+  var query = new google.visualization.Query(
+      'ajax-googlechart.php?action=' + EDITOR_ACTION_MERGE + '&lengthIndex=' + lengthIndex);
   query.send(handleQueryResponse);
 }
 
@@ -100,9 +139,10 @@ function splitBtn_onClick() {
   updateToolbar(true);
   statusLbl.innerHTML = 'Splitting...';
 
-  var messageIndex = dataTable.getRowProperty(selection.row, 'messageIndex');
+  var lengthIndex = dataTable.getRowProperty(selection.row, 'lengthIndex');
 
-  var query = new google.visualization.Query('ajax-googlechart.php?action=split&messageIndex=' + messageIndex);
+  var query = new google.visualization.Query(
+      'ajax-googlechart.php?action=' + EDITOR_ACTION_SPLIT + '&lengthIndex=' + lengthIndex);
   query.send(handleQueryResponse);
 }
 
@@ -113,8 +153,10 @@ function changeStrokeBtn_onClick() {
 
   document.changeStrokeForm.reset();
   selectedLengthLbl.innerHTML = selection.row + 1;
-  selectedLengthStrokeLbl.innerHTML = dataTable.getRowProperty(selection.row, 'swimStroke');
-  document.changeStrokeForm.fromSwimStroke.value = dataTable.getRowProperty(selection.row, 'swimStroke');
+  swimStroke = dataTable.getRowProperty(selection.row, 'swimStroke');
+  swimStroke = strokeLookup(swimStroke);
+  selectedLengthStrokeLbl.innerHTML = swimStroke;
+  document.changeStrokeForm.changeStrokeFrom.value = dataTable.getRowProperty(selection.row, 'swimStroke');
   document.getElementById('changeStrokeDlg').style.display = 'block';
 }
 
@@ -127,82 +169,82 @@ function ChangeStrokeDlgCancelBtn_onclick() {
 
 function changeStrokeForm_onSubmit() {
   statusLbl.innerHTML = 'Changing Stroke...';
-  var strokeOption;
+  var changeStrokeOption;
 
-  for (var i = 0; i < document.changeStrokeForm.strokeOption.length; i++) {
-    if (document.changeStrokeForm.strokeOption[i].checked) {
-      strokeOption = document.changeStrokeForm.strokeOption[i].value;
+  for (var i = 0; i < document.changeStrokeForm.changeStrokeOption.length; i++) {
+    if (document.changeStrokeForm.changeStrokeOption[i].checked) {
+      changeStrokeOption = document.changeStrokeForm.changeStrokeOption[i].value;
       break;
     }
   }
 
-  var fromSwimStroke = document.changeStrokeForm.fromSwimStroke.value;
-  var toSwimStroke = document.changeStrokeForm.toSwimStroke.options[document.changeStrokeForm.toSwimStroke.selectedIndex].value;
-  var messageIndex = dataTable.getRowProperty(selection.row, 'messageIndex');
+  var changeStrokeFrom = document.changeStrokeForm.changeStrokeFrom.value;
+  var changeStrokeTo = document.changeStrokeForm.changeStrokeTo.options[document.changeStrokeForm.changeStrokeTo.selectedIndex].value;
+  var lengthIndex = dataTable.getRowProperty(selection.row, 'lengthIndex');
 
   var query = new google.visualization.Query(
-      'ajax-googlechart.php?action=changeStroke&messageIndex=' + messageIndex 
-      + '&fromSwimStroke=' + fromSwimStroke 
-      + '&toSwimStroke=' + toSwimStroke 
-      + '&strokeOption=' + strokeOption);
+      'ajax-googlechart.php?action=' + EDITOR_ACTION_CHANGE_STROKE + '&lengthIndex=' + lengthIndex
+      + '&changeStrokeFrom=' + changeStrokeFrom
+      + '&changeStrokeTo=' + changeStrokeTo
+      + '&changeStrokeOption=' + changeStrokeOption);
   query.send(handleQueryResponse);
   document.getElementById('changeStrokeDlg').style.display = 'none';
   return false;
 }
 
-function changePoolLengthBtn_onClick() {
+function changePoolSizeBtn_onClick() {
   isProcessing = true;
   updateToolbar(true);
-  statusLbl.innerHTML = "Changing pool length...";
+  statusLbl.innerHTML = "Changing pool size...";
 
-  document.changePoolLengthForm.reset();
-  document.getElementById('changePoolLengthDlgErrorLbl').style.display = 'none';
-  document.changePoolLengthForm.newPoolLength.value = dataTable.getTableProperty('poolLength');
-  if (dataTable.getTableProperty('poolLengthUnits') == 'y')
+  document.changePoolSizeForm.reset();
+  document.getElementById('changePoolSizeDlgErrorLbl').style.display = 'none';
+  document.changePoolSizeForm.newPoolSize.value = dataTable.getTableProperty('poolSize');
+  if (dataTable.getTableProperty('poolSizeUnits') == 'y')
     document.getElementById('statuteRdo').checked = true;
-  document.getElementById('changePoolLengthDlg').style.display = 'block';
+  document.getElementById('changePoolSizeDlg').style.display = 'block';
 }
 
-function ChangePoolLengthDlgCancelBtn_onclick() {
-  document.getElementById('changePoolLengthDlg').style.display = 'none';
+function ChangePoolSizeDlgCancelBtn_onclick() {
+  document.getElementById('changePoolSizeDlg').style.display = 'none';
   statusLbl.innerHTML = "Changing Pool Size cancelled";
   isProcessing = false;
   updateToolbar(false);
 }
 
-function changePoolLengthForm_onSubmit() {
+function changePoolSizeForm_onSubmit() {
   statusLbl.innerHTML = 'Changing Pool Size...';
 
-  var poolLengthUnits;
+  var newPoolSizeUnits;
 
-  for (var i = 0; i < document.changePoolLengthForm.poolLengthUnits.length; i++) {
-    if (document.changePoolLengthForm.poolLengthUnits[i].checked) {
-      poolLengthUnits = document.changePoolLengthForm.poolLengthUnits[i].value;
+  for (var i = 0; i < document.changePoolSizeForm.newPoolSizeUnits.length; i++) {
+    if (document.changePoolSizeForm.newPoolSizeUnits[i].checked) {
+      newPoolSizeUnits = document.changePoolSizeForm.newPoolSizeUnits[i].value;
       break;
     }
   }
 
-  var newPoolLength = document.changePoolLengthForm.newPoolLength.value;
+  var newPoolSize = document.changePoolSizeForm.newPoolSize.value;
   var error = false;
 
-  if (isNaN(parseFloat(newPoolLength))) {
+  if (isNaN(parseFloat(newPoolSize))) {
     error = true;
-  } else if (poolLengthUnits == 0) {
-    if (!(newPoolLength >= 17 && newPoolLength <= 150))
+  } else if (newPoolSizeUnits == 0) {
+    if (!(newPoolSize >= 17 && newPoolSize <= 150))
       error = true;
-  } else if (poolLengthUnits == 1) {
-    if (!(newPoolLength >= 18 && newPoolLength <= 150))
+  } else if (newPoolSizeUnits == 1) {
+    if (!(newPoolSize >= 18 && newPoolSize <= 150))
       error = true;
   }
 
   if (error) {
-    document.getElementById('changePoolLengthDlgErrorLbl').style.display = 'block';
+    document.getElementById('changePoolSizeDlgErrorLbl').style.display = 'block';
   } else {
     var query = new google.visualization.Query(
-        'ajax-googlechart.php?action=changePoolLength&newPoolLength=' + newPoolLength 
-        + '&poolLengthUnits=' + poolLengthUnits);
+        'ajax-googlechart.php?action=' + EDITOR_ACTION_CHANGE_POOL_SIZE + '&newPoolSize=' + newPoolSize
+        + '&newPoolSizeUnits=' + newPoolSizeUnits);
     query.send(handleQueryResponse);
-    document.getElementById('changePoolLengthDlg').style.display = 'none';
+    document.getElementById('changePoolSizeDlg').style.display = 'none';
   }
 
   return false;
@@ -223,16 +265,16 @@ function deleteBtn_onClick() {
     r = confirm('Length will be converted to Rest time.\nDo you want to proceed?')
   }
 
-  if (r || isDuplicate)     {
+  if (r || isDuplicate) {
     isProcessing = true;
     updateToolbar(true);
 
     statusLbl.innerHTML = 'Deleting...';
 
-    var messageIndex = dataTable.getRowProperty(selection.row, 'messageIndex');
+    var lengthIndex = dataTable.getRowProperty(selection.row, 'lengthIndex');
     selection = null;
     var query = new google.visualization.Query(
-        'ajax-googlechart.php?action=delete&messageIndex=' + messageIndex);
+        'ajax-googlechart.php?action=' + EDITOR_ACTION_DELETE + '&lengthIndex=' + lengthIndex);
     query.send(handleQueryResponse);
   }
 }
@@ -240,8 +282,8 @@ function deleteBtn_onClick() {
 
 function handleQueryResponse(response) {
   if (response.isError()) {
-    statusLbl.innerHTML = 'Unexpected error has been logged, ' 
-      + '<a href="contact">Contact developer</a> or ' 
+    statusLbl.innerHTML = 'Unexpected error has been logged, '
+      + '<a href="contact">Contact developer</a> or '
       + '<a href="upload">Upload</a> new file'
     statusLbl.className = 'warning';
   } else {

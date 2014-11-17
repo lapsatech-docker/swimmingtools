@@ -7,7 +7,7 @@ namespace swt
   class Fr920SwimFile: public SwimFile
   {
     public:
-      Device GetDevice() const {return Device::kGarminFr920;}
+      Product GetProduct() const {return Product::kGarminFr920;}
       void Delete(FIT_MESSAGE_INDEX length_index);
       void Save(const std::string &filename) const;
 
