@@ -95,10 +95,13 @@ case OUTPUT_FORM:
   feature. So I decided to give it a try, and this application is the result. 
   Bug reports, suggestions, and nice comments are welcomed.</p>
   <form action="contact" method="post">
-  <p>Email: <span class="warning"><?=$email_error?></span></p>
-    <p><input type="text" name="email" style="width: 450px" 
-    value="<?=$email?>"></p>
-    <p>Message: <span class='warning'><?=$message_error?></span></p>
+    <p>Email: 
+      <?php if (!empty($email_error)) echo '<span class="warning">'.$email_error.'</span>';?>
+    </p>
+    <p><input type="text" name="email" style="width: 450px" value="<?=$email?>"></p>
+    <p>Message: 
+      <?php if (!empty($message_error)) echo '<span class="warning">'.$message_error.'</span>';?>
+    </p>
     <textarea name="message" rows="10" 
       style="margin: auto 30px; width: 840px"><?=$message?></textarea><br />
     <br>
