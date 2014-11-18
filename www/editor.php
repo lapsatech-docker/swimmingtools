@@ -126,7 +126,7 @@ swt\Layout::header('Swimming Watch Data Editor', swt\Layout::TAB_EDITOR);
   </form>
 </div>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-<script type="text/javascript" src="/scripts/editor4.js"></script>
+<script type="text/javascript" src="/scripts/editor5.js"></script>
 <?php
 swt\layout::analytics();
 swt\Layout::footer();
