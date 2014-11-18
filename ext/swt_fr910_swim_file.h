@@ -11,7 +11,7 @@ namespace swt
       Fr910SwimFile() : length_count_(0) {};
 
       void AddMesg(const void *mesg);
-      Device GetDevice() const {return Device::kGarminFr910;}
+      Product GetProduct() const {return Product::kGarminFr910;}
       void Delete(FIT_MESSAGE_INDEX length_index);
       void Initialize();
       void Save(const std::string &filename) const;

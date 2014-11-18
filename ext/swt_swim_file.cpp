@@ -42,11 +42,12 @@ void swt::SwimFile::AddMesg(const void *mesg)
         std::unique_ptr<fit::DeviceInfoMesg> device_info(new fit::DeviceInfoMesg(*fit_mesg));
         // TODO Update when adding new device support
         FIT_UINT16 product = device_info->GetProduct();
-        if (product == kGarminSwim || 
-            product == kGarminFr910 ||
-            product == kGarminFenix2) {
-          software_version_ = device_info->GetFieldUINT16Value(kSoftwareVersionFieldNum);
-          serial_number_  = device_info->GetSerialNumber();
+        if (product == FIT_GARMIN_PRODUCT_SWIM || 
+          product == FIT_GARMIN_PRODUCT_FR910XT ||
+          product == FIT_GARMIN_PRODUCT_FENIX2 ||
+          product == FIT_GARMIN_PRODUCT_FR920XT) {
+            software_version_ = device_info->GetFieldUINT16Value(kSoftwareVersionFieldNum);
+            serial_number_  = device_info->GetSerialNumber();
         }
         mesgs_.push_back(move(device_info));
         break;
@@ -170,18 +171,18 @@ void swt::SwimFile::ChangeStroke(FIT_MESSAGE_INDEX length_index, FIT_SWIM_STROKE
   session_->SetSwimStroke(session_stroke);
 }
 
-void swt::SwimFile::ChangePoolLength(FIT_FLOAT32 new_length_metric, FIT_DISPLAY_MEASURE display_measure) {
+void swt::SwimFile::ChangePoolSize(FIT_FLOAT32 new_size_metric, FIT_DISPLAY_MEASURE display_measure) {
 
-  if (new_length_metric < 16.45 || new_length_metric > 150) 
+  if (new_size_metric < 16.45 || new_size_metric > 150) 
     throw std::runtime_error("Pool length must be within 17-150m or 18-159y");
 
-  session_->SetPoolLength(new_length_metric);
+  session_->SetPoolLength(new_size_metric);
   session_->SetPoolLengthUnit(display_measure);
 
   for (fit::LengthMesg *length : lengths_) {
     if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE && 
         length->GetSwimStroke() != FIT_SWIM_STROKE_DRILL) {
-      length->SetAvgSpeed(new_length_metric / length->GetTotalTimerTime());
+      length->SetAvgSpeed(new_size_metric / length->GetTotalTimerTime());
     }
   }
 

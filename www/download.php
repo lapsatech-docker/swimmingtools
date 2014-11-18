@@ -5,34 +5,36 @@ swt\Functions::registerErrorHandler();
 try
 {
   session_start();
+  $file_id = NULL;
   $error ='';
 
-  $edit_dir = realpath(swt\Functions::EDIT_DIR).DIRECTORY_SEPARATOR;
-  $download_dir = realpath(swt\Functions::DOWNLOAD_DIR).DIRECTORY_SEPARATOR;
-  
-  if (!isset($_SESSION['internal_filename'])) {
+  if (!isset($_SESSION['file_id'])) {
     $error  = '<p class="warning">Session has expired. Your data is discarded '
       .'after 20 minutes of inactivity. <a href="upload">Try again</a></p>';
   } else {
 
-    $internal_filename = $_SESSION['internal_filename'];
-    $client_filename = $_SESSION['client_filename'];
+    $file_id = $_SESSION['file_id'];
+    $path = swt\DB::convertFileIdToPath($file_id);
 
-    if (!(copy($edit_dir.$internal_filename, $download_dir.$internal_filename))) 
-      throw new Exception('Cannot copy file to download directory');  
-      
-    if (preg_match('/\.fit$/i', $client_filename) == 1) {
-      $client_filename = preg_replace('/\.fit/i', '_NEW.FIT', $client_filename);
+    if (!(copy($path.'EDIT', $path.'DOWNLOAD'))) 
+      throw new Exception('Cannot update file');
+    $filename = swt\DB::getFilename($file_id);
+
+    if (preg_match('/\.fit$/i', $filename) == 1) {
+      $filename = preg_replace('/\.fit/i', '_NEW.FIT', $filename);
     } else {
-      $client_filename .= '_NEW.FIT';
+      $filename .= '_NEW.FIT';
     }
+
+    swt\DB::addEditorLogEntry($file_id, swt\DB::EDITOR_ACTION_DOWNLOAD, NULL, NULL,
+      NULL, NULL, NULL, NULL);
 
     header('Content-type: application/octet-stream');;
     header('Cache-Control: no-cache, no-store, must-revalidate');
     header('Pragma: no-cache');
     header('Expires: 0');
-    header('Content-Disposition: filename="'.$client_filename.'"');
-    $handle = fopen($download_dir.$internal_filename,'rb');
+    header('Content-Disposition: filename="'.$filename.'"');
+    $handle = fopen($path.'DOWNLOAD', 'rb');
     fpassthru($handle);
     exit();
   }
@@ -40,9 +42,9 @@ try
 } catch (Exception $ex) {
   $error = '<p class="warning">Unexpected error, the error have been '
     .'logged, sorry for the inconvenience.</p>';
-  \swt\Functions::logError($ex);
+  swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
 }
 
-\swt\Layout::header('Swimming Watch Data Editor - Contact', \swt\Layout::TAB_CONTACT);
+swt\Layout::header('Swimming Watch Data Editor - Contact', swt\Layout::TAB_CONTACT);
 echo $error;
-\swt\Layout::footer();
+swt\Layout::footer();

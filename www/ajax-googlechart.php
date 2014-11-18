@@ -5,6 +5,8 @@ swt\Functions::registerErrorHandler();
 try {
 
   session_start();
+  $file_id = NULL;
+
   ob_start();
   header('Content-type: text/javascript');
   header('Cache-Control: no-cahe, no-store, must-revalidate');
@@ -12,60 +14,63 @@ try {
   header('Expires: 0');
 
   $req_id = '' ;
- 
-  $upload_dir = realpath(swt\Functions::UPLOAD_DIR).DIRECTORY_SEPARATOR;
-  $edit_dir = realpath(swt\Functions::EDIT_DIR).DIRECTORY_SEPARATOR;
-  
+
   if (isset($_GET['tqx'])) {
-    if (preg_match('/reqId\s?:\s?\d+/', $_GET['tqx'], $matches) == 1) 
+    if (preg_match('/reqId\s?:\s?\d+/', $_GET['tqx'], $matches) == 1)
       $req_id = $matches[0].',';
   }
 
-  if (!isset($_SESSION['internal_filename'])) {
+  if (!isset($_SESSION['file_id'])) {
     echo "google.visualization.Query.setResponse({ $req_id status:'error',"
       ."errors:[{reason:'other',message:'Session timed out'}]})";
     ob_end_flush();
     exit();
   }
-  $internal_filename = $_SESSION['internal_filename'];
-  
-  $swim_file = new swt\SwimFile($edit_dir.$internal_filename);
-  
+  $file_id = $_SESSION['file_id'];
+  $path = swt\DB::convertFileIdToPath($file_id);
+
+  $swim_file = new swt\SwimFile($path.'EDIT');
+
   if (isset($_GET['action'])) {
+    $action = $_GET['action'];
+    $length_index = isset($_GET['lengthIndex']) ?  $_GET['lengthIndex'] : NULL;
+    $change_stroke_from = isset($_GET['changeStrokeFrom']) ? $_GET['changeStrokeFrom'] : NULL;
+    $change_stroke_to = isset($_GET['changeStrokeTo']) ?  $_GET['changeStrokeTo'] : NULL;
+    $change_stroke_option = isset($_GET['changeStrokeOption']) ?  $_GET['changeStrokeOption'] : NULL;
+    $new_pool_size = isset($_GET['newPoolSize']) ?  $_GET['newPoolSize'] : NULL;
+    $new_pool_size_units = isset($_GET['newPoolSizeUnits']) ?  $_GET['newPoolSizeUnits'] : NULL;
 
-    switch ($_GET['action']) {
+    switch ($action) {
 
-    case 'undoAll':
-      if (!copy($upload_dir.$internal_filename, $edit_dir.$internal_filename)) 
+    case swt\dB::EDITOR_ACTION_UNDO_ALL:
+      if (!copy($path.'UPLOAD', $path.'EDIT'))
         throw new Exception('Could not copy file to editing directory');
 
-      $swim_file = new swt\SwimFile($edit_dir.$internal_filename);    
+      $swim_file = new swt\SwimFile($path.'EDIT');
       break;
-    case 'merge':
-      $swim_file->merge($_GET['messageIndex']);
+    case swt\dB::EDITOR_ACTION_MERGE:
+      $swim_file->merge($length_index);
       $status = 'Merge completed';
       break;
-    case 'split':
-      $swim_file->split($_GET['messageIndex']);
+    case swt\dB::EDITOR_ACTION_SPLIT;
+      $swim_file->split($length_index);
       $status = 'Split Completed';
       break;
-    case 'changeStroke':
-      $swim_file->ChangeStroke($_GET['messageIndex'], $_GET['toSwimStroke'], 
-        $_GET['strokeOption']);
+    case swt\dB::EDITOR_ACTION_CHANGE_STROKE:
+      $swim_file->ChangeStroke($length_index, $change_stroke_to, $change_stroke_option);
       $status = 'Change stroke completed';
       break;
-    case 'changePoolLength':
-      $newPoolLength = $_GET['newPoolLength'];
-      if ($_GET['poolLengthUnits'] == swt\UNITS_STATUTE) {
-        $swim_file->changePoolLength($newPoolLength/1.09361, swt\UNITS_STATUTE);
-        $status = 'Pool length changed to '.$newPoolLength.'y';
-      } else { 
-        $swim_file->changePoolLength($newPoolLength, swt\UNITS_METRIC);
-        $status = 'Pool length changed to '.$newPoolLength.'m'; 
+    case swt\dB::EDITOR_ACTION_CHANGE_POOL_SIZE:
+      if ($new_pool_size_units == swt\UNITS_STATUTE) {
+        $swim_file->changePoolSize($new_pool_size/1.09361, swt\UNITS_STATUTE);
+        $status = 'Pool size changed to '.$new_pool_size.'y';
+      } else {
+        $swim_file->changePoolSize($new_pool_size, swt\UNITS_METRIC);
+        $status = 'Pool size changed to '.$new_pool_size.'m';
       }
       break;
-    case 'delete':
-      $swim_file->delete($_GET['messageIndex']);
+    case swt\dB::EDITOR_ACTION_DELETE:
+      $swim_file->delete($length_index);
       $status = 'Delete Completed';
       break;
     default:
@@ -105,52 +110,26 @@ HEREDOC;
   }
   $avg_time_per_length = $moving_time / $num_active_lengths;
 
-  //$lap_counter = 1;
   $length_counter = 0;
   $start_new_lap = true;
   $resting = false;
   $current_lap = 1;
-  //$num_active_lengths_in_lap = 0;
   $duplicates = array();
 
   foreach($lengths as $index => $length) {
      if ($length['lap'] != $current_lap) {
-    //  if ($num_active_lengths_in_lap > 0) {
-    //    ++$lap_counter;
         $start_new_lap = true;
-    //  }
       ++$current_lap;
-    //  $num_active_lengths_in_lap = 0;
     }
 
     if ($length['type'] == swt\LENGTH_ACTIVE) {
-      //++$num_active_lengths_in_lap;
       ++$length_counter;
 
       $annotation = '';
       if ($start_new_lap) $annotation = $length['lap'];
       elseif ($resting) $annotation = 'R';
 
-      switch ($length['stroke']) {
-      case swt\STROKE_FREESTYLE:
-        $stroke = 'Freestyle'; $color = '#c43dbf';
-        break;
-      case swt\STROKE_BACKSTROKE:
-        $stroke = 'Backstroke'; $color = '#1f8ef9';
-        break;
-      case swt\STROKE_BREASTSTROKE:
-        $stroke = 'Breaststroke'; $color = '#95de2b';
-        break;
-      case swt\STROKE_BUTTERFLY:
-        $stroke = 'Butterfly'; $color = '#eb3d3d';
-        break;
-      case swt\STROKE_DRILL:
-        $stroke = 'Drill'; $color = '#ff7c05';
-        break;
-      default:
-        $stroke = 'Unknown'; $color = 'gray';
-      }
-
+      $color = swt\Functions::$stroke_lookup[$length['stroke']]['color'];
       $can_merge = $length['can_merge'] ? 'true' : 'false';
       $can_edit = $length['can_edit'] ? 'true' : 'false';
       $is_duplicate = 'false';
@@ -169,13 +148,13 @@ HEREDOC;
 //        '</div>',
 //        $length_counter, strtolower($stroke), $stroke, $length['time'], $length['stroke_count']);
 
-      if (!($length_counter == 1)) 
+      if (!($length_counter == 1))
         echo ',';
 
       printf("{c:[{v:%d},{v:%.1f},{v:'%s'},{v:%.1f},{v:'%s'}],".
-        "p:{messageIndex:%d,swimStroke:'%s',canMerge:%s,canEdit:%s,isDuplicate:%s}}\n", 
-        $length_counter, $avg_time_per_length, $annotation, $length['time'], 
-        $color, $length['message_index'], $stroke, $can_merge, $can_edit, $is_duplicate);
+        "p:{lengthIndex:%d,swimStroke:%s,canMerge:%s,canEdit:%s,isDuplicate:%s}}\n",
+        $length_counter, $avg_time_per_length, $annotation, $length['time'],
+        $color, $length['length_index'], $length['stroke'], $can_merge, $can_edit, $is_duplicate);
 
       $start_new_lap = false;
       $resting = false;
@@ -185,16 +164,16 @@ HEREDOC;
     }
   }
 
-  $pool_length_units = 'm';
-  $pool_length = $swim_file->getPoolLength();
-  $distance = $pool_length * $num_active_lengths;
+  $pool_size_units = 'm';
+  $pool_size = $swim_file->getPoolSize();
+  $distance = $pool_size * $num_active_lengths;
 
-  if ($swim_file->getPoolLengthUnits() == swt\UNITS_STATUTE) {
-    $pool_length_units = 'y';
+  if ($swim_file->getPoolSizeUnits() == swt\UNITS_STATUTE) {
+    $pool_size_units = 'y';
     $distance *= 1.09361;
   }
 
-  
+
   $time  = new DateTime();
   $time->setTimezone(new DateTimeZone('UTC'));
   $time->setTimestamp($moving_time);
@@ -205,7 +184,7 @@ HEREDOC;
 
   $pace = new DateTime();
   $pace->setTimezone(new DateTimeZone('UTC'));
-  $pace->setTimestamp(100 * $avg_time_per_length / $pool_length);
+  $pace->setTimestamp(100 * $avg_time_per_length / $pool_size);
   $pace = intval($pace->format('i')).':'.$pace->format('s');
 
   $avg_strokes_per_length = ($stroke_count / $num_active_lengths_without_drills);
@@ -216,19 +195,24 @@ HEREDOC;
       .implode(',', $duplicates).'), suggest you delete</b>';
   }
 
-  if ($pool_length_units == 'y') 
-    $pool_length *= 1.09361;
+  if ($pool_size_units == 'y')
+    $pool_size *= 1.09361;
 
-  printf("],p:{status:'%s',poolLength:%.0f,poolLengthUnits:'%s',distance:'%.0f %3\$s',"
+  printf("],p:{status:'%s',poolSize:%.0f,poolSizeUnits:'%s',distance:'%.0f %3\$s',"
     ."swimTime:'%s',avgPace:'%s min/100%3\$s',avgStrokes:'%.0f/length'}}})",
-    $status, $pool_length, $pool_length_units, $distance, $time, $pace, $avg_strokes_per_length);
+    $status, $pool_size, $pool_size_units, $distance, $time, $pace, $avg_strokes_per_length);
 
-  $swim_file->save($edit_dir.$internal_filename);
+  $swim_file->save($path.'EDIT');
+  if (isset($action)) {
+    swt\DB::addEditorLogEntry($file_id, $action, $length_index,
+      $change_stroke_from, $change_stroke_to, $change_stroke_option,
+      $new_pool_size, $new_pool_size_units);
+  }
   ob_end_flush();
 
 } catch (Exception $ex) {
 
-  swt\Functions::errorLog($ex);
+  swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
   ob_clean();
   echo "google.visualization.Query.setResponse({ $req_id status:'error',"
     ."errors:[{reason:'other',message:''}]})";

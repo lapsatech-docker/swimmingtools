@@ -3,15 +3,17 @@ spl_autoload_register();
 \swt\Functions::registerErrorHandler();
 session_start();
 
-if (!isset($_SESSION['internal_filename'])) {
+if (!isset($_SESSION['file_id'])) {
   header('location: upload');
   exit;
 }
+$file_id = $_SESSION['file_id'];
 
 try {
-  $swim_file = new \swt\Swimfile(realpath(swt\Functions::EDIT_DIR.$_SESSION['internal_filename']));
-  $time_created = new DateTime('31DEC89');
-  $time_created->setTimestamp($time_created->getTimestamp() + $swim_file->getDateCreated());
+  $swim_file = new \swt\Swimfile(swt\DB::convertFileIdToPath($file_id).'EDIT');
+  $time_created = new DateTime();
+  $time_created->setTimezone(new DateTimeZone('UTC'));
+  $time_created->setTimestamp($swim_file->getDateCreated());
   $time_created = '<script type="text/javascript">var date = new Date(Date.UTC('
     .$time_created->format('Y').','
     .($time_created->format('n') - 1).','
@@ -22,9 +24,9 @@ try {
     .'document.write(date.toLocaleString());</script> ';
 } catch (Exception $ex) {
   $time_created = '';
-  swt\Functions::errorLog($ex);
+  swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
 }
-\swt\Layout::header('Swimming Watch Data Editor', \swt\Layout::TAB_EDITOR);
+swt\Layout::header('Swimming Watch Data Editor', swt\Layout::TAB_EDITOR);
 ?>
 <div class="section">
   <h2>
@@ -45,7 +47,7 @@ try {
   </ul>
   <div class="toolbar">
     <button id="undoAllBtn">Undo All</button>
-    <button id="changePoolLengthBtn">Change Pool Length</button>
+    <button id="changePoolSizeBtn">Change Pool Size</button>
     <button id="deleteBtn" disabled="disabled">Delete</button>
     <button id="mergeBtn" disabled="disabled">Merge</button>
     <button id="splitBtn" disabled="disabled">Split</button>
@@ -78,7 +80,7 @@ try {
     </p>
     <p>
     Change to:
-    <select name="toSwimStroke">
+    <select name="changeStrokeTo">
       <option value="<?=swt\STROKE_BACKSTROKE ?>">Backstroke</option>
       <option value="<?=swt\STROKE_BREASTSTROKE?>">Breaststroke</option>
       <option value="<?=swt\STROKE_BUTTERFLY?>">Butterfly</option>
@@ -88,39 +90,39 @@ try {
     <p>
     Apply to:
     </p>
-    <input name="strokeOption" type="radio" value="<?=swt\CHANGE_STROKE_OPTION_LENGTH_ONLY?>" 
+    <input name="changeStrokeOption" type="radio" value="<?=swt\CHANGE_STROKE_OPTION_LENGTH_ONLY?>" 
     checked="checked">Length Only<br>
-    <input name="strokeOption" type="radio" value="<?=swt\CHANGE_STROKE_OPTION_LAP?>">
+    <input name="changeStrokeOption" type="radio" value="<?=swt\CHANGE_STROKE_OPTION_LAP?>">
     All Lengths in interval<br>
-    <input name="strokeOption" type="radio" value="<?=swt\CHANGE_STROKE_OPTION_ALL?>">
+    <input name="changeStrokeOption" type="radio" value="<?=swt\CHANGE_STROKE_OPTION_ALL?>">
     All lengths<br>
     <br>
-    <input type="hidden" name="fromSwimStroke" value="">
+    <input type="hidden" name="changeStrokeFrom" value="">
     <button type="submit">Change Stroke</button>
   </form>
 </div>
-<div id="changePoolLengthDlg" class="dialog">
+<div id="changePoolSizeDlg" class="dialog">
   <div class="dialog-overlay">
     &nbsp;
   </div>
-  <form name="changePoolLengthForm" class="dialog-content" action="">
-    <a id="changePoolLengthDlgCancelBtn" class="dialog-cancel-button">
+  <form name="changePoolSizeForm" class="dialog-content" action="">
+    <a id="changePoolSizeDlgCancelBtn" class="dialog-cancel-button">
       <img src="/content/modal_close.png" alt="Close dialog">
     </a>
     <p>
-    Change Pool Length
+    Change Pool Size 
     </p>
-    <p id="changePoolLengthDlgErrorLbl" class="warning" style="display: none">
-    Value must be within 17-150 meters or 18-150 yards
+    <p id="changePoolSizeDlgErrorLbl" class="warning" style="display: none">
+    Value must be within 16-150 meters or 18-150 yards
     </p>
-    <input type="text" name="newPoolLength" value="">
+    <input type="text" name="newPoolSize" value="">
     <br><br>
-    <input id="metricRdo" name="poolLengthUnits" type="radio" 
+    <input id="metricRdo" name="newPoolSizeUnits" type="radio" 
     value="<?=swt\UNITS_METRIC?>" checked="checked">Meters<br>
-    <input id="statuteRdo" name="poolLengthUnits" type="radio" 
+    <input id="statuteRdo" name="newPoolSizeUnits" type="radio" 
     value="<?=swt\UNITS_STATUTE?>">Yards<br>
     <br>
-    <button type="submit">Change Pool Length</button>
+    <button type="submit">Change Pool Size</button>
   </form>
 </div>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
