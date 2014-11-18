@@ -40,12 +40,7 @@ void swt::SwimFile::AddMesg(const void *mesg)
     case FIT_MESG_NUM_DEVICE_INFO:
       {
         std::unique_ptr<fit::DeviceInfoMesg> device_info(new fit::DeviceInfoMesg(*fit_mesg));
-        // TODO Update when adding new device support
-        FIT_UINT16 product = device_info->GetProduct();
-        if (product == FIT_GARMIN_PRODUCT_SWIM || 
-          product == FIT_GARMIN_PRODUCT_FR910XT ||
-          product == FIT_GARMIN_PRODUCT_FENIX2 ||
-          product == FIT_GARMIN_PRODUCT_FR920XT) {
+        if (device_info->GetDeviceIndex() == 0) {
             software_version_ = device_info->GetFieldUINT16Value(kSoftwareVersionFieldNum);
             serial_number_  = device_info->GetSerialNumber();
         }
