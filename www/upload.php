@@ -88,12 +88,14 @@ if ($show_gcp) {
     for details.</li>
   </ul>
 <?php
-if (!empty($error)) {
-  echo '<p class="warning">'.$error.'</p>';
-}
+if (!empty($error)) 
+  echo '<p id="error" class="warning">'.$error.'</p>';
+else
+  echo '<p id="error" class="warning" style="display:none"></p>';
 ?>
   <div class="centered">
-    <form name="manualUploadForm" action="" enctype="multipart/form-data" method="post">
+    <form name="manualUploadForm" action="" enctype="multipart/form-data" method="post" 
+      onsubmit="return manualUploadForm_Onsubmit()">
       <br>
       <input type="file" name="fitFile"><br>
       <br>
@@ -160,8 +162,6 @@ function onAfterFinishUploads(display) {
 
 function onLoad() {
 
-  document.manualUploadForm.onsubmit = manualUploadForm_Onsubmit;
-
   var display = new Garmin.DeviceDisplay("garminDisplay", {
     pathKeyPairsArray: [ 
       "http://swimmingwatchtools.com", "f932686320cb1c84380a727ab138d8e9", 
@@ -199,18 +199,30 @@ function onLoad() {
 
   });
 }
-
-function manualUploadForm_Onsubmit() {
-  if (document.manualUploadForm.fitFile.value == "") {
-    alert("Select a file");
-    return false;
-  }
-  else return true;
-}
-
 document.body.onload = onLoad;
 </script>
 <?php 
+} // End include Communicator javascript
+?>
+<script type="text/javascript">
+function manualUploadForm_Onsubmit() {
+  var returnValue = true;
+  var filename = document.manualUploadForm.fitFile.value;
+  if (filename == "") {
+    document.getElementById('error').innerHTML = "Select a file";
+    document.getElementById('error').style.display = "block";
+    returnValue = false;
+  } else {
+    var regex = /.*((tcx)|(gpx))$/i;
+    if (regex.test(filename)) {
+      document.getElementById('error').innerHTML = "File must be in the FIT format, GPX or TCX file don't work";
+      document.getElementById('error').style.display = "block";
+      returnValue = false;
+    }
+  }
+  return returnValue;
 }
+</script>
+<?php 
 swt\Layout::analytics();
 swt\Layout::footer();
