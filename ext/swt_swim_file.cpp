@@ -64,8 +64,8 @@ bool swt::SwimFile::CanMerge(FIT_MESSAGE_INDEX length_index, std::string *error)
   if (length_index > (lengths_.size() - 2)) {
     *error = "Length doesn't exist or is the last length";
   } else {
-    fit::LengthMesg *first_length = lengths_[length_index];
-    fit::LengthMesg *second_length = lengths_[length_index + 1];
+    fit::LengthMesg *first_length = lengths_.at(length_index);
+    fit::LengthMesg *second_length = lengths_.at(length_index + 1);
 
     if ((first_length->GetLengthType() != FIT_LENGTH_TYPE_ACTIVE) || 
         (second_length->GetLengthType() != FIT_LENGTH_TYPE_ACTIVE)) {
@@ -87,9 +87,9 @@ bool swt::SwimFile::CanSplitChangeStrokeDelete(FIT_MESSAGE_INDEX length_index, s
   if (length_index > (lengths_.size() - 1)) {
     *error = "Length doesn't exist";
   } else {
-    if (lengths_[length_index]->GetLengthType() != FIT_LENGTH_TYPE_ACTIVE)
+    if (lengths_.at(length_index)->GetLengthType() != FIT_LENGTH_TYPE_ACTIVE)
       *error = "Length to be edited must be an Active length (not rest)";
-    else if (lengths_[length_index]->GetSwimStroke() == FIT_SWIM_STROKE_DRILL)
+    else if (lengths_.at(length_index)->GetSwimStroke() == FIT_SWIM_STROKE_DRILL)
       *error = "Cannot edit  drill lengths";
   }
   return error->empty();
@@ -105,7 +105,7 @@ void swt::SwimFile::ChangeStroke(FIT_MESSAGE_INDEX length_index, FIT_SWIM_STROKE
   switch (option) {
     case ChangeStrokeOption::kLengthOnly:
       {
-        lengths_[length_index]->SetSwimStroke(new_stroke);
+        lengths_.at(length_index)->SetSwimStroke(new_stroke);
 
         // if we change the stroke for a length, the lap stroke may be impacted, 
         // if all the lengths in the same lap are of the same stroke as the new stroke, 
@@ -115,8 +115,8 @@ void swt::SwimFile::ChangeStroke(FIT_MESSAGE_INDEX length_index, FIT_SWIM_STROKE
 
         for (int index = lap->GetFirstLengthIndex(); 
             index < lap->GetFirstLengthIndex() + lap->GetNumLengths(); index++) {
-          if (lengths_[index]->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
-            if (lengths_[index]->GetSwimStroke() != new_stroke)
+          if (lengths_.at(index)->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
+            if (lengths_.at(index)->GetSwimStroke() != new_stroke)
               lap_stroke = FIT_SWIM_STROKE_MIXED;
           }
         }
@@ -128,8 +128,8 @@ void swt::SwimFile::ChangeStroke(FIT_MESSAGE_INDEX length_index, FIT_SWIM_STROKE
 
       for (int index = lap->GetFirstLengthIndex(); 
           index < lap->GetFirstLengthIndex() + lap->GetNumLengths(); index++) {
-        if (lengths_[index]->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE)
-          lengths_[index]->SetSwimStroke(new_stroke);
+        if (lengths_.at(index)->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE)
+          lengths_.at(index)->SetSwimStroke(new_stroke);
       }
       lap->SetSwimStroke(new_stroke);
       break;
@@ -246,7 +246,7 @@ bool swt::SwimFile::IsValid(std::string *error) const {
       *error = "File is empty (no lengths)";
     else if (session_->GetSwimStroke() == FIT_SWIM_STROKE_DRILL)
       *error = "File contains drills only (cannot be edited)";
-    else if (lengths_.size() != (lengths_[lengths_.size()-1]->GetMessageIndex() + 1))
+    else if (lengths_.size() != (lengths_.at(lengths_.size()-1)->GetMessageIndex() + 1))
       *error = "File failed Validation";
   }
   return error->empty();
@@ -264,8 +264,8 @@ void swt::SwimFile::Merge(FIT_MESSAGE_INDEX length_index) {
   if (!CanMerge(length_index, &error))
     throw std::runtime_error(error); 
 
-  fit::LengthMesg *first_length = lengths_[length_index];
-  fit::LengthMesg *second_length = lengths_[length_index + 1];
+  fit::LengthMesg *first_length = lengths_.at(length_index);
+  fit::LengthMesg *second_length = lengths_.at(length_index + 1);
 
   LengthSetTimestamp(first_length, second_length->GetTimestamp());
   first_length->SetTotalElapsedTime(first_length->GetTotalElapsedTime() + 
@@ -322,7 +322,7 @@ void swt::SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   if (!CanSplitChangeStrokeDelete(length_index, &error))
     throw std::runtime_error(error);
 
-  fit::LengthMesg *first_length = lengths_[length_index];
+  fit::LengthMesg *first_length = lengths_.at(length_index);
   first_length->SetTotalElapsedTime(first_length->GetTotalElapsedTime() / 2);
   first_length->SetTotalTimerTime(first_length->GetTotalTimerTime() / 2);
   FIT_DATE_TIME timestamp = first_length->GetStartTime() + 

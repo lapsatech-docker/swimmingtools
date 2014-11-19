@@ -167,7 +167,7 @@ PHP_METHOD(swt_SwimFile, getLengths)
 
         for(unsigned int length_index = first_length_index;
             length_index <= last_length_index; ++length_index) {
-          fit::LengthMesg *fit_length = lengths[length_index];
+          fit::LengthMesg *fit_length = lengths.at(length_index);
 
           zval *zval_length;
           MAKE_STD_ZVAL(zval_length);

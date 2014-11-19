@@ -38,7 +38,7 @@ void swt::Fr910SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
   if (!CanSplitChangeStrokeDelete(length_index, &error))
     throw std::runtime_error(error);
 
-  fit::LengthMesg *length = lengths_[length_index];
+  fit::LengthMesg *length = lengths_.at(length_index);
   fit::LapMesg *lap = GetLap(length_index);
   
   if (IsDuplicate(length_index)) {
@@ -74,10 +74,10 @@ void swt::Fr910SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
 bool swt::Fr910SwimFile::IsDuplicate(FIT_MESSAGE_INDEX length_index) const {
   bool is_duplicate = false;
   if (length_index > 0 && length_index < lengths_.size()) {
-    fit::LengthMesg *length = lengths_[length_index];
+    fit::LengthMesg *length = lengths_.at(length_index);
     if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
       if (length->GetTotalStrokes() == 0) {
-        fit::LengthMesg *prev_length = lengths_[length_index -1 ];
+        fit::LengthMesg *prev_length = lengths_.at(length_index -1);
         if (length->GetTotalTimerTime() == prev_length->GetTotalTimerTime()) {
           is_duplicate = true;
         }
@@ -96,14 +96,14 @@ void swt::Fr910SwimFile::RepairMissingLengths() {
 
   bool recalculate = false;
   for (int i = static_cast<int>(lengths_.size()) - 1; i >= 0; --i) {
-    fit::LengthMesg *length = lengths_[i];
+    fit::LengthMesg *length = lengths_.at(i);
 
     if (length->GetLengthType() == FIT_LENGTH_TYPE_INVALID) {
 
       recalculate = true;
       for (unsigned short j = static_cast<unsigned short>(i + 1); j < lengths_.size(); ++j) {
-        lengths_[j]->SetMessageIndex(
-            static_cast<FIT_MESSAGE_INDEX>(lengths_[j]->GetMessageIndex() - 1));
+        lengths_.at(j)->SetMessageIndex(
+            static_cast<FIT_MESSAGE_INDEX>(lengths_.at(j)->GetMessageIndex() - 1));
       }
 
       fit::LapMesg *lap = GetLap(length->GetMessageIndex());
@@ -201,7 +201,7 @@ void swt::Fr910SwimFile::UpdateLap(fit::LapMesg *lap) {
       lap->GetNumLengths() - 1);
 
   for (int index = first_length_index; index <= last_length_index; index++) {
-    fit::LengthMesg *length = lengths_[index];
+    fit::LengthMesg *length = lengths_.at(index);
 
     if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
       num_active_lengths++;

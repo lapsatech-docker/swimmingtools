@@ -11,7 +11,7 @@ void swt::Fr920SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
   if (!CanSplitChangeStrokeDelete(length_index, &error))
     throw std::runtime_error(error);
 
-  fit::LengthMesg *length = lengths_[length_index];
+  fit::LengthMesg *length = lengths_.at(length_index);
   length->SetFieldUINT16Value(kLengthAvgSpeedFieldNum, FIT_UINT16_INVALID);
   length->SetAvgSwimmingCadence(FIT_UINT8_INVALID);
   length->SetEventType(FIT_EVENT_TYPE_STOP);
@@ -114,7 +114,7 @@ void swt::Fr920SwimFile::UpdateLap(fit::LapMesg *lap) {
       lap->GetNumLengths() - 1);
 
   for (int index = first_length_index; index <= last_length_index; index++) {
-    fit::LengthMesg *length = lengths_[index];
+    fit::LengthMesg *length = lengths_.at(index);
 
     if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
       num_active_lengths++;
