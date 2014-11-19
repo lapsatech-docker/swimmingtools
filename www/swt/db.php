@@ -46,11 +46,15 @@ class DB {
     }
   }
 
-  private static function addFile($filename) {
+  public static function addFile($filename, $uploaded = NULL) {
     $dbh = self::getConnection();
-    $sql = 'INSERT INTO files (name) VALUES (?)';
+    $sql = 'INSERT INTO files (name, uploaded) VALUES (?,?)';
     $sth = $dbh->prepare($sql);
-    $sth->execute([$filename]);
+    if (is_null($uploaded)) {
+      $sth->execute([$filename, NULL]);
+    } else {
+      $sth->execute([$filename, date('Y-m-d H:i:s', $uploaded)]);
+    }
     return $dbh->lastInsertId();
   }
 
