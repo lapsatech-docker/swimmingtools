@@ -12,7 +12,7 @@ namespace swt
     public:
       Tests();
       ~Tests();
-      void CopyFenixFile(const std::string &filename);
+      void CheckRests(std::string filename);
       void CheckUpdateLapAndSession(std::string filename);
       void ReadDefs(const std::string &filename);
       void ReadSessionLapLength(const std::string &filename);

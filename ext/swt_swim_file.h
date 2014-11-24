@@ -49,6 +49,7 @@ namespace swt
       const std::vector<fit::LapMesg*> &GetLaps() const {return laps_;};
       const std::vector<fit::LengthMesg*> &GetLengths() const {return lengths_;};
       const std::list<std::unique_ptr<fit::Mesg>> &GetMesgs() const {return mesgs_;};
+      double GetRestTime(FIT_MESSAGE_INDEX length_index);
       const fit::SessionMesg* GetSession() const {return session_;};
       virtual void Initialize() {};
       virtual bool IsDuplicate(FIT_MESSAGE_INDEX length_index) const {return false;};
@@ -74,6 +75,8 @@ namespace swt
       virtual void LengthSetTimestamp(fit::LengthMesg *length, FIT_DATE_TIME timestamp);
       virtual void UpdateSession() = 0;
       virtual void UpdateLap(fit::LapMesg *lap) = 0;
+
+      std::vector<FIT_DATE_TIME> timer_stop_timestamps_;
   };
 }
 #endif

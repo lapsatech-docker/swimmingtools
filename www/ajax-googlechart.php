@@ -99,69 +99,60 @@ HEREDOC;
   $duplicates = array();
 
   foreach($lengths as $index => $length) {
-    if ($length['type'] == swt\LENGTH_ACTIVE) {
-      ++$num_active_lengths;
-      $moving_time += $length['time'];
-      $stroke_count += $length['stroke_count'];
+    ++$num_active_lengths;
+    $moving_time += $length['time'];
+    $stroke_count += $length['stroke_count'];
 
-      if ($length['stroke'] != swt\STROKE_DRILL)
-        ++$num_active_lengths_without_drills;
-    }
+    if ($length['stroke'] != swt\STROKE_DRILL)
+      ++$num_active_lengths_without_drills;
   }
   $avg_time_per_length = $moving_time / $num_active_lengths;
 
   $length_counter = 0;
   $start_new_lap = true;
-  $resting = false;
   $current_lap = 1;
+  $resting = false;
   $duplicates = array();
 
   foreach($lengths as $index => $length) {
-     if ($length['lap'] != $current_lap) {
-        $start_new_lap = true;
+    if ($length['lap'] != $current_lap) {
+      $start_new_lap = true;
       ++$current_lap;
     }
 
-    if ($length['type'] == swt\LENGTH_ACTIVE) {
-      ++$length_counter;
+    ++$length_counter;
 
-      $annotation = '';
-      if ($start_new_lap) $annotation = $length['lap'];
-      elseif ($resting) $annotation = 'R';
+    $annotation = '';
+    if ($start_new_lap) $annotation = $length['lap'];
+    elseif ($resting) $annotation = 'R';
 
-      $color = swt\Functions::$stroke_lookup[$length['stroke']]['color'];
-      $can_merge = $length['can_merge'] ? 'true' : 'false';
-      $can_edit = $length['can_edit'] ? 'true' : 'false';
-      $is_duplicate = 'false';
-      if ($length['is_duplicate'] == true) {
-        $is_duplicate = 'true';
-        $duplicates[] = $length_counter;
-      }
-
-      $is_duplicate = $length['is_duplicate'] ? 'true' : 'false';
-
-//      $tooltip = sprintf('<div class="tooltip">'.
-//        '<span class="length">Length: %d</span><br/>'.
-//       '<span class="%s">%s</span><br/>'.
-//        '%.1f sec.<br/>'.
-//        '%d strokes'.
-//        '</div>',
-//        $length_counter, strtolower($stroke), $stroke, $length['time'], $length['stroke_count']);
-
-      if (!($length_counter == 1))
-        echo ',';
-
-      printf("{c:[{v:%d},{v:%.1f},{v:'%s'},{v:%.1f},{v:'%s'}],".
-        "p:{lengthIndex:%d,swimStroke:%s,canMerge:%s,canEdit:%s,isDuplicate:%s}}\n",
-        $length_counter, $avg_time_per_length, $annotation, $length['time'],
-        $color, $length['length_index'], $length['stroke'], $can_merge, $can_edit, $is_duplicate);
-
-      $start_new_lap = false;
-      $resting = false;
-
-    } elseif ($length['type'] == swt\LENGTH_IDLE) {
-      $resting = true;
+    $color = swt\Functions::$stroke_lookup[$length['stroke']]['color'];
+    $can_merge = $length['can_merge'] ? 'true' : 'false';
+    $can_edit = $length['can_edit'] ? 'true' : 'false';
+    $is_duplicate = 'false';
+    if ($length['is_duplicate'] == true) {
+      $is_duplicate = 'true';
+      $duplicates[] = $length_counter;
     }
+
+    //      $tooltip = sprintf('<div class="tooltip">'.
+    //        '<span class="length">Length: %d</span><br/>'.
+    //       '<span class="%s">%s</span><br/>'.
+    //        '%.1f sec.<br/>'.
+    //        '%d strokes'.
+    //        '</div>',
+    //        $length_counter, strtolower($stroke), $stroke, $length['time'], $length['stroke_count']);
+
+    if (!($length_counter == 1))
+      echo ',';
+
+    printf("{c:[{v:%d},{v:%.1f},{v:'%s'},{v:%.1f},{v:'%s'}],".
+      "p:{lengthIndex:%d,swimStroke:%s,canMerge:%s,canEdit:%s,isDuplicate:%s}}\n",
+      $length_counter, $avg_time_per_length, $annotation, $length['time'],
+      $color, $length['length_index'], $length['stroke'], $can_merge, $can_edit, $is_duplicate);
+
+    $resting = $length['rest'] > 0 ? true : false;
+    $start_new_lap = false;
   }
 
   $pool_size_units = 'm';
@@ -170,9 +161,9 @@ HEREDOC;
 
   if ($swim_file->getPoolSizeUnits() == swt\UNITS_STATUTE) {
     $pool_size_units = 'y';
+    $pool_size *= 1.09361;
     $distance *= 1.09361;
   }
-
 
   $time  = new DateTime();
   $time->setTimezone(new DateTimeZone('UTC'));
@@ -194,9 +185,6 @@ HEREDOC;
     $status = $status.'. <b>Duplicate detected('
       .implode(',', $duplicates).'), suggest you delete</b>';
   }
-
-  if ($pool_size_units == 'y')
-    $pool_size *= 1.09361;
 
   printf("],p:{status:'%s',poolSize:%.0f,poolSizeUnits:'%s',distance:'%.0f %3\$s',"
     ."swimTime:'%s',avgPace:'%s min/100%3\$s',avgStrokes:'%.0f/length'}}})",

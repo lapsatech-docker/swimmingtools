@@ -39,8 +39,8 @@ class Activity
     $this->pool_size_meters = $swim_file->getPoolSize();
     $this->pool_size_units = $swim_file->getPoolSizeUnits();
     $this->lengths = $swim_file->getLengths();
-    $this->getStrokeSummaries();
-    $this->getBestTimes();
+//    $this->getStrokeSummaries();
+//    $this->getBestTimes();
     $this->saveToDatabase();
 
   }
