@@ -18,6 +18,10 @@ try
 
     if (!(copy($path.'EDIT', $path.'DOWNLOAD'))) 
       throw new Exception('Cannot update file');
+
+    $activity = new swt\Activity($file_id);
+    $activity->saveToDatabase();
+
     $filename = swt\DB::getFilename($file_id);
 
     if (preg_match('/\.fit$/i', $filename) == 1) {

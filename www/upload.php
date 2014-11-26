@@ -21,6 +21,7 @@ try {
       
       $file_id = swt\DB::createFileFromUpload('fitFile');
       $activity = new swt\Activity($file_id);
+      $activity->saveToDatabase();
 
       $path = swt\DB::convertFileIdToPath($file_id);
       if (!(copy($path.'UPLOAD', $path.'EDIT'))) 

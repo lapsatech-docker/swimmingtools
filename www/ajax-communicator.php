@@ -32,7 +32,8 @@ try {
     if (!rename($path.'TEMP', $path.'UPLOAD'))
       throw new Exception('Cannot copy file');
 
-    $activity = new swt\activity($file_id);
+    $activity = new swt\Activity($file_id);
+    $activity->saveToDatabase();
 
     if (!copy($path.'UPLOAD', $path.'EDIT'))
       throw new Exception('Cannot copy file');
