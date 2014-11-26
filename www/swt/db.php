@@ -14,7 +14,8 @@ class DB {
 
   private static $dbh;
 
-  public static function getConnection() {
+  public static function getConnection()
+  {
     if (!isset(self::$dbh)) {
       self::$dbh = new \PDO('mysql:host=localhost;dbname=swtdb', 'apache', 'b1ozvc30');
       self::$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -24,7 +25,8 @@ class DB {
 
   public static function addEditorLogEntry($file_id, $action, $length_index,
     $change_stroke_from, $change_stroke_to, $change_stroke_option,
-    $new_pool_size, $new_pool_size_units) {
+    $new_pool_size, $new_pool_size_units)
+  {
       $sbh = self::getConnection();
       $sql = 'INSERT INTO editor_log (activity_id, action_id, length_index, 
         change_stroke_from, change_stroke_to, change_stroke_option,
@@ -35,18 +37,20 @@ class DB {
         $new_pool_size, $new_pool_size_units]);
     }
 
-  public static function addErrorLogEntry($file_id, $script, $message) {
+  public static function addErrorLogEntry($file_id, $script, $message)
+  {
     try {
       $dbh = self::getConnection();
       $sql = 'INSERT INTO error_log (file_id, script, message) values (?, ?, ?)';
       $sth = $dbh->prepare($sql);
       $sth->execute([$file_id, $script, $message]);
-    } catch(Exception $ex) {
+    } catch(\Exception $ex) {
       error_log($ex);
     }
   }
 
-  public static function addFile($filename, $uploaded = NULL) {
+  public static function addFile($filename, $uploaded = NULL)
+  {
     $dbh = self::getConnection();
     $sql = 'INSERT INTO files (name, uploaded) VALUES (?,?)';
     $sth = $dbh->prepare($sql);
@@ -58,14 +62,15 @@ class DB {
     return $dbh->lastInsertId();
   }
 
-  public static function convertFileIdToPath($file_id) {
+  public static function convertFileIdToPath($file_id)
+  {
     $sub_dir = $file_id % 1000;
     $sub_dir = sprintf('%03d', $sub_dir);
     return 'data'.DIRECTORY_SEPARATOR.$sub_dir.DIRECTORY_SEPARATOR.$file_id;
   }
 
-  public static function createFileFromUpload($upload) {
-
+  public static function createFileFromUpload($upload)
+  {
     // Garmin Connect exports activity file as  zip files containing the
     // original fit file. This code Checks if the uploaded file is a zip
     // file and extract the fit file
@@ -79,7 +84,7 @@ class DB {
       $copy_to = self::convertFileIdToPath($file_id).'UPLOAD';
 
       if (!copy($copy_from, $copy_to)) {
-        throw new Exception('Cannot extract file from zip');
+        throw new \Exception('Cannot extract file from zip');
       }
     } else {
       // File is a regular file
@@ -97,13 +102,14 @@ class DB {
       $file_id = self::addFile($filename);
       $copy_to = self::ConvertFileIdToPath($file_id).'UPLOAD';
       if (!move_uploaded_file($_FILES[$upload]['tmp_name'], $copy_to)) {
-        throw new Exception('Cannot move uploaded file to data directory');
+        throw new \Exception('Cannot move uploaded file to data directory');
       }
     }
     return $file_id;
   }
 
-  public static function getFilename($file_id) {
+  public static function getFilename($file_id)
+  {
     $dbh = self::getConnection();
     $sql = 'SELECT name FROM files WHERE file_id = ?';
     $sth = $dbh->prepare($sql);
@@ -111,6 +117,6 @@ class DB {
     if ($filename = $sth->fetchColumn())
       return $filename;
     else
-     throw new Exception('Cannot retrieve filename for file_id = '.$file_id);
+     throw new \Exception('Cannot retrieve filename for file_id = '.$file_id);
   }
 }
