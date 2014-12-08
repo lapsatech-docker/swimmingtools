@@ -82,6 +82,7 @@ try {
 google.visualization.Query.setResponse({ $req_id status:'ok',table:
 {cols:[
 {id:'Length',label:'Length',type:'number'},
+{type: 'string', role: 'tooltip'},
 {id:'Average',label:'Average',type:'number'},
 {type:'string',role:'annotation'},
 {id:'Time',label:'Time',type:'number'},
@@ -135,20 +136,19 @@ HEREDOC;
       $duplicates[] = $length_counter;
     }
 
-    //      $tooltip = sprintf('<div class="tooltip">'.
-    //        '<span class="length">Length: %d</span><br/>'.
-    //       '<span class="%s">%s</span><br/>'.
-    //        '%.1f sec.<br/>'.
-    //        '%d strokes'.
-    //        '</div>',
-    //        $length_counter, strtolower($stroke), $stroke, $length['time'], $length['stroke_count']);
+    $stroke = swt\Functions::$stroke_lookup[$length['stroke']]['string'];
+    $tooltip = sprintf('Length: %d\n'.
+       '%s\n'.
+      '%.1f sec.\n'.
+      '%d strokes',
+      $length_counter, $stroke, $length['time'], $length['stroke_count']);
 
     if (!($length_counter == 1))
       echo ',';
 
-    printf("{c:[{v:%d},{v:%.1f},{v:'%s'},{v:%.1f},{v:'%s'}],".
+    printf("{c:[{v:%d},{v:'%s'},{v:%.1f},{v:'%s'},{v:%.1f},{v:'%s'}],".
       "p:{lengthIndex:%d,swimStroke:%s,canMerge:%s,canEdit:%s,isDuplicate:%s}}\n",
-      $length_counter, $avg_time_per_length, $annotation, $length['time'],
+      $length_counter, $tooltip, $avg_time_per_length, $annotation, $length['time'],
       $color, $length['length_index'], $length['stroke'], $can_merge, $can_edit, $is_duplicate);
 
     $resting = $length['rest'] > 0 ? true : false;
