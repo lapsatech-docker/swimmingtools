@@ -16,7 +16,8 @@ namespace swt
     kGarminSwim = 1,
     kGarminFr910 = 2,
     kGarminFenix2 = 3,
-    kGarminFr920 = 4
+    kGarminFr920 = 4,
+    kTomtom = 5
   }; 
 
   enum ChangeStrokeOption {
@@ -65,6 +66,7 @@ namespace swt
       std::vector<fit::LapMesg*> laps_;
       std::vector<fit::LengthMesg*> lengths_;
       std::list<std::unique_ptr<fit::Mesg>> mesgs_;
+      std::vector<FIT_DATE_TIME> timer_stop_timestamps_;
 
       FIT_UINT32Z serial_number_;
       FIT_UINT16 software_version_;
@@ -76,7 +78,6 @@ namespace swt
       virtual void UpdateSession() = 0;
       virtual void UpdateLap(fit::LapMesg *lap) = 0;
 
-      std::vector<FIT_DATE_TIME> timer_stop_timestamps_;
   };
 }
 #endif

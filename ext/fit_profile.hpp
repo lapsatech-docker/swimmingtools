@@ -587,10 +587,11 @@ typedef FIT_UINT16 FIT_MANUFACTURER;
 #define FIT_MANUFACTURER_CATEYE                                                  ((FIT_MANUFACTURER)68)
 #define FIT_MANUFACTURER_STAGES_CYCLING                                          ((FIT_MANUFACTURER)69)
 #define FIT_MANUFACTURER_SIGMASPORT                                              ((FIT_MANUFACTURER)70)
+#define FIT_MANUFACTURER_TOMTOM                                                  ((FIT_MANUFACTURER)71)
 #define FIT_MANUFACTURER_MOXY                                                    ((FIT_MANUFACTURER)76)
 #define FIT_MANUFACTURER_DEVELOPMENT                                             ((FIT_MANUFACTURER)255)
 #define FIT_MANUFACTURER_ACTIGRAPHCORP                                           ((FIT_MANUFACTURER)5759)
-#define FIT_MANUFACTURER_COUNT                                                   72
+#define FIT_MANUFACTURER_COUNT                                                   73
 
 typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_INVALID                                               FIT_UINT16_INVALID

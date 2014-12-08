@@ -18,21 +18,22 @@ using std::endl;
 swt::Tests::Tests() {
   log.open("test.csv");
 
+
   TestSwimFile();
 
-//   DIR *dp;
+//  DIR *dp;
 //  struct dirent *ep;
 //
-//  dp = opendir("../fit_files/temp");
+//  dp = opendir("../fit_files/gs");
 //  if (dp != NULL) {
 //
 //    while (ep = readdir(dp))
 //    {
 //      if (ep->d_type == DT_REG) {
-//        std::string filename = "../fit_files/temp/";
+//        std::string filename = "../fit_files/gs/";
 //        filename += ep->d_name;
 //        std::cout << filename << std::endl;
-//        CheckRests(filename);
+//        ReadDefs(filename);
 //     }
 //    }
 //    closedir(dp);
@@ -42,99 +43,6 @@ swt::Tests::Tests() {
 swt::Tests::~Tests() {
   log.close();
 }
-
-void swt::Tests::CheckRests(std::string file) {
-
-  FileReader file_reader;
-  std::unique_ptr<SwimFile> fit_file;
-
-  try {
-    fit_file = file_reader.Read(file);
-    unsigned long current_lap = 0;
-    const std::vector<fit::LapMesg*> &laps = fit_file->GetLaps();
-    const std::vector<fit::LengthMesg*> &lengths = fit_file->GetLengths();
-    const std::list<std::unique_ptr<fit::Mesg>> &mesgs  = fit_file->GetMesgs();
-    std::vector<FIT_DATE_TIME> timer_stop_timestamps;
-
-    for(const std::unique_ptr<fit::Mesg> &mesg : mesgs) {
-      if (mesg->GetNum() == FIT_MESG_NUM_EVENT) {
-        std::unique_ptr<fit::EventMesg> event( new fit::EventMesg(*mesg));
-        if (event->GetEvent() == FIT_EVENT_TIMER && event->GetEventType() == FIT_EVENT_TYPE_STOP_ALL) {
-          timer_stop_timestamps.push_back(event->GetTimestamp());
-        }
-      }
-    }
-
-    for (fit::LapMesg *lap : laps) {
-      if (lap->GetNumActiveLengths() > 0) {
-        ++current_lap;
-        FIT_UINT16 first_length_index = lap->GetFirstLengthIndex();
-        FIT_UINT16 last_length_index = first_length_index + lap->GetNumLengths() - 1;
-
-        for(unsigned int length_index = first_length_index;
-            length_index <= last_length_index; ++length_index) {
-          fit::LengthMesg *fit_length = lengths.at(length_index);
-
-          if (fit_length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
-            // Compute rest time. Some watches compute rest time and add rest
-            // lenths to the file, this rest is confirmed. If the watch doesn't
-            // compute rest, we have to estimate rest time between lengths by
-            // substracting  the time the length ends from the time the next
-            // length starts
-            FIT_UINT16 next_length = length_index + 1;
-            bool confirmed = false;
-            double confirmed_rest = 0;
-            double estimated_rest = 0;
-            double rest = 0;
-            while (next_length < lengths.size() &&
-                (lengths.at(next_length)->GetLengthType() == FIT_LENGTH_TYPE_IDLE)) {
-              confirmed_rest += lengths.at(next_length)->GetTotalTimerTime();
-              confirmed = true;
-              next_length++;
-            }
-            if (next_length < lengths.size()) {
-              estimated_rest  = static_cast<double>(lengths.at(next_length)->GetStartTime()) -
-                (static_cast<double>(fit_length->GetStartTime()) +
-                 static_cast<double>(fit_length->GetTotalTimerTime()));
-            }
-            // stop button was pressed betwean the two lengths, even if there
-            // are no rest length, the rest is confirmed
-            for (FIT_DATE_TIME timer_stop_timestamp : timer_stop_timestamps) {
-              if (next_length < lengths.size() &&
-                  (timer_stop_timestamp > fit_length->GetStartTime()) &&
-                  (timer_stop_timestamp < lengths.at(next_length)->GetStartTime()))
-                confirmed = true;
-            }
-
-            // Next length is not in the same lap, so lap button was pressed.
-            // Even if there is no rest length, the rest is confirmed
-            if (next_length > last_length_index)
-             confirmed = true;
-
-            // Drill length by definition ara always consecutive and never
-            // have rest in between. In Garmin swim all drill from an
-            // interval have same start time so estimated rest value
-            // is irrelevant
-            if (fit_length->GetSwimStroke() == FIT_SWIM_STROKE_DRILL) {
-              confirmed_rest = estimated_rest = 0;
-              confirmed = true;
-            }
-
-            if (confirmed)
-              rest = estimated_rest > confirmed_rest ? estimated_rest : confirmed_rest;
-            else
-              rest = 0;
-
-          }
-        }
-      }
-    }
-  } catch (std::exception &ex) {
-    log  << ex.what()  << std::endl;
-
-  }
-}
-
 
 
 void swt::Tests::CheckUpdateLapAndSession(std::string file) {
@@ -225,7 +133,7 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
     }
     if (fabs(session_before.GetMaxSpeed() - session_after->GetMaxSpeed()) > .01) {
 
-      log << filename << "," << device << "," << version << ",session ,max_speed,"
+      log << filename << "," << device << "," << version << ",session,max_speed,"
         << session_before.GetMaxSpeed() << "," << session_after->GetMaxSpeed() << endl;
     }
     if (session_before.GetNumActiveLengths() != session_after->GetNumActiveLengths()) {
@@ -276,6 +184,12 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
     {
       log << filename << "," << device << "," << version << ",session,total_fat_falories,"
         << session_before.GetTotalFatCalories() << "," << session_after->GetTotalFatCalories()
+        << endl;
+    }
+    if (abs(session_before.GetTotalTimerTime() - session_after->GetTotalTimerTime()) > 1)
+    {
+      log << filename << "," << device << "," << version << ",session,total_timer_time,"
+        << session_before.GetTotalTimerTime() << "," << session_after->GetTotalTimerTime()
         << endl;
     }
 
@@ -438,6 +352,13 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
         log << filename << "," << device << "," << version
           << ",lap" + std::to_string(i) + ",Total_fat_falories,"
           << laps_before[i].GetTotalFatCalories() << "," << laps_after[i]->GetTotalFatCalories()
+          << endl;
+      }
+      if (abs(laps_before[i].GetTotalTimerTime() - laps_after[i]->GetTotalTimerTime()) > 1)
+      {
+        log << filename << "," << device << "," << version
+          << ",lap" + std::to_string(i) + ",total_timer_time,"
+          << laps_before[i].GetTotalTimerTime() << "," << laps_after[i]->GetTotalTimerTime()
           << endl;
       }
 
@@ -724,6 +645,7 @@ void swt::Tests::TestSwimFile() {
   std::string garmin_fr910_file = fit_path + "3864554663_20131119-195816-1-1328-ANTFS-4-0.FIT";
   std::string garmin_fr920_file = fit_path + "3892502708_20141014_075500_1765.FIT";
   std::string garmin_fenix_file = fit_path + "3881241990_2014-05-06-20-14-22-Piscine.fit";
+  std::string garmin_tomtom_file = fit_path + "tomtom.fit";
   std::string saveAs;
 
   FileReader file_reader;
@@ -895,5 +817,50 @@ void swt::Tests::TestSwimFile() {
   swim_file->Delete(52);
   swim_file->Delete(53);
   swim_file->Save(fit_path + "output/fr920_delete_convert_lap_to_rest.fit");
+
+  // Tomtom 
+
+  swim_file = file_reader.Read(garmin_tomtom_file);
+  swim_file->Recalculate();
+  swim_file->Save(fit_path + "output/tomtom_no_changes.fit");
+
+  swim_file = file_reader.Read(garmin_tomtom_file);
+  swim_file->Merge(3);
+  swim_file->Save(fit_path + "output/tomtom_merge.fit");
+
+  swim_file = file_reader.Read(garmin_tomtom_file);
+  swim_file->Split(5);
+  swim_file->Save(fit_path + "output/tomtom_split.fit");
+
+  swim_file = file_reader.Read(garmin_tomtom_file);
+  swim_file->ChangeStroke(5, FIT_SWIM_STROKE_BREASTSTROKE, ChangeStrokeOption::kLengthOnly);
+  swim_file->Save(fit_path + "output/tomtom_change_stroke_length_only.fit");
+
+  swim_file = file_reader.Read(garmin_tomtom_file);
+  swim_file->ChangeStroke(5, FIT_SWIM_STROKE_BUTTERFLY, ChangeStrokeOption::kLap);
+  swim_file->Save(fit_path + "output/tomtom_change_stroke_lap.fit");
+
+  swim_file = file_reader.Read(garmin_tomtom_file);
+  swim_file->ChangeStroke(5, FIT_SWIM_STROKE_BACKSTROKE, ChangeStrokeOption::kAll);
+  swim_file->Save(fit_path + "output/tomtom_change_stroke_all.fit");
+
+  swim_file = file_reader.Read(garmin_tomtom_file);
+  swim_file->ChangePoolSize(50, FIT_DISPLAY_MEASURE_METRIC);
+  swim_file->Save(fit_path + "output/tomtom_change_pool_length.fit");
+
+  swim_file = file_reader.Read(garmin_tomtom_file);
+  swim_file->Delete(5);
+  swim_file->Save(fit_path + "output/tomtom_delete_simple.fit");
+
+  swim_file = file_reader.Read(garmin_tomtom_file);
+  swim_file->Delete(8);
+  swim_file->Delete(8);
+  swim_file->Delete(8);
+  swim_file->Delete(8);
+  swim_file->Delete(8);
+  swim_file->Delete(8);
+  swim_file->Delete(8);
+  swim_file->Delete(8);
+  swim_file->Save(fit_path + "output/tomtom_delete_convert_lap_to_rest.fit");
 }
 

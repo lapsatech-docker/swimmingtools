@@ -423,6 +423,9 @@ void swt::SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   LengthSetTimestamp(second_length.get(), timestamp);
   second_length->SetTotalStrokes(static_cast<FIT_UINT16>((totalStrokes / 2) +
         (totalStrokes % 2))); // Add mod to preserve stroke count when odd
+  second_length->SetAvgSwimmingCadence(static_cast<FIT_UINT8>
+      (round(60.0 * second_length->GetTotalStrokes() /
+             second_length->GetTotalTimerTime())));
 
   lengths_.insert(lengths_.begin() + length_index + 1, second_length.get());
   std::list<std::unique_ptr<fit::Mesg>>::iterator it;
