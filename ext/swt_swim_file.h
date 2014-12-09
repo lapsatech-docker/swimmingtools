@@ -39,7 +39,7 @@ namespace swt
     public:
       SwimFile();
       virtual void AddMesg(const void *mesg);
-      bool CanMerge(FIT_MESSAGE_INDEX length_index, std::string *error) const;
+      virtual bool CanMerge(FIT_MESSAGE_INDEX length_index, std::string *error) const;
       bool CanSplitChangeStrokeDelete(FIT_MESSAGE_INDEX length_index,std::string *error) const;
       void ChangeStroke(FIT_MESSAGE_INDEX length_index, FIT_SWIM_STROKE stroke, ChangeStrokeOption option);
       void ChangePoolSize(FIT_FLOAT32 new_size_metric, FIT_DISPLAY_MEASURE display_measure); 
@@ -55,7 +55,7 @@ namespace swt
       virtual void Initialize() {};
       virtual bool IsDuplicate(FIT_MESSAGE_INDEX length_index) const {return false;};
       virtual bool IsValid(std::string *error) const;
-      void Merge(FIT_MESSAGE_INDEX length_index);
+      virtual void Merge(FIT_MESSAGE_INDEX length_index);
       void Recalculate();
       virtual void Save(const std::string &filename) const = 0;
       void Split(FIT_MESSAGE_INDEX length_index);

@@ -12,8 +12,10 @@ namespace swt
       TomtomSwimFile() : activity_(nullptr) ,lap_num_fields_(0), session_num_fields_(0) {};
 
       Product GetProduct() const {return Product::kTomtom;}
+      bool CanMerge(FIT_MESSAGE_INDEX length_index, std::string *error) const;
       void Delete(FIT_MESSAGE_INDEX length_index);
       void Initialize();
+      void Merge(FIT_MESSAGE_INDEX length_index);
       void Save(const std::string &filename) const;
 
     private:

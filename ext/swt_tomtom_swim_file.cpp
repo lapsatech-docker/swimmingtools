@@ -7,6 +7,26 @@
 #include "fit_record_mesg.hpp"
 #include "swt_tomtom_swim_file.h"
 
+bool swt::TomtomSwimFile::CanMerge(FIT_MESSAGE_INDEX length_index, std::string *error) const {
+  *error ="";
+
+  // -2 because we merge 2 lengths (length_index being the first) so the last length can't be merged
+  if (length_index > (lengths_.size() - 2)) {
+    *error = "Length doesn't exist or is the last length";
+  } else {
+    fit::LengthMesg *first_length = lengths_.at(length_index);
+    fit::LengthMesg *second_length = lengths_.at(length_index + 1);
+
+
+    for (FIT_DATE_TIME timer_stop_timestamp : timer_stop_timestamps_) {
+      if ((timer_stop_timestamp > first_length->GetStartTime()) &&
+          (timer_stop_timestamp < second_length->GetStartTime()))
+        *error = "Timer was stopped between lengths";
+    }
+  }
+  return error->empty();
+}
+
 void swt::TomtomSwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
   std::string error;
 
@@ -98,6 +118,10 @@ void swt::TomtomSwimFile::FixRestWithinLength(fit::LengthMesg * length) {
 
 
 void swt::TomtomSwimFile::Initialize() {
+
+  if (session_->GetTotalCycles() != lengths_.at(lengths_.size() - 1)->GetTotalStrokes())
+    throw std::runtime_error("Tomtom num strokes is not cumulative");
+
   FIT_UINT32 cumulative_total_strokes = lengths_.at(0)->GetTotalStrokes();
 
   for (unsigned int i = 1; i < lengths_.size(); i++) {
@@ -137,6 +161,55 @@ void swt::TomtomSwimFile::Initialize() {
     }
   }
   Recalculate();
+}
+
+void swt::TomtomSwimFile::Merge(FIT_MESSAGE_INDEX length_index) {
+  std::string error;
+  if (!CanMerge(length_index, &error))
+    throw std::runtime_error(error);
+
+  fit::LengthMesg *first_length = lengths_.at(length_index);
+  fit::LengthMesg *second_length = lengths_.at(length_index + 1);
+  fit::LapMesg *first_length_lap = GetLap(length_index);
+  fit::LapMesg *second_length_lap = GetLap(length_index + 1);
+
+
+  LengthSetTimestamp(first_length, second_length->GetTimestamp());
+  first_length->SetTotalElapsedTime(first_length->GetTotalElapsedTime() +
+      second_length->GetTotalElapsedTime());
+  first_length->SetTotalTimerTime(first_length->GetTotalTimerTime() +
+      second_length->GetTotalTimerTime());
+  first_length->SetTotalStrokes(static_cast<FIT_UINT16>
+      (first_length->GetTotalStrokes() + second_length->GetTotalStrokes()));
+  first_length->SetAvgSpeed(session_->GetPoolLength() / first_length->GetTotalTimerTime());
+  first_length->SetAvgSwimmingCadence(static_cast<FIT_UINT8>
+      (round(60.0 * first_length->GetTotalStrokes() /
+             first_length->GetTotalTimerTime())));
+
+  mesgs_.remove_if([second_length] (std::unique_ptr<fit::Mesg> &mesg)
+      {return mesg.get() == second_length;});
+  lengths_.erase(lengths_.begin() + length_index + 1);
+
+  for (fit::LengthMesg *length : lengths_) {
+    if (length->GetMessageIndex() > length_index)
+      length->SetMessageIndex(static_cast<FIT_MESSAGE_INDEX>(length->GetMessageIndex() - 1));
+  }
+
+  fit::LapMesg *affected_lap = first_length_lap;
+  if (first_length_lap != second_length_lap) 
+    affected_lap = second_length_lap;
+
+  affected_lap->SetNumLengths(static_cast<FIT_UINT16>(affected_lap->GetNumLengths() - 1));
+
+  for (fit::LapMesg *lap : laps_) {
+    if ((lap->GetMessageIndex() > affected_lap->GetMessageIndex()) &&
+        (lap->GetFirstLengthIndex() != FIT_UINT16_INVALID)) {
+      lap->SetFirstLengthIndex(static_cast<FIT_UINT16>(lap->GetFirstLengthIndex() - 1));
+    }
+  }
+  UpdateLap(first_length_lap);
+  UpdateLap(second_length_lap);
+  UpdateSession();
 }
 
 void swt::TomtomSwimFile::Save(const std::string &filename) const {
