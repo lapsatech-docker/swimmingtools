@@ -9,7 +9,7 @@ namespace swt
     public:
       Product GetProduct() const {return Product::kGarminFr920;}
       void Delete(FIT_MESSAGE_INDEX length_index);
-      void Save(const std::string &filename) const;
+      void Save(const std::string &filename, bool convert=false) const;
 
     private:
       static const FIT_UINT8 kLapAvgStrokeCountFieldNnum = 90;

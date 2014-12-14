@@ -14,7 +14,7 @@ namespace swt
       Product GetProduct() const {return Product::kGarminFr910;}
       void Delete(FIT_MESSAGE_INDEX length_index);
       void Initialize();
-      void Save(const std::string &filename) const;
+      void Save(const std::string &filename, bool convert=false) const;
       bool IsDuplicate(FIT_MESSAGE_INDEX length_index) const;
 
     private:

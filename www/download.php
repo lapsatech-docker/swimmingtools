@@ -7,11 +7,15 @@ try
   session_start();
   $file_id = NULL;
   $error ='';
+  $convert = false;
 
   if (!isset($_SESSION['file_id'])) {
     $error  = '<p class="warning">Session has expired. Your data is discarded '
       .'after 20 minutes of inactivity. <a href="upload">Try again</a></p>';
   } else {
+
+    if (isset($_GET['garmin']))
+      $convert = true;
 
     $file_id = $_SESSION['file_id'];
     $path = swt\DB::convertFileIdToPath($file_id);
@@ -30,6 +34,12 @@ try
       $filename .= '_NEW.FIT';
     }
 
+    if ($convert) {
+      $swim_file = new swt\SwimFile($path.'EDIT');
+      $swim_file->save($path.'GARMIN', true);
+      $filename = preg_replace('/_NEW\.FIT$/', '_GARMIN.FIT', $filename);
+    }
+
     swt\DB::addEditorLogEntry($file_id, swt\DB::EDITOR_ACTION_DOWNLOAD, NULL, NULL,
       NULL, NULL, NULL, NULL);
 
@@ -38,7 +48,10 @@ try
     header('Pragma: no-cache');
     header('Expires: 0');
     header('Content-Disposition: filename="'.$filename.'"');
-    $handle = fopen($path.'DOWNLOAD', 'rb');
+    if ($convert) 
+      $handle = fopen($path.'GARMIN', 'rb');
+    else 
+      $handle = fopen($path.'DOWNLOAD', 'rb');
     fpassthru($handle);
     exit();
   }

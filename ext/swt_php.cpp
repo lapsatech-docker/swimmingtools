@@ -314,15 +314,16 @@ PHP_METHOD(swt_SwimFile, save) {
 
   char *filename;
   int filename_len;
+  bool convert = false;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename,
-        &filename_len) == FAILURE) {
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|b", &filename,
+        &filename_len, &convert) == FAILURE) {
     php_error_docref(NULL TSRMLS_CC, E_ERROR, "Must provide a filename");
     RETURN_FALSE;
   }
 
   try {
-    swim_file->Save(filename);
+    swim_file->Save(filename, convert);
   } catch (std::exception &ex) {
     zend_throw_exception(zend_exception_get_default(TSRMLS_C), ex.what(), 0 TSRMLS_CC);
   }

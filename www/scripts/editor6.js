@@ -356,4 +356,18 @@ function chart_onSelect() {
   }
 }
 
+function showDownloadPopup() {
+  
+  var popup = document.getElementById('downloadPopUp');
+  popup.style.left = event.clientX + 'px';
+  popup.style.top = event.clientY + 'px';;
+  popup.style.display = 'block';
+
+}
+function hideDownloadPopup() {
+
+  var popup = document.getElementById('downloadPopUp');
+  popup.style.display = 'none';
+}
+
 google.setOnLoadCallback(initialize);

@@ -1,10 +1,10 @@
 #include <cmath>
 #include <algorithm>
 #include <fstream>
-#include <iostream>
 #include "fit_encode.hpp"
 #include "fit_event_mesg.hpp"
 #include "fit_record_mesg.hpp"
+#include "swt_gs_swim_file.h"
 #include "swt_tomtom_swim_file.h"
 
 bool swt::TomtomSwimFile::CanMerge(FIT_MESSAGE_INDEX length_index, std::string *error) const {
@@ -156,8 +156,6 @@ void swt::TomtomSwimFile::Initialize() {
       first_length_index = FIT_UINT16_INVALID;
     } else if (typeid(*mesg) == typeid(fit::SessionMesg)) {
       session_num_fields_ = mesg->GetNumFields();
-    } else if (mesg->GetNum() == FIT_MESG_NUM_ACTIVITY) {
-      activity_ = reinterpret_cast<fit::ActivityMesg*>(mesg.get());
     }
   }
   Recalculate();
@@ -212,77 +210,100 @@ void swt::TomtomSwimFile::Merge(FIT_MESSAGE_INDEX length_index) {
   UpdateSession();
 }
 
-void swt::TomtomSwimFile::Save(const std::string &filename) const {
-  fit::Encode encode;
-  std::fstream fit_file(filename, 
-      std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
+void swt::TomtomSwimFile::Save(const std::string &filename, bool convert/*=false*/) const {
 
-  if (!fit_file.is_open())
-    throw std::runtime_error("Error opening file"); 
+  if (convert) {
+    GarminSwimFile gs;
+    gs.CreateNewFile(session_->GetStartTime(), serial_number_, session_->GetPoolLength(), session_->GetPoolLengthUnit());
 
-  encode.Open(fit_file);
+    for (fit::LapMesg * lap : laps_) {
+      int first_length_index = lap->GetFirstLengthIndex();
+      int last_length_index = first_length_index + lap->GetNumLengths() - 1;
 
-  FIT_FLOAT32 moving_time = 0;
-  for(fit::LengthMesg *length : lengths_) {
-    if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE)
-      moving_time += (length->GetTotalTimerTime() + 1);
-  }
-
-  FIT_FLOAT32 calories_increment = moving_time / session_->GetTotalCalories();
-  FIT_FLOAT32 cumulative_distance = 0;
-  FIT_UINT16 cumulative_moving_time = 0;
-  FIT_UINT16 cumulative_strokes = 0;
-  FIT_DATE_TIME current_timestamp = 0 ;
-
-  for (const std::unique_ptr<fit::Mesg> &mesg : mesgs_) {
-    if (typeid(*mesg) == typeid(fit::LengthMesg)) {
-      fit::LengthMesg *length = dynamic_cast<fit::LengthMesg*>(mesg.get());
-
-      cumulative_strokes += length->GetTotalStrokes();
-      length->SetTotalStrokes(cumulative_strokes);
-
-      FIT_FLOAT32 speed  = length->GetAvgSpeed();
-      current_timestamp = current_timestamp > length->GetStartTime() ? current_timestamp : length->GetStartTime();
-      FIT_DATE_TIME end_time = current_timestamp + static_cast<FIT_UINT32>(length->GetTotalTimerTime());
-
-      FIT_FLOAT32 distance_increment = session_->GetPoolLength() / (end_time - current_timestamp + 1);
-
-      while (current_timestamp <= end_time) {
-
-        cumulative_distance += distance_increment;
-        cumulative_moving_time++;
-        fit::RecordMesg record;
-        record.SetTimestamp(current_timestamp++);
-        record.SetDistance(cumulative_distance);
-        record.SetSpeed(speed);
-        record.SetCalories(cumulative_moving_time / calories_increment);
-        encode.Write(record);
+      for (int i = lap->GetFirstLengthIndex(); i <= last_length_index; i++) {
+        fit::LengthMesg * length = lengths_.at(i);
+        gs.AddLength(length->GetTotalTimerTime(), length->GetTotalStrokes(), length->GetSwimStroke(), length->GetLengthType());
+        double rest = GetRestTime(i);
+        if (rest > 0) {
+          gs.AddLength(rest, FIT_UINT16_INVALID, FIT_SWIM_STROKE_INVALID, FIT_LENGTH_TYPE_IDLE);
+        }
       }
-      encode.Write(*length);
-    } else if (typeid(*mesg) == typeid(fit::LapMesg)) {
-      fit::LapMesg tomtom_lap(mesg->GetNum());
-      tomtom_lap.SetLocalNum(mesg->GetLocalNum());
-      for (int i = 0; i < lap_num_fields_; i++) {
-        tomtom_lap.AddField(*(mesg->GetFieldByIndex(i)));
-      }
-      tomtom_lap.SetTotalCycles(cumulative_strokes);
-      encode.Write(tomtom_lap);
-    } else if (typeid(*mesg) == typeid(fit::SessionMesg)) {
-      fit::SessionMesg tomtom_session(mesg->GetNum());
-      tomtom_session.SetLocalNum(mesg->GetLocalNum());
-      for (int i = 0; i < session_num_fields_; i++) {
-        tomtom_session.AddField(*(mesg->GetFieldByIndex(i)));
-      }
-      encode.Write(tomtom_session);
-    } else { 
-      encode.Write(*mesg);
+      gs.Pause(0, lap->GetTotalCalories());
     }
+    gs.CloseNewFile();
+    gs.Save(filename);
+  } else {
+    fit::Encode encode;
+    std::fstream fit_file(filename, 
+        std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
+
+    if (!fit_file.is_open())
+      throw std::runtime_error("Error opening file"); 
+
+    encode.Open(fit_file);
+
+    FIT_FLOAT32 moving_time = 0;
+    for(fit::LengthMesg *length : lengths_) {
+      if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE)
+        moving_time += (length->GetTotalTimerTime() + 1);
+    }
+
+    FIT_FLOAT32 calories_increment = moving_time / session_->GetTotalCalories();
+    FIT_FLOAT32 cumulative_distance = 0;
+    FIT_UINT16 cumulative_moving_time = 0;
+    FIT_UINT16 cumulative_strokes = 0;
+    FIT_DATE_TIME current_timestamp = 0 ;
+
+    for (const std::unique_ptr<fit::Mesg> &mesg : mesgs_) {
+      if (typeid(*mesg) == typeid(fit::LengthMesg)) {
+        fit::LengthMesg *length = dynamic_cast<fit::LengthMesg*>(mesg.get());
+
+        cumulative_strokes += length->GetTotalStrokes();
+        length->SetTotalStrokes(cumulative_strokes);
+
+        FIT_FLOAT32 speed  = length->GetAvgSpeed();
+        current_timestamp = current_timestamp > length->GetStartTime() ? current_timestamp : length->GetStartTime();
+        FIT_DATE_TIME end_time = current_timestamp + static_cast<FIT_UINT32>(length->GetTotalTimerTime());
+
+        FIT_FLOAT32 distance_increment = session_->GetPoolLength() / (end_time - current_timestamp + 1);
+
+        while (current_timestamp <= end_time) {
+
+          cumulative_distance += distance_increment;
+          cumulative_moving_time++;
+          fit::RecordMesg record;
+          record.SetTimestamp(current_timestamp++);
+          record.SetDistance(cumulative_distance);
+          record.SetSpeed(speed);
+          record.SetCalories(cumulative_moving_time / calories_increment);
+          encode.Write(record);
+        }
+        encode.Write(*length);
+      } else if (typeid(*mesg) == typeid(fit::LapMesg)) {
+        fit::LapMesg tomtom_lap(mesg->GetNum());
+        tomtom_lap.SetLocalNum(mesg->GetLocalNum());
+        for (int i = 0; i < lap_num_fields_; i++) {
+          tomtom_lap.AddField(*(mesg->GetFieldByIndex(i)));
+        }
+        tomtom_lap.SetTotalCycles(cumulative_strokes);
+        encode.Write(tomtom_lap);
+      } else if (typeid(*mesg) == typeid(fit::SessionMesg)) {
+        fit::SessionMesg tomtom_session(mesg->GetNum());
+        tomtom_session.SetLocalNum(mesg->GetLocalNum());
+        for (int i = 0; i < session_num_fields_; i++) {
+          tomtom_session.AddField(*(mesg->GetFieldByIndex(i)));
+        }
+        encode.Write(tomtom_session);
+      } else { 
+        encode.Write(*mesg);
+      }
+    }
+
+    if (!encode.Close())
+      throw std::runtime_error("Error writing file");
+
+    fit_file.close();
   }
-
-  if (!encode.Close())
-    throw std::runtime_error("Error writing file");
-
-  fit_file.close();
 }
 
 void swt::TomtomSwimFile::UpdateLap(fit::LapMesg *lap) {

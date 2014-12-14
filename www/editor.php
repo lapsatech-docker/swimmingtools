@@ -1,6 +1,6 @@
 <?php
 spl_autoload_register();
-\swt\Functions::registerErrorHandler();
+swt\Functions::registerErrorHandler();
 session_start();
 
 if (!isset($_SESSION['file_id'])) {
@@ -22,6 +22,7 @@ try {
     .$time_created->format('i').','
     .$time_created->format('s').'));'
     .'document.write(date.toLocaleString());</script> ';
+  $product = $swim_file->getProduct();
 } catch (Exception $ex) {
   $time_created = '';
   swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
@@ -37,13 +38,19 @@ swt\Layout::header('Swimming Watch Data Editor', swt\Layout::TAB_EDITOR);
     <li>To merge, select the first of the two lengths to be merged, </li>
     <li>Last length of an interval cannot be merged,</li>
     <li>Drill lengths cannot be edited,</li>
-    <li>Delete will convert the length to rest time unless length is a 
-    <a href="help#duplicate" target="_blank">duplicate</a></li>
+    <li>Delete will convert the length to rest time</li>
+<?php if ($product == 5) { ?>
+    <li>After you're done, download the new activity file. Tomtom users
+    can download the file in the Tomtom FIT format or Garmin FIT format. 
+    Tomtom FIT format is not supported by some 3rd party web site. In those cases, 
+    try Garmin FIT format.</li>
+<?php } else { ?>
     <li>After you're done, download the new activity file, and manually 
     upload it to your 
     <a href="http://connect.garmin.com" target="_blank">Garmin Connect</a> account. 
     check the <a href="help#manualUpload" target="_blank">User's Guide</a>
     for how to proceed.</li>
+<?php } ?>
   </ul>
   <div class="toolbar">
     <button id="undoAllBtn">Undo All</button>
@@ -52,8 +59,12 @@ swt\Layout::header('Swimming Watch Data Editor', swt\Layout::TAB_EDITOR);
     <button id="mergeBtn" disabled="disabled">Merge</button>
     <button id="splitBtn" disabled="disabled">Split</button>
     <button id="changeStrokeBtn" disabled="disabled">Change Stroke</button>
-    <button id="downloadBtn" style="float: right" onclick="window.location='download'">
-      Download</button>
+<?php 
+if ($product == 5) { //Tomtom require special treatment ?>
+    <button id="downloadBtn" style="float: right" onclick="showDownloadPopup()">Download</button>
+<?php } else { ?>
+    <button id="downloadBtn" style="float: right" onclick="window.location='download'">Download</button>
+<?php } ?>
   </div>
   <div class="status-label-container">
     <span id="statusLbl">Loading chart...</span></div>
@@ -124,6 +135,11 @@ swt\Layout::header('Swimming Watch Data Editor', swt\Layout::TAB_EDITOR);
     <br>
     <button type="submit">Change Pool Size</button>
   </form>
+</div>
+<div id="downloadPopUp" onmouseleave="hideDownloadPopup();" 
+style="background-color:white;padding:5px;border:1px solid black;display:none;position:absolute">
+  <a href="download" onclick="hideDownloadPopup">Tomtom FIT</a></br>
+  <a href="download?garmin=1" onclick="hideDownloadPopup">Garmin FIT</a>
 </div>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
 <script type="text/javascript" src="/scripts/editor6.js"></script>

@@ -24,7 +24,7 @@ void swt::Fr920SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
   UpdateSession();
 }
 
-void swt::Fr920SwimFile::Save(const std::string &filename) const {
+void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*/) const {
   unsigned int active_length_counter = 0;
   fit::Encode encode;
   std::fstream fit_file(filename, 

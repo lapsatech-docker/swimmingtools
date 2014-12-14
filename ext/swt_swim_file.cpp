@@ -17,6 +17,13 @@ void swt::SwimFile::AddMesg(const void *mesg)
 
   switch(fit_mesg->GetNum())
   {
+    case FIT_MESG_NUM_ACTIVITY:
+      {
+        std::unique_ptr<fit::ActivityMesg> activity(new fit::ActivityMesg(*fit_mesg));
+        this->activity_ = activity.get();
+        mesgs_.push_back(move(activity));
+        break;
+      }
     case FIT_MESG_NUM_SESSION:
       {
         std::unique_ptr<fit::SessionMesg> session(new fit::SessionMesg(*fit_mesg));
@@ -222,7 +229,7 @@ fit::LapMesg* swt::SwimFile::GetLap(FIT_MESSAGE_INDEX length_index) const {
 // compute rest, we have to estimate rest time between lengths by
 // substracting  the time the length ends from the time the next
 // length starts
-double swt::SwimFile::GetRestTime(FIT_MESSAGE_INDEX length_index) {
+double swt::SwimFile::GetRestTime(FIT_MESSAGE_INDEX length_index) const {
 
   fit::LengthMesg *length = lengths_.at(length_index);
   FIT_MESSAGE_INDEX next_length = length_index + 1;

@@ -128,7 +128,7 @@ void swt::Fr910SwimFile::Initialize() {
   RepairMissingLengths();
 }
 
-void swt::Fr910SwimFile::Save(const std::string &filename) const {
+void swt::Fr910SwimFile::Save(const std::string &filename, bool convert/*=false*/) const {
   unsigned short active_length_counter = 0;
   FIT_FLOAT32 pool_length = session_->GetPoolLength();
 
