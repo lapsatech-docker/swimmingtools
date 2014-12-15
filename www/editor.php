@@ -142,7 +142,7 @@ style="background-color:white;padding:5px;border:1px solid black;display:none;po
   <a href="download?garmin=1" onclick="hideDownloadPopup">Garmin FIT</a>
 </div>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-<script type="text/javascript" src="/scripts/editor6.js"></script>
+<script type="text/javascript" src="/scripts/editor7.js"></script>
 <?php
 swt\layout::analytics();
 swt\Layout::footer();
