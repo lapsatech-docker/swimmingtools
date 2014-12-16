@@ -8,6 +8,7 @@ if (!isset($_SESSION['file_id'])) {
   exit;
 }
 $file_id = $_SESSION['file_id'];
+$product = 1; // Garmin Swim
 
 try {
   $swim_file = new \swt\Swimfile(swt\DB::convertFileIdToPath($file_id).'EDIT');

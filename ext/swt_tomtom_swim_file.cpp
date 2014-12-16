@@ -132,14 +132,17 @@ void swt::TomtomSwimFile::Initialize() {
         length->SetTotalStrokes(total_strokes - cumulative_total_strokes);
         cumulative_total_strokes += (total_strokes - cumulative_total_strokes);
       }
-
-      if (length->GetTotalElapsedTime() > length->GetTotalTimerTime()) {
-        FixRestWithinLength(length);
-      }
     } else {
       throw std::runtime_error("Rest length in tomtom file");
     }
   }
+
+  for (fit::LengthMesg *length :  lengths_) {
+    if (length->GetTotalElapsedTime() > length->GetTotalTimerTime()) {
+      FixRestWithinLength(length);
+    }
+  }
+
   FIT_UINT16 first_length_index = FIT_UINT16_INVALID;
   FIT_MESSAGE_INDEX lap_message_index = 0;
   for (const std::unique_ptr<fit::Mesg> &mesg : mesgs_) {
