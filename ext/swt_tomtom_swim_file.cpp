@@ -9,19 +9,23 @@
 
 bool swt::TomtomSwimFile::CanMerge(FIT_MESSAGE_INDEX length_index, std::string *error) const {
   *error ="";
-
-  // -2 because we merge 2 lengths (length_index being the first) so the last length can't be merged
-  if (length_index > (lengths_.size() - 2)) {
-    *error = "Length doesn't exist or is the last length";
+  if (lengths_.size() < 2) {
+    *error = "File contains only one length";
   } else {
-    fit::LengthMesg *first_length = lengths_.at(length_index);
-    fit::LengthMesg *second_length = lengths_.at(length_index + 1);
+
+    // -2 because we merge 2 lengths (length_index being the first) so the last length can't be merged
+    if (length_index > (lengths_.size() - 2)) {
+      *error = "Length doesn't exist or is the last length";
+    } else {
+      fit::LengthMesg *first_length = lengths_.at(length_index);
+      fit::LengthMesg *second_length = lengths_.at(length_index + 1);
 
 
-    for (FIT_DATE_TIME timer_stop_timestamp : timer_stop_timestamps_) {
-      if ((timer_stop_timestamp > first_length->GetStartTime()) &&
-          (timer_stop_timestamp < second_length->GetStartTime()))
-        *error = "Timer was stopped between lengths";
+      for (FIT_DATE_TIME timer_stop_timestamp : timer_stop_timestamps_) {
+        if ((timer_stop_timestamp > first_length->GetStartTime()) &&
+            (timer_stop_timestamp < second_length->GetStartTime()))
+          *error = "Timer was stopped between lengths";
+      }
     }
   }
   return error->empty();
