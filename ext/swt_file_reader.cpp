@@ -54,7 +54,8 @@ void swt::FileReader::OnMesg(fit::Mesg& mesg) {
       swim_file.reset(new Fenix2SwimFile());
       swim_file->AddMesg(&mesg);
    } else if (fileId.GetManufacturer() == FIT_MANUFACTURER_GARMIN 
-       && fileId.GetProduct() == FIT_GARMIN_PRODUCT_FR920XT) {
+       && ((fileId.GetProduct() == FIT_GARMIN_PRODUCT_FR920XT) ||
+         (fileId.GetProduct() == FIT_GARMIN_PRODUCT_FR920XT_TAIWAN))) {
       swim_file.reset(new Fr920SwimFile());
       swim_file->AddMesg(&mesg);
    } else if (fileId.GetManufacturer() == FIT_MANUFACTURER_TOMTOM) {
