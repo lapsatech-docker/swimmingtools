@@ -30,7 +30,7 @@ class Layout {
     <meta property="og:title" content="Swimming Watch Tools"> 
     <meta property="og:image" content="http://www.swimmingwatchtools.com/content/garminswim.jpg"> 
     <meta property="og:description" content="Edit and analyse your swimming watch data Online">
-    <link rel="stylesheet" type="text/css" href="/content/main2.css">
+    <link rel="stylesheet" type="text/css" href="/content/main3.css">
     <link rel="shortcut icon" href="favicon.ico">
 <?php
     if ($active_tab == self::TAB_VIEWER) {
