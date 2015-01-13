@@ -28,7 +28,7 @@ try {
   $time_created = '';
   swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
 }
-swt\Layout::header('Swimming Watch Data Editor', swt\Layout::TAB_EDITOR);
+swt\Layout::header('Swimming Watch Tools - Editor', swt\Layout::TAB_EDITOR);
 ?>
 <div class="section">
   <h2>

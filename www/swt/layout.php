@@ -4,9 +4,11 @@ namespace swt;
 class Layout {
 
   const TAB_HOME = 1;
-  const TAB_EDITOR = 2;
-  const TAB_USER_GUIDE = 3;
-  const TAB_CONTACT = 4;
+  const TAB_UPLOAD = 2;
+  const TAB_EDITOR = 3;
+  const TAB_VIEWER = 4;
+  const TAB_USER_GUIDE = 5;
+  const TAB_CONTACT = 6;
 
   static function header($title, $active_tab, $description = '') {
 ?>
@@ -25,22 +27,25 @@ class Layout {
     <title><?=$title?></title>
     <meta property="og:type" content="website"> 
     <meta property="og:url" content="http://www.swimmingwatchtools.com"> 
-    <meta property="og:title" content="Swimming Watch Data Editor"> 
+    <meta property="og:title" content="Swimming Watch Tools"> 
     <meta property="og:image" content="http://www.swimmingwatchtools.com/content/garminswim.jpg"> 
-    <meta property="og:description" content="Edit your Garmin Swim or Forerunner 910 Data Free Online">
+    <meta property="og:description" content="Edit and analyse your swimming watch data Online">
     <link rel="stylesheet" type="text/css" href="/content/main.css">
     <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="content/jquery.nouislider.min.css">
   </head>
   <body> 
     <div class="header">
       <div class="header-content">
-        <h1>Swimming Watch Data Editor</h1>
+        <h1>Swimming Watch tools</h1>
         <ul class="tabs">
           <li><a href="index" class="<?=$active_tab == self::TAB_HOME ? "selected" : "";?>">Home</a></li>
-          <li><a href="help" class="<?=$active_tab == self::TAB_USER_GUIDE ? "selected" : "";?>">User's Guide</a></li>
+          <li><a href="upload" class="<?=$active_tab == self::TAB_UPLOAD ? "selected" : "";?>">Upload</a></li>
           <li><a href="editor" class="<?=$active_tab == self::TAB_EDITOR ? "selected" : "";?>">Editor</a></li>
+          <li><a href="viewer" class="<?=$active_tab == self::TAB_VIEWER ? "selected" : "";?>">Viewer</a></li>
+          <li><a href="help" class="<?=$active_tab == self::TAB_USER_GUIDE ? "selected" : "";?>">User's Guide</a></li>
           <li><a href="contact" class="<?=$active_tab == self::TAB_CONTACT ? "selected" : "";?>">Contact</a></li>
-
         </ul>
       </div>
     </div>
@@ -63,7 +68,6 @@ class Layout {
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
   ga('create', 'UA-44807897-1', 'swimmingwatchtools.com');
   ga('send', 'pageview');
 
