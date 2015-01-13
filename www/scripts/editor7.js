@@ -70,6 +70,10 @@ function strokeLookup(stroke) {
       break;
     case STROKE_DRILL:
       returnValue = 'Drill';
+      break;
+    case STROKE_MIXED:
+      returnValue = 'Mixed';
+      break;
     default:
       returnValue = 'Unknown';
   }

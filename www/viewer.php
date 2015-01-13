@@ -52,6 +52,13 @@ NOWDOC;
       $fields['time'], $fields['pace_str'], $fields['spm'], $fields['spl']);
     $num_sums++;
   }
+  $sum = $activity->summaries[swt\Activity::SUM_MIXED];
+  if ($sum['num_lengths'] > 0) {
+    $fields = swt\Functions::getComputedFields($sum['num_lengths'], $sum['time'], $sum['stroke_count']);
+    $table .= sprintf($template, 'mixed', 'Mixed', $sum['num_lengths'], $fields['distance'], 
+      $fields['time'], $fields['pace_str'], $fields['spm'], $fields['spl']);
+    $num_sums++;
+  }
   $sum = $activity->summaries[swt\Activity::SUM_UNK];
   if ($sum['num_lengths'] > 0) {
     $fields = swt\Functions::getComputedFields($sum['num_lengths'], $sum['time'], $sum['stroke_count']);
@@ -275,6 +282,10 @@ NOWDOC;
   $time = $activity->summaries[swt\Activity::SUM_FLY]['time'];
   $time_str = swt\Functions::formatTime($time);
   $data .= '{c:[{v:\'Butterfly\'}, {v:'.$time.', f:\''.$time_str.'\'}]},'.PHP_EOL;
+  
+  $time = $activity->summaries[swt\Activity::SUM_MIXED]['time'];
+  $time_str = swt\Functions::formatTime($time);
+  $data .= '{c:[{v:\'Mixed\'}, {v:'.$time.', f:\''.$time_str.'\'}]},'.PHP_EOL;
 
   $time = $activity->summaries[swt\Activity::SUM_UNK]['time'];
   $time_str = swt\Functions::formatTime($time);
@@ -437,6 +448,8 @@ if (isset($activity)) {
     echo '<option value="'.swt\STROKE_BREASTSTROKE.'">Breaststroke</option>';
   if ($activity->summaries[swt\Activity::SUM_FLY]['num_lengths'] > 0)
     echo '<option value="'.swt\STROKE_BUTTERFLY.'">Butterfly</option>';
+  if ($activity->summaries[swt\Activity::SUM_MIXED]['num_lengths'] > 0)
+    echo '<option value="'.swt\STROKE_MIXED.'">Mixed</option>';
   if ($activity->summaries[swt\Activity::SUM_UNK]['num_lengths'] > 0)
     echo '<option value="'.swt\STROKE_UNKNOWN.'">Unknown</option>';
 }

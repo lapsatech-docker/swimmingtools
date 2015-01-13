@@ -338,13 +338,19 @@ tr.butterfly {
   background-color: rgba(235, 61, 61, 0.4)
 }
 
+tr.mixed {
+  background-color: cadetBlue;
+  background-color: rgba(95,158,160, 0.4) 
+}
+
 tr.drill {
   background-color: #ff7c05;
   background-color: rgba(255, 124, 5, 0.4)
 }
 
 tr.unknown {
-  background-color: cadetBlue 
+  background-color: cadetBlue; 
+  background-color: rgba(95,158,160, 0.4) 
 }
 
 tr.rest {

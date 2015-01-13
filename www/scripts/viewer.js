@@ -49,7 +49,7 @@ function initialize ()
 function initializeSummaryChart()
 {
   var options = {
-    colors:['#c43dbf', '#1f8ef9', '#95de2b', '#eb3d3d', 'cadetBlue', '#ff7c05', 'lightGray'],
+    colors:['#c43dbf', '#1f8ef9', '#95de2b', '#eb3d3d', 'cadetBlue', 'cadetBlue', '#ff7c05', 'lightGray'],
     legend: {position: 'none'},
     pieHole: 0.5,
     pieSliceText: 'none',
@@ -195,6 +195,7 @@ function initializeStrokeChart()
   var backNumLengths = 0;
   var breastNumLengths = 0;
   var flyNumLengths = 0;
+  var mixedNumLengths = 0;
   var unkNumLengths = 0;
 
   for (var i = 0; i < lengthsData_.getNumberOfRows(); i++) {
@@ -213,9 +214,15 @@ function initializeStrokeChart()
         case STROKE_BUTTERFLY:
           flyNumLengths++;
           break;
+        case STROKE_MIXED:
+          mixedNumLengths++;
+          break;
         case STROKE_UNKNOWN:
           unkNumLengths++;
+          break;
         default:
+          unkNumLengths++;
+          break;
       }
     }
   }
@@ -227,6 +234,8 @@ function initializeStrokeChart()
     updateStrokeChart(STROKE_BREASTSTROKE);
   else if (flyNumLengths > 0)
     updateStrokeChart(STROKE_BUTTERFLY);
+  else if (mixedNumLengths > 0)
+    updateStrokeChart(STROKE_MIXED);
   else if (unkNumLengths > 0)
     updateStrokeChart(STROKE_UNKNOWN);
   
@@ -240,15 +249,15 @@ function updateStrokeChart(stroke)
   hAxis: {title: 'Stroke rate (strokes/min)'},
   vAxis: {title: 'Stroke count'}};
 
-  var maxPace = lengthsData_.getValue(0,3);
-  var minPace = lengthsData_.getValue(0,3);
+  var maxPace = lengthsData_.getValue(0, LENGTH_PACE);
+  var minPace = lengthsData_.getValue(0, LENGTH_PACE);
   var numLengths = 0;
   var splTotal = 0;
   var timeTotal = 0;
 
   for (var i = 0; i < lengthsData_.getNumberOfRows(); i++) {
     if (lengthsData_.getValue(i, LENGTH_STROKE) === stroke) {
-      var pace = lengthsData_.getValue(i,LENGTH_PACE);
+      var pace = lengthsData_.getValue(i, LENGTH_PACE);
       numLengths++;
       timeTotal += lengthsData_.getValue(i, LENGTH_TIME)
       splTotal += lengthsData_.getValue(i, LENGTH_SPL);
@@ -344,6 +353,10 @@ function strokeLookup(stroke) {
       break;
     case STROKE_DRILL:
       returnValue = 'Drill';
+      break;
+    case STROKE_MIXED:
+      returnValue = 'Mixed';
+      break;
     default:
       returnValue = 'Unknown';
   }

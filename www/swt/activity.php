@@ -11,11 +11,12 @@ class Activity
   const SUM_BACK = 1;
   const SUM_BREAST = 2;
   const SUM_FLY = 3;
-  const SUM_UNK = 4;
-  const SUM_SUB = 5;
-  const SUM_DRILL = 6;
-  const SUM_REST = 7;
-  const SUM_TOTAL = 8;
+  const SUM_MIXED = 4;
+  const SUM_UNK = 5;
+  const SUM_SUB = 6;
+  const SUM_DRILL = 7;
+  const SUM_REST = 8;
+  const SUM_TOTAL = 9;
 
   public static $BEST_PARAMS = [
     ['distance' => '50', 'stroke' => STROKE_FREESTYLE, 'lcm' => 1, 'scm' => 2, 'scy' => 2],
@@ -241,6 +242,7 @@ class Activity
     $sums[self::SUM_BACK] = ['num_lengths' => 0, 'time' => 0.0, 'stroke_count' => 0];
     $sums[self::SUM_BREAST] = ['num_lengths' => 0, 'time' => 0.0, 'stroke_count' => 0];
     $sums[self::SUM_FLY] = ['num_lengths' => 0, 'time' => 0.0, 'stroke_count' => 0];
+    $sums[self::SUM_MIXED] = ['num_lengths' => 0, 'time' => 0.0, 'stroke_count' => 0];
     $sums[self::SUM_UNK] = ['num_lengths' => 0, 'time' => 0.0, 'stroke_count' => 0];
     $sums[self::SUM_SUB] = ['num_lengths' => 0, 'time' => 0.0, 'stroke_count' => 0];
     $sums[self::SUM_DRILL] = ['num_lengths' => 0, 'time' => 0.0, 'stroke_count' => 0];
@@ -279,6 +281,11 @@ class Activity
         break;
 
       case STROKE_MIXED:
+        $sums[self::SUM_MIXED]['num_lengths']++;
+        $sums[self::SUM_MIXED]['time'] += $length['time'];
+        $sums[self::SUM_MIXED]['stroke_count'] += $length['stroke_count'];
+        break;
+
       case STROKE_UNKNOWN:
         $sums[self::SUM_UNK]['num_lengths']++;
         $sums[self::SUM_UNK]['time'] += $length['time'];
@@ -300,18 +307,24 @@ class Activity
       $sums[self::SUM_BACK]['num_lengths'] + 
       $sums[self::SUM_BREAST]['num_lengths'] + 
       $sums[self::SUM_FLY]['num_lengths']; 
+      $sums[self::SUM_MIXED]['num_lengths']; 
+      $sums[self::SUM_UNK]['num_lengths']; 
       
     $sums[self::SUM_SUB]['time'] =
       $sums[self::SUM_FREE]['time'] + 
       $sums[self::SUM_BACK]['time'] + 
       $sums[self::SUM_BREAST]['time'] + 
       $sums[self::SUM_FLY]['time']; 
+      $sums[self::SUM_MIXED]['time']; 
+      $sums[self::SUM_UNK]['time']; 
 
     $sums[self::SUM_SUB]['stroke_count'] =
       $sums[self::SUM_FREE]['stroke_count'] + 
       $sums[self::SUM_BACK]['stroke_count'] + 
       $sums[self::SUM_BREAST]['stroke_count'] + 
       $sums[self::SUM_FLY]['stroke_count']; 
+      $sums[self::SUM_MIXED]['stroke_count']; 
+      $sums[self::SUM_UNK]['stroke_count']; 
   }
 
   public function saveToDatabase()

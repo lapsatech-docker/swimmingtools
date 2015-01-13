@@ -12,8 +12,8 @@ class Functions {
     STROKE_BREASTSTROKE => ['string' => 'Breaststroke', 'color' => '#95de2b'],
     STROKE_BUTTERFLY => ['string' => 'Butterfly', 'color' => '#eb3d3d'],
     STROKE_DRILL => ['string' => 'Drill', 'color' => '#ff7c05'],
-    STROKE_MIXED => ['string' => 'Mixed', 'color' => 'gray'],
-    STROKE_UNKNOWN => ['string' => 'Unknown', 'color' => 'gray']];
+    STROKE_MIXED => ['string' => 'Mixed', 'color' => 'cadetBlue'],
+    STROKE_UNKNOWN => ['string' => 'Unknown', 'color' => 'cadetBlue']];
 
 
   public static function errorHandler($errno, $errstr, $errfile, $errline) {
