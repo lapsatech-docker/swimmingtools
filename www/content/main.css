@@ -2,41 +2,40 @@ body {
     margin: 0;
 }
 
-.header { 
-    height: 70px; 
+.header {
+    height: 70px;
     background-color: #4d92cc;
 }
 
-.header .header-content { 
+.header .header-content {
     margin: auto;
-    width: 900px; 
+    width: 900px;
 }
 
-.header h1 { 
-    float: left; 
-    padding-top: 32px; 
+.header h1 {
+    float: left;
+    padding-top: 32px;
     margin: 0;
     height: 30px;
-    font-size: 30px; 
+    font-size: 30px;
     color: white;
 }
 
-
-.tabs { 
+.tabs {
     display: block;
-    float: left; 
-    list-style: none; 
-    margin: 0; 
-    padding-left: 30px; 
-    padding-top: 30px; 
-    height : 40px; 
+    float: left;
+    list-style: none;
+    margin: 0;
+    padding-left: 30px;
+    padding-top: 30px;
+    height : 40px;
 }
 
 .tabs li {
     float: left;
     margin: 0 5px;
     height: 38px;
- }
+}
 
 .tabs a {
     display: block;
@@ -52,7 +51,7 @@ body {
     font-weight: bold;
     text-align: center;
 }
-	
+
 .tabs a:hover, .tabs a.selected {
     background: white;
     color: #4d92cc;
@@ -61,7 +60,6 @@ body {
 .content {
     margin: auto;
     width: 900px;
-    
 }
 
 .section {
@@ -70,9 +68,9 @@ body {
     padding: 0 0 20px 0;
     width: 900px;
     background-color: rgb(238, 238, 238);
- }
- 
-.centered 
+}
+
+.centered
 {
     text-align:center;
 }
@@ -87,10 +85,9 @@ body {
     text-align: left;
 }
 
-.section p 
-{
+.section p {
     margin-left: 30px;
-    margin-right: 30px; 
+    margin-right: 30px;
 }
 
 .section p.indented {
@@ -103,35 +100,45 @@ body {
     margin: 10px auto 20px auto;
 }
 
+.warning {
+    border-radius: 6px;
+    border: 1px solid #ffd100;
+    padding: 3px 3px 3px 38px;
+    background: #fff6cc url('warning.png') 15px 50% no-repeat;
+    color: #000;
 
-.status-label-container 
+}
+
+/* style for editor */
+
+.status-label-container
 {
     position:relative;
     margin:auto;
     padding-right:10px;
     width:790px;
     background-color:White;
-    text-align:right;    
+    text-align:right;
 }
 
-#statusLbl 
+#statusLbl
 {
     display:inline-block;
 }
 
 #chartContainer {
     position: relative;
-    margin:auto; 
-    width: 800px; 
+    margin:auto;
+    width: 800px;
     height: 400px;
     background-color: white;
 }
 
 .toolbar {
     display: block;
-    list-style: none; 
+    list-style: none;
     margin: auto;
-    padding: 5px; 
+    padding: 5px;
     width: 790px;
     height: 30px;
     background-color: #bbb;
@@ -143,9 +150,9 @@ body {
 
 ul.statusbar {
     display: block;
-    list-style: none; 
+    list-style: none;
     margin: auto;
-    padding: 5px 5px 5px 7px; 
+    padding: 5px 5px 5px 7px;
     width: 790px;
     height: 28px;
     background-color: #bbb;
@@ -160,66 +167,49 @@ ul.statusbar {
     line-height: 24px;
 }
 
-.warning {
-    border-radius: 6px;
-    border: 1px solid #ffd100;
-    padding: 3px 3px 3px 38px;
-    background: #fff6cc url('warning.png') 15px 50% no-repeat;
-    color: #000;
-      
-}
 
-.tooltip 
-{
+.tooltip {
     margin: 3px;
     border: solid 2px black;
     padding: 4px;
 }
 
-.tooltip span 
-{
+.tooltip span {
     font-weight:bold;
 }
 
-
-.tooltip span.freestyle 
-{
+.tooltip span.freestyle {
     color:#c43dbf;
 }
 
-.tooltip span.backstroke
-{
+.tooltip span.backstroke {
     color:#1f8ef0;
 }
 
-.tooltip span.breaststroke
-{
+.tooltip span.breaststroke {
     color:#95de2b;
 }
 
-.tooltip span.butterfly
-{
+.tooltip span.butterfly {
     color:#eb3d3d;
 }
 
-.tooltip span.drill
-{
+.tooltip span.drill {
     color:#ff7c05;
 }
 
-.tooltip span.unknown
-{
+.tooltip span.unknown {
     color:gray;
 }
 
 .dialog {
-    display:none; 
+    display:none;
     position: fixed;
     top: 0;
     left: 0;
     width:100%;
     height:100%;
-    z-index:1000;  
+    z-index:1000;
 }
 
 .dialog-overlay {
@@ -231,12 +221,9 @@ ul.statusbar {
     opacity:0.6;
     filter:alpha(opacity=60);
     text-align:center;
-    
 }
 
-
-.dialog-content 
-{
+.dialog-content {
     position:absolute;
     background-color: white;
     border: 4px solid #bbb;
@@ -246,18 +233,17 @@ ul.statusbar {
     top: 50%;
     left: 50%;
     width: 15em;
-    height: 15em;    
+    height: 15em;
     z-index: 1002;
     text-align: center;
 }
 
 .dialog-cancel-button {
     position:absolute;
-    top:-12px; 
-    right:-12px; 
+    top:-12px;
+    right:-12px;
     z-index:50;
 }
-
 
 .button {
     display: block;
@@ -268,6 +254,110 @@ ul.statusbar {
 
 .validation-summary-errors {
     color: red;
+}
+
+/* style for viewer */
+
+#summaryChart {
+  height: 200px;
+  width: 200px;
+}
+
+#paceChart {
+  height: 400px;
+  width: 850px;
+  margin:auto
+}
+
+#strokeChart {
+  height:400px;
+  width:850px;
+  margin:auto
+}
+
+#paceChartSlider {
+  width: 850px;
+  margin: auto
+}
+
+table {
+  border-collapse:collapse;
+  margin:auto auto
+}
+
+caption {
+  padding: 10px
+}
+
+thead th {
+  background-color: #bbb;
+  text-align: center;
+  border-bottom: 1px solid black
+}
+
+th {
+  font-weight: normal
+}
+
+td, th {
+  padding: 2px 5px;
+  text-align: right;
+}
+
+/* distance left-justified, */
+#best tbody td:nth-child(2) {
+  text-align: left
+}
+
+/* distance left-justified, */
+#lengths tbody td:nth-child(3) {
+  text-align: left
+}
+
+#lengths tbody {
+  border-bottom: 15px solid #eee;
+}
+
+tr.freestyle {
+  background-color: #c43dbf;
+  background-color: rgba(196, 61, 191, 0.4)
+}
+
+tr.backstroke {
+  background-color: #1f8ef9;
+  background-color: rgba(31, 142, 249, 0.4)
+}
+
+tr.breaststroke {
+  background-color: #95de2b;
+  background-color: rgba(149, 222, 43, 0.4)
+}
+
+tr.butterfly {
+  background-color: #eb3d3d;
+  background-color: rgba(235, 61, 61, 0.4)
+}
+
+tr.drill {
+  background-color: #ff7c05;
+  background-color: rgba(255, 124, 5, 0.4)
+}
+
+tr.unknown {
+  background-color: cadetBlue 
+}
+
+tr.rest {
+  background-color:lightGray
+}
+
+tr.total td {
+  background-color: #bbb;
+  border-top: 1px solid black
+}
+
+tr.interval td {
+  background-color: #bbb;
 }
 
 
@@ -316,25 +406,23 @@ ul.statusbar {
 	text-align: center;
 }
 
-
 #deviceSelectLabel {
 	padding:15px 0;
 	font-weight: bold;
 }
 
-#deviceSelectBox select { 
+#deviceSelectBox select {
 	font-size:14px;
 	font-weight: bold;
 	background-color: #FFFFFF;
     color: #005E9D;
- }
-
+}
 
 #readBox {
     text-align: center;
 }
 
-#readDataButton, #readSelectedButton, #startEditorButton{
+#readDataButton, #readSelectedButton, #startEditorButton {
 	display:block;
 	margin: 1em auto;
 	border: 0;
@@ -347,7 +435,6 @@ ul.statusbar {
 	font-size: 16px;
 }
 
-
 #readDataButton:hover, #readSelectedButton:hover, startEditorButton:hover {
 	background: url(button_bg.jpg) no-repeat 0 bottom;
 }
@@ -359,8 +446,7 @@ ul.statusbar {
 #activityDirectory {
    margin: auto;
    width: 55%;
-   
- }
+}
 
 #activityTableHeader {
     width:100%;

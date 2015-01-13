@@ -55,7 +55,7 @@ try {
     .'<a href="contact">Contact web site owner</a>';
 }
 
-swt\Layout::header('Swimming Watch Data Editor - Upload', swt\Layout::TAB_EDITOR);
+swt\Layout::header('Swimming Watch Tools - Upload', swt\Layout::TAB_UPLOAD);
 if ($show_gcp) {
 ?>
 <div class="section">
