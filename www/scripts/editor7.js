@@ -360,7 +360,7 @@ function chart_onSelect() {
   }
 }
 
-function showDownloadPopup() {
+function showDownloadPopup(event) {
   
   var popup = document.getElementById('downloadPopUp');
   popup.style.left = event.clientX + 'px';

@@ -31,7 +31,10 @@ try {
 
       $serial_number = $activity->serial_number;
       setcookie('SN', $serial_number, time() + 60*60*24*7);
-      header('Location: editor');
+      if (isset($_POST['viewer']))
+        header('Location: viewer');
+      else
+        header('Location: editor');
       exit;
     }
   } else { // HTTP_METHOD = 'GET'
@@ -100,7 +103,8 @@ else
       <br>
       <input type="file" name="fitFile"><br>
       <br>
-      <input class="button" type="submit" name="manualUpload" value="Upload">
+      <input class="button" type="submit" name="edit" value="Launch Editor">
+      <input class="button" type="submit" name="viewer" value="Launch Viewer">
     </form>
   </div>
 </div>

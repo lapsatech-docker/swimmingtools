@@ -60,12 +60,7 @@ swt\Layout::header('Swimming Watch Tools - Editor', swt\Layout::TAB_EDITOR);
     <button id="mergeBtn" disabled="disabled">Merge</button>
     <button id="splitBtn" disabled="disabled">Split</button>
     <button id="changeStrokeBtn" disabled="disabled">Change Stroke</button>
-<?php 
-if ($product == 5) { //Tomtom require special treatment ?>
-    <button id="downloadBtn" style="float: right" onclick="showDownloadPopup()">Download</button>
-<?php } else { ?>
-    <button id="downloadBtn" style="float: right" onclick="window.location='download'">Download</button>
-<?php } ?>
+    <button id="downloadBtn" style="float: right" onclick="showDownloadPopup(event)">Done</button>
   </div>
   <div class="status-label-container">
     <span id="statusLbl">Loading chart...</span></div>
@@ -137,10 +132,15 @@ if ($product == 5) { //Tomtom require special treatment ?>
     <button type="submit">Change Pool Size</button>
   </form>
 </div>
-<div id="downloadPopUp" onmouseleave="hideDownloadPopup();" 
+<div id="downloadPopUp" onmouseleave="hideDownloadPopup()" 
 style="background-color:white;padding:5px;border:1px solid black;display:none;position:absolute">
-  <a href="download" onclick="hideDownloadPopup">Tomtom FIT</a></br>
-  <a href="download?garmin=1" onclick="hideDownloadPopup">Garmin FIT</a>
+<?php if ($product == 5) {?>
+  <a href="download" onclick="hideDownloadPopup()">Download Tomtom FIT</a></br>
+  <a href="download?garmin=1" onclick="hideDownloadPopup()">Download Garmin FIT</a>
+<?php } else { ?>
+  <a href="download" onclick="hideDownloadPopup()">Download</a>
+<?php } ?>
+  <br/><a href="viewer" onclick="hideDownloadPopup()">Open in File Viewer</a>
 </div>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
 <script type="text/javascript" src="/scripts/editor7.js"></script>
