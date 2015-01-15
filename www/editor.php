@@ -143,7 +143,7 @@ style="background-color:white;padding:5px;border:1px solid black;display:none;po
   <br/><a href="viewer" onclick="hideDownloadPopup()">Open in File Viewer</a>
 </div>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-<script type="text/javascript" src="/scripts/editor7.js"></script>
+<script type="text/javascript" src="/scripts/editor8.js"></script>
 <?php
 swt\layout::analytics();
 swt\Layout::footer();
