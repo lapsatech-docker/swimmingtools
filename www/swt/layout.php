@@ -16,8 +16,10 @@ class Layout {
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=8;requiresActiveX=true">        
-<?php
+<?php 
+    if ($active_tab == self::TAB_UPLOAD) 
+      echo '<meta http-equiv="X-UA-Compatible" content="IE=8;requiresActiveX=true">';
+
     if (!empty($description)) { 
 ?>    
     <meta name="description" content="<?=$description?>">
