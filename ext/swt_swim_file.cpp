@@ -246,6 +246,9 @@ double swt::SwimFile::GetRestTime(FIT_MESSAGE_INDEX length_index) const {
     confirmed_rest += lengths_.at(next_length)->GetTotalTimerTime();
     confirmed = true;
     next_length++;
+    // if there are trailing rest lenghts, don't consider
+    if (next_length == lengths_.size())
+      confirmed_rest = 0;
   }
   if (next_length < lengths_.size()) {
     estimated_rest  = static_cast<double>(lengths_.at(next_length)->GetStartTime()) -
@@ -272,7 +275,7 @@ double swt::SwimFile::GetRestTime(FIT_MESSAGE_INDEX length_index) const {
   // interval have same start time so estimated rest value
   // is irrelevant
   if (length->GetSwimStroke() == FIT_SWIM_STROKE_DRILL) {
-    confirmed_rest = estimated_rest = 0;
+    estimated_rest = 0;
     confirmed = true;
   }
 
