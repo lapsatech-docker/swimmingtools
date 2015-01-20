@@ -498,7 +498,7 @@ try {
 ?>
 
 </script>
-<script type="text/javascript" src="scripts/viewer.js"></script>
+<script type="text/javascript" src="scripts/viewer2.js"></script>
 <?php
 } // end if isset($activity)
 swt\Layout::analytics();
