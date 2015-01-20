@@ -88,11 +88,18 @@ function initializePaceChart()
 
     var minValue = minPace - (5 * (maxPace - minPace) / 70);  
     var maxValue = maxPace + (25 * (maxPace - minPace) / 70); 
+    // Nearest multiple of 5 smaller than minValue
     var minValue = (Math.floor(minValue / 5) * 5);
+    // Nearest multiple of 5 larger than maxValue
     var maxValue = (Math.floor(maxValue / 5) * 5) + 5;
 
-    var tickInterval = (Math.floor((maxValue - minValue) / 4));
-    tickInterval = Math.floor(tickInterval /5) * 5;
+    var tickInterval = 1;
+    if ((maxValue - minValue) >= 4) {
+       tickInterval = Math.floor((maxValue - minValue) / 4);
+       // Try to make it multiple of 5 
+       if (tickInterval >= 5) 
+         tickInterval = Math.floor(tickInterval / 5) * 5;
+    }
 
     paceChartOptions_.vAxes[0].ticks = new Array();
     for(var tick = minValue; tick <= maxValue; tick += tickInterval) {
