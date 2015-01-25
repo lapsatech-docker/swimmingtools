@@ -9,6 +9,7 @@ namespace swt
     public:
       Product GetProduct() const {return Product::kGarminFr920;}
       void Delete(FIT_MESSAGE_INDEX length_index);
+      void Initialize();
       void Save(const std::string &filename, bool convert=false) const;
 
     private:
@@ -27,6 +28,7 @@ namespace swt
       void LapSetAvgStrokeCount(fit::LapMesg *lap, FIT_FLOAT32 avg_stroke_count);
       void LapSetMovingTime(fit::LapMesg *lap, FIT_FLOAT32 moving_time);
       void LapSetSwolf(fit::LapMesg *lap, FIT_UINT16 swolf);
+      void RepairMissingLaps();
       void SessionSetAvgStrokeCount(FIT_FLOAT32 avg_stroke_count);
       void SessionSetMovingTime(FIT_FLOAT32 moving_time);
       void SessionSetNumActiveLengths(FIT_UINT16 num_active_lengths);
