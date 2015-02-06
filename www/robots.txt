@@ -3,3 +3,4 @@ User-agent: *
 Disallow: /editor
 Disallow: /upload
 Disallow: /download
+Disallow: /viewer
