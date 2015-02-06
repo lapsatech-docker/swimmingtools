@@ -155,7 +155,6 @@ function changeStrokeBtn_onClick() {
   updateToolbar(true);
   statusLbl.innerHTML = "Changing Stroke";
 
-  document.changeStrokeForm.reset();
   selectedLengthLbl.innerHTML = selection.row + 1;
   swimStroke = dataTable.getRowProperty(selection.row, 'swimStroke');
   swimStroke = strokeLookup(swimStroke);
