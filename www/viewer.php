@@ -197,7 +197,7 @@ NOWDOC;
     }
     if ($print_interval) {
       $fields = swt\Functions::getComputedFields($lap_num_lengths, $lap_moving_time, $lap_stroke_count, $lap_stroke);
-      $table .= sprintf('<tr class="interval"><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%.1f</td><td>%d</td></tr>'.PHP_EOL,
+      $table .= sprintf('<tr class="interval"><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>'.PHP_EOL,
         swt\Functions::getOrdinalNumber($current_lap).' Interval', $fields['distance'], $fields['stroke'], $fields['time'], 
         $fields['pace_str'], $fields['spm'], $fields['spl']);
       $table .='</tbody><tbody>';
