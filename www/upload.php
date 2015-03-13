@@ -18,13 +18,13 @@ try {
     if ($_FILES['fitFile']['size'] == 0) {
       $error = 'Select a file to upload';
     } else if (is_uploaded_file($_FILES['fitFile']['tmp_name'])) {
-      
+
       $file_id = swt\DB::createFileFromUpload('fitFile');
       $activity = new swt\Activity($file_id);
       $activity->saveToDatabase();
 
       $path = swt\DB::convertFileIdToPath($file_id);
-      if (!(copy($path.'UPLOAD', $path.'EDIT'))) 
+      if (!(copy($path.'UPLOAD', $path.'EDIT')))
           throw new Exception('Cannot copy file');
 
       $_SESSION['file_id'] = $file_id;
@@ -46,7 +46,7 @@ try {
 
 } catch (swt\FileNotValidException $ex) {
   swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
-  
+
   if (isset($_FILES['fitFile']['name']))
     $error = $_FILES['fitFile']['name'];
 
@@ -71,11 +71,6 @@ if ($show_gcp) {
   </div>
 </div>
 <?php
-} else {
-  echo '<div class="warning" style="margin: 20px auto">'
-  .'Still using Old Garmin Communicator Plug-in? '
-  .'<a href="upload?show_gcp=1">Click here</a>'
-  .'</div>';
 }
 ?>
 <div class="section">
@@ -83,8 +78,8 @@ if ($show_gcp) {
     Upload Activity file
   </h2>
  <ul>
-    <li>Only Lap Swimming activity files from the following devices are allowed: 
-    Garmin Swim ,Forerunner 910/920, Fénix 2, </li>
+    <li>Only Lap Swimming activity files from the following devices are allowed:
+    Garmin Swim ,Forerunner 910/920, Fénix 2, Tomtom Multisport</li>
     <li>Files must be FIT files, or zip files exported from Garmin Connect,
     <li>Activity files can be exported form Garmin Connect (Modern version) by going
     to the activity page, clicking on the gear icon to the left, and selecting
@@ -92,13 +87,13 @@ if ($show_gcp) {
     for details.</li>
   </ul>
 <?php
-if (!empty($error)) 
+if (!empty($error))
   echo '<p id="error" class="warning">'.$error.'</p>';
 else
   echo '<p id="error" class="warning" style="display:none"></p>';
 ?>
   <div class="centered">
-    <form name="manualUploadForm" action="" enctype="multipart/form-data" method="post" 
+    <form name="manualUploadForm" action="" enctype="multipart/form-data" method="post"
       onsubmit="return manualUploadForm_Onsubmit()">
       <br>
       <input type="file" name="fitFile"><br>
@@ -109,7 +104,12 @@ else
   </div>
 </div>
 <?php
-if ($show_gcp) {
+if (!$show_gcp) {
+  echo '<div style="margin: 20px auto">'
+  .'Still using Old Garmin Communicator Plug-in? '
+  .'<a href="upload?show_gcp=1">Click here</a>'
+  .'</div>';
+} else {
 ?>
 <script type="text/javascript" src="scripts/prototype/prototype.js"></script>
 <script type="text/javascript" src="scripts/garmin/device/GarminDeviceDisplay.js"></script>
@@ -117,7 +117,7 @@ if ($show_gcp) {
 function onGetSendOptions(options, deviceXml, data) {
 
   var filename = data.substr(17, data.indexOf('\n', 17) - 17);
-  var SN = deviceXml.substr(deviceXml.indexOf('<Id>') + 4, 
+  var SN = deviceXml.substr(deviceXml.indexOf('<Id>') + 4,
     deviceXml.indexOf('</Id>') - (deviceXml.indexOf('<Id>') + 4));
 
   var boundary = 'SwimmingWatchDataEditorYKCl7kEu';
@@ -150,7 +150,7 @@ function onAfterFinishSendData(response, activityStatusElement) {
     } else if (response.responseJSON.status == 'error') {
       $('statusText').innerHTML = '<span class="warning">' + response.responseJSON.message + '</span>';
       activityStatusElement.innerHTML = 'Error';
-    } 
+    }
   }
 }
 
@@ -168,8 +168,8 @@ function onAfterFinishUploads(display) {
 function onLoad() {
 
   var display = new Garmin.DeviceDisplay("garminDisplay", {
-    pathKeyPairsArray: [ 
-      "http://swimmingwatchtools.com", "f932686320cb1c84380a727ab138d8e9", 
+    pathKeyPairsArray: [
+      "http://swimmingwatchtools.com", "f932686320cb1c84380a727ab138d8e9",
       "http://www.swimmingwatchtools.com","234847838b750932f86b19fcdd1c8c08",
       "http://dev.swimmingwatchtools.com","a5ec3957473a5d45dec6da8e7553e3d3"],
       showReadDataElement: true,
@@ -206,7 +206,7 @@ function onLoad() {
 }
 document.body.onload = onLoad;
 </script>
-<?php 
+<?php
 } // End include Communicator javascript
 ?>
 <script type="text/javascript">
@@ -228,6 +228,6 @@ function manualUploadForm_Onsubmit() {
   return returnValue;
 }
 </script>
-<?php 
+<?php
 swt\Layout::analytics();
 swt\Layout::footer();

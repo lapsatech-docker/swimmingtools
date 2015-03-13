@@ -2,7 +2,7 @@
 spl_autoload_register();
 \swt\Functions::registerErrorHandler();
 
-\swt\Layout::header('Swimming Watch Data Editor', 
+\swt\Layout::header('Swimming Watch Data Editor',
   \swt\Layout::TAB_HOME,
   "Web Application that let you edit Garmin Swim Data");
 ?>
@@ -14,15 +14,18 @@ spl_autoload_register();
     <li>Did you ever notice an extra or missing length, or wrong stroke
     detection? </li>
     <li>Did you ever wish you could edit the data, so that it is acccurate
-    and reflect what you did.</li>
-    <li>This is what Swimming Watch Data Editor is about. Post-editing 
-    your data by deleting, merging or splitting length, 
-    and changing Stroke, or pool size</li>
-    <li>Supported devices: Garmin Swim, Forerunner 910/920 and fénix 2.
+    and reflect what you did?</li>
+    <li>Do you wish Garmin Connect (and other web sites) would allow
+    better analysis of your swimming data?</li>
+    <li> Swimming watch tools includes both an editor and file viewer,</li>
+    <li>The editor allows you to delete, merge, split and change Stroke
+    or pool size</li>
+    <li>Supported devices: Garmin Swim, Forerunner 910/920, fénix 2 and
+    Tomtom Multisport</li>
     <li>Read the <a href="help">User's Guide</a>
-    and start editing your data.</li>
+    and start editing and analyzing your data.</li>
   </ul>
-  <input type="button" id="startEditorButton" value="Start Editor" 
+  <input type="button" id="startEditorButton" value="Start Editor/Viewer"
   onclick="window.location = 'upload';" />
 </div>
 <div class="section">
@@ -35,82 +38,90 @@ spl_autoload_register();
 
   <p>Stroke length is defined as the number of yards/meters covered with
   each stroke, and stroke rate is the number of strokes per unit of time
-  (usually strokes per minute). Moving you arms faster will increase you 
-  stroke rate and therefore your speed. Stroke length can be improved 
-  by working on your technique, reducing drag, increasing glide, 
+  (usually strokes per minute). Moving you arms faster will increase you
+  stroke rate and therefore your speed. Stroke length can be improved
+  by working on your technique, reducing drag, increasing glide,
   changing your position and being more efficient. </p>
 
   <p>Let's say you're practicing a new technique and want to calculate your
-  stroke rate, stroke length and speed. You can do it by using a clock and 
-  counting your strokes while swimming down the pool. Keeping track of 
+  stroke rate, stroke length and speed. You can do it by using a clock and
+  counting your strokes while swimming down the pool. Keeping track of
   everything on a piece of paper.</p>
 
   <p>But who wants to do maths while swimming? And what if you want to have
-  detailed results for each length? This is how swimming watches can help. 
-  They work by monitoring how your arm/body moves through water using 
-  accelerometers.They count strokes, lengths, keep track of time, and do 
-  all the math, providing you with stroke length, stroke rate, speed, 
-  and stroke detection, for each length. You will be able to analyze you 
-  data, and maintain a log. You'll be able to tell if you're improving or 
+  detailed results for each length? This is how swimming watches can help.
+  They work by monitoring how your arm/body moves through water using
+  accelerometers.They count strokes, lengths, keep track of time, and do
+  all the math, providing you with stroke length, stroke rate, speed,
+  and stroke detection, for each length. You will be able to analyze you
+  data, and maintain a log. You'll be able to tell if you're improving or
   not, and if all this work is paying off. </p>
-  <p>Swimming watches are very accurate...most of the time. Unfortunately, 
-  depending on your skills and environment (crowded lanes), data will 
-  sometimes show some inaccuracies. Here is Advice from Garmin on how 
+  <p>Swimming watches are very accurate...most of the time. Unfortunately,
+  depending on your skills and environment (crowded lanes), data will
+  sometimes show some inaccuracies. Here is Advice from Garmin on how
   to improve accuracy and reduce errors in the data</p>
   <ul >
-    <li><a href="http://support.garmin.com/support/searchSupport/case.faces?supportPage=Garmin%20Swim&caseId={41c35e70-facc-11e0-73d0-000000000000}&locale=en_US" 
+    <li><a href="http://support.garmin.com/support/searchSupport/case.faces?supportPage=Garmin%20Swim&caseId={41c35e70-facc-11e0-73d0-000000000000}&locale=en_US"
       target="_blank">
       Why am I experiencing errors with my pool swimming distance?</a></li>
-    <li><a href="http://support.garmin.com/support/searchSupport/case.faces?caseId={08519320-0271-11e2-e8a7-000000000000}" 
-      target="_blank">Can traffic from other swimmers in my lane cause 
+    <li><a href="http://support.garmin.com/support/searchSupport/case.faces?caseId={08519320-0271-11e2-e8a7-000000000000}"
+      target="_blank">Can traffic from other swimmers in my lane cause
       distance errors when Pool Swimming?</a></li>
   </ul>
-  <p>If you follow this advice, you data will be fine most of the time. 
-  If you still have errors in you data, feel free to use this site. At 
+  <p>If you follow this advice, you data will be fine most of the time.
+  If you still have errors in you data, feel free to use this site. At
   this time, it is only compatible with the Garmin Swim, forerunner 910/920
   and Fénix 2 devices, but if there is enough interest. Support could be
   expanded to other devices.</p>
 
   <p>If you don't train with a swimming watch yet, and considering buying
-  one, here are links to manufacturers and excellent independent reviews form 
+  one, here are links to manufacturers and excellent independent reviews form
   <a href="http://www.dcrainmaker.com/" target="_blank">DC Rainmaker</a></p>
 
   <p>Swimming watches</p>
 
   <ul>
-    <li><a href="http://www.finisinc.com/equipment/electronics/swimsense.html" 
-      target="_blank">Finis SwimSense </a> / 
-    <a href="http://www.dcrainmaker.com/2010/12/hands-on-look-at-finis-swimsense.html" 
+    <li><a href="http://www.finisinc.com/SwimSense-Watch"
+      target="_blank">Finis SwimSense </a> /
+    <a href="http://www.dcrainmaker.com/2010/12/hands-on-look-at-finis-swimsense.html"
       target="_blank">Review</a></li>
-    <li><a href="http://sites.garmin.com/swim/" target="_blank">Garmin Swim</a> / 
+    <li><a href="http://sites.garmin.com/swim/" target="_blank">Garmin Swim</a> /
     <a href="http://www.dcrainmaker.com/2012/06/garmin-swim-watch-in-depth-review.html"
       target="_blank">Review</a></li>
-    <li><a href="http://swimovateusa.com/product/poolmate-pro/" 
-      target="_blank">Swimovate PoolMatePro</a> and 
-    <a href="http://swimovateusa.com/product/swimovate-poolmate-heart-rate-watch/" 
-      target="_blank">PoolMatePro HR</a> / 
-    <a href="http://www.dcrainmaker.com/2011/02/hands-on-look-at-swimovate-pool-mate.html" 
+    <li><a href="http://swimovateusa.com/product/poolmate-pro/"
+      target="_blank">Swimovate PoolMatePro</a> and
+    <a href="http://swimovateusa.com/product/swimovate-poolmate-heart-rate-watch/"
+      target="_blank">PoolMatePro HR</a> /
+    <a href="http://www.dcrainmaker.com/2011/02/hands-on-look-at-swimovate-pool-mate.html"
       target="_blank">Review</a></li>
   </ul>
   <p>Multi-Sport (Triathlon) watches with swimming mode</p>
   <ul >
-    <li><a href="http://sites.garmin.com/forerunner910xt/" 
-      target="_blank">Garmin Forerunner 910</a> / 
-    <a href="http://www.dcrainmaker.com/2011/10/garmin-forerunner-910xt-in-depth-review.html" 
+    <li><a href="http://sites.garmin.com/forerunner910xt/"
+      target="_blank">Garmin Forerunner 910</a> /
+    <a href="http://www.dcrainmaker.com/2011/10/garmin-forerunner-910xt-in-depth-review.html"
       target="_blank">Review</a></li>
-    <li><a href="http://forerunner920.garmin.com" 
-      target="_blank">Garmin Forerunner 920</a> / 
-    <a href="http://www.dcrainmaker.com/2014/11/garmin-forerunner-920xt-depth-review.html" 
+    <li><a href="http://forerunner920.garmin.com"
+      target="_blank">Garmin Forerunner 920</a> /
+    <a href="http://www.dcrainmaker.com/2014/11/garmin-forerunner-920xt-depth-review.html"
       target="_blank">Review</a></li>
-    <li><a href="https://buy.garmin.com/en-US/US/prod159116.html" 
-      target="_blank">Garmin Fénix 2</a> / 
-    <a href="http://www.dcrainmaker.com/2014/03/garmin-fenix2-multisport.html" 
+    <li><a href="https://buy.garmin.com/en-US/US/prod159116.html"
+      target="_blank">Garmin Fénix 2</a> /
+    <a href="http://www.dcrainmaker.com/2014/03/garmin-fenix2-multisport.html"
       target="_blank">Review</a></li>
-    <li><a href="http://www.suunto.com/ambit/" target="_blank">Suunto Ambit 2 </a> / 
-    <a href="http://www.dcrainmaker.com/2013/04/suunto-ambit2-review.html" 
+    <li><a href="http://forerunner920.garmin.com"
+      target="_blank">Garmin Forerunner 920</a> /
+    <a href="http://www.dcrainmaker.com/2014/11/garmin-forerunner-920xt-depth-review.html"
       target="_blank">Review</a></li>
-    <li><a href="http://sports.tomtom.com/en_us/" target="_blank">TomTom Multisport</a> / 
-    <a href="http://www.dcrainmaker.com/2014/04/tomtom-cardio.html" 
+    <li><a href="http://www.polar.com/en/products/maximize_performance/running_multisport/V800"
+      target="_blank">Polar V800</a> /
+    <a href="http://www.dcrainmaker.com/2014/06/polar-v800-depth-review.html"
+      target="_blank">Review</a></li>
+    <li><a href="http://www.suunto.com/ambit/" target="_blank">Suunto Ambit 2 </a> /
+    <a href="http://www.dcrainmaker.com/2013/04/suunto-ambit2-review.html"
+      target="_blank">Review</a></li>
+    <li><a href="http://sports.tomtom.com/en_us/" target="_blank">TomTom Multisport</a> /
+    <a href="http://www.dcrainmaker.com/2014/04/tomtom-cardio.html"
       target="_blank">Review</a></li>
   </ul>
 </div>
