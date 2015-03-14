@@ -120,7 +120,7 @@ swt\Layout::header('Swimming Watch Tools - Editor', swt\Layout::TAB_EDITOR);
     Change Pool Size 
     </p>
     <p id="changePoolSizeDlgErrorLbl" class="warning" style="display: none">
-    Value must be within 16-150 meters or 18-150 yards
+    Value must be within 1-150 meters/yards
     </p>
     <input type="text" name="newPoolSize" value="">
     <br><br>

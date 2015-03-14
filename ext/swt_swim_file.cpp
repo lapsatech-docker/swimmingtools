@@ -195,8 +195,8 @@ void swt::SwimFile::ChangeStroke(FIT_MESSAGE_INDEX length_index, FIT_SWIM_STROKE
 
 void swt::SwimFile::ChangePoolSize(FIT_FLOAT32 new_size_metric, FIT_DISPLAY_MEASURE display_measure) {
 
-  if (new_size_metric < 16.45 || new_size_metric > 150)
-    throw std::runtime_error("Pool length must be within 17-150m or 18-159y");
+  if (new_size_metric < 1 || new_size_metric > 150)
+    throw std::runtime_error("Pool length must be within 1-150m");
 
   session_->SetPoolLength(new_size_metric);
   session_->SetPoolLengthUnit(display_measure);

@@ -232,11 +232,7 @@ function changePoolSizeForm_onSubmit() {
 
   if (isNaN(parseFloat(newPoolSize))) {
     error = true;
-  } else if (newPoolSizeUnits == 0) {
-    if (!(newPoolSize >= 17 && newPoolSize <= 150))
-      error = true;
-  } else if (newPoolSizeUnits == 1) {
-    if (!(newPoolSize >= 18 && newPoolSize <= 150))
+  } else if (!(newPoolSize >= 1 && newPoolSize <= 150)) {
       error = true;
   }
 
