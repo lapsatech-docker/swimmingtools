@@ -142,8 +142,8 @@ void swt::Fr920SwimFile::SessionSetAvgStrokeCount(FIT_FLOAT32 avg_stroke_count) 
         static_cast<FIT_UINT16>(round(avg_stroke_count * 10)));
 }
 
-void swt::Fr920SwimFile::SessionSetNumActiveLengths(FIT_UINT16 num_active_lengths) {
-  session_->SetFieldUINT16Value(kSessionNumActiveLengthsFieldNum, num_active_lengths);
+void swt::Fr920SwimFile::SessionSetNumLengthsInActiveLaps(FIT_UINT16 num_lengths_in_active_laps) {
+  session_->SetFieldUINT16Value(kSessionNumLengthsInActiveLapsFieldNum, num_lengths_in_active_laps);
 }
 
 void swt::Fr920SwimFile::SessionSetMovingTime(FIT_FLOAT32 moving_time) {
@@ -243,6 +243,10 @@ void swt::Fr920SwimFile::UpdateSession() {
   FIT_UINT16 num_lengths = 0;
   FIT_UINT16 num_active_lengths = 0;
   FIT_UINT16 num_active_lengths_without_drills = 0;
+  // There is a mysterious custom field in FR920, this field seems to be the number
+  // of lengths mesgs (active and rest) in active laps. Active laps may contain
+  // rest lengths if a user stop swimming without hitting the pause button.
+  FIT_UINT16 num_lengths_in_active_laps = 0;
   FIT_FLOAT32 moving_time = 0;
   FIT_FLOAT32 moving_time_without_drills = 0;
   FIT_UINT32 total_cycles = 0;
@@ -283,8 +287,12 @@ void swt::Fr920SwimFile::UpdateSession() {
   }
 
   for (fit::LapMesg *lap: laps_) {
-    if (lap->GetNumActiveLengths() > 0 && lap->GetSwimStroke() != FIT_SWIM_STROKE_DRILL) {
-      total_calories = static_cast<FIT_UINT16>(total_calories + lap->GetTotalCalories());
+    if (lap->GetNumActiveLengths() > 0) {
+      num_lengths_in_active_laps += lap->GetNumLengths();
+
+      if (lap->GetSwimStroke() != FIT_SWIM_STROKE_DRILL) 
+        total_calories = static_cast<FIT_UINT16>(total_calories + lap->GetTotalCalories());
+    
     }
   }
 
@@ -294,8 +302,8 @@ void swt::Fr920SwimFile::UpdateSession() {
   total_distance = num_active_lengths * session_->GetPoolLength();
   total_distance_without_drills = num_active_lengths_without_drills * session_->GetPoolLength();
 
-  session_->SetNumActiveLengths(num_active_lengths); // TODO: Seem to have two num_active lenght if FR920
-  SessionSetNumActiveLengths(num_active_lengths);
+  session_->SetNumActiveLengths(num_active_lengths); 
+  SessionSetNumLengthsInActiveLaps(num_lengths_in_active_laps);
   SessionSetMovingTime(moving_time);
   session_->SetTotalCycles(total_cycles);
   session_->SetSwimStroke(swim_stroke);

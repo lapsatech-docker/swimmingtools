@@ -22,7 +22,7 @@ namespace swt
       static const FIT_UINT8 kRecordAvgSpeedFieldNum = 6;
       static const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
       static const FIT_UINT8 kSessionMovingTimeFieldNum = 78;
-      static const FIT_UINT8 kSessionNumActiveLengthsFieldNum = 33;
+      static const FIT_UINT8 kSessionNumLengthsInActiveLapsFieldNum = 33;
       static const FIT_UINT8 kSessionSwolfFieldNum = 80;
 
       void LapSetAvgStrokeCount(fit::LapMesg *lap, FIT_FLOAT32 avg_stroke_count);
@@ -31,11 +31,11 @@ namespace swt
       void RepairMissingLaps();
       void SessionSetAvgStrokeCount(FIT_FLOAT32 avg_stroke_count);
       void SessionSetMovingTime(FIT_FLOAT32 moving_time);
-      void SessionSetNumActiveLengths(FIT_UINT16 num_active_lengths);
+      void SessionSetNumLengthsInActiveLaps(FIT_UINT16 num_lengths_in_active_laps);
       void SessionSetSwolf(FIT_UINT16 swolf);
+    protected:
       void UpdateLap(fit::LapMesg *lap);
       void UpdateSession();
   };
 }
 #endif
-

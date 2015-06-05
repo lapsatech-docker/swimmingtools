@@ -7,6 +7,7 @@
 #include "swt_fr920_swim_file.h"
 #include "swt_gs_swim_file.h"
 #include "swt_tomtom_swim_file.h"
+#include "swt_va_swim_file.h"
 
 std::unique_ptr<swt::SwimFile> swt::FileReader::Read(const std::string &filename) {
   std::ifstream istream;
@@ -56,16 +57,20 @@ void swt::FileReader::OnMesg(fit::Mesg& mesg) {
         && fileId.GetProduct() == FIT_GARMIN_PRODUCT_FENIX2) {
       swim_file.reset(new Fenix2SwimFile());
       swim_file->AddMesg(&mesg);
-   } else if (fileId.GetManufacturer() == FIT_MANUFACTURER_GARMIN 
-       && ((fileId.GetProduct() == FIT_GARMIN_PRODUCT_FR920XT) ||
-         (fileId.GetProduct() == FIT_GARMIN_PRODUCT_FR920XT_TAIWAN))) {
+    } else if (fileId.GetManufacturer() == FIT_MANUFACTURER_GARMIN 
+        && ((fileId.GetProduct() == FIT_GARMIN_PRODUCT_FR920XT) ||
+          (fileId.GetProduct() == FIT_GARMIN_PRODUCT_FR920XT_TAIWAN))) {
       swim_file.reset(new Fr920SwimFile());
       swim_file->AddMesg(&mesg);
-   } else if (fileId.GetManufacturer() == FIT_MANUFACTURER_TOMTOM) {
+    } else if (fileId.GetManufacturer() == FIT_MANUFACTURER_TOMTOM) {
       swim_file.reset(new TomtomSwimFile());
       swim_file->AddMesg(&mesg);
+    } else if (fileId.GetManufacturer() == FIT_MANUFACTURER_GARMIN 
+        && fileId.GetProduct() == FIT_GARMIN_PRODUCT_VIVOACTIVE) {
+      swim_file.reset(new VaSwimFile());
+      swim_file->AddMesg(&mesg);
     } else {
-      std::string message = "This application is compatible with Garmin Swim/FR910/FR920/Fenix 2 only ("
+      std::string message = "This Device is not supported. See list of supported devices above ("
         + std::to_string(fileId.GetManufacturer()) + "/" 
         + std::to_string(fileId.GetProduct()) + ")";
       throw FileNotValidException(message);

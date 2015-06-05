@@ -666,6 +666,7 @@ typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_VIRB_REMOTE                                           ((FIT_GARMIN_PRODUCT)1853)
 #define FIT_GARMIN_PRODUCT_VIVO_KI                                               ((FIT_GARMIN_PRODUCT)1885)
 #define FIT_GARMIN_PRODUCT_FR15                                                  ((FIT_GARMIN_PRODUCT)1903)
+#define FIT_GARMIN_PRODUCT_VIVOACTIVE                                            ((FIT_GARMIN_PRODUCT)1907)
 #define FIT_GARMIN_PRODUCT_EDGE510_KOREA                                         ((FIT_GARMIN_PRODUCT)1918)
 #define FIT_GARMIN_PRODUCT_FR620_JAPAN                                           ((FIT_GARMIN_PRODUCT)1928)
 #define FIT_GARMIN_PRODUCT_FR620_CHINA                                           ((FIT_GARMIN_PRODUCT)1929)
@@ -678,7 +679,7 @@ typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_TRAINING_CENTER                                       ((FIT_GARMIN_PRODUCT)20119)
 #define FIT_GARMIN_PRODUCT_ANDROID_ANTPLUS_PLUGIN                                ((FIT_GARMIN_PRODUCT)65532)
 #define FIT_GARMIN_PRODUCT_CONNECT                                               ((FIT_GARMIN_PRODUCT)65534) // Garmin Connect website
-#define FIT_GARMIN_PRODUCT_COUNT                                                 83
+#define FIT_GARMIN_PRODUCT_COUNT                                                 84
 
 typedef FIT_UINT8 FIT_DEVICE_TYPE;
 #define FIT_DEVICE_TYPE_INVALID                                                  FIT_UINT8_INVALID

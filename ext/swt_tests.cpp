@@ -21,23 +21,23 @@ swt::Tests::Tests() {
 
   TestSwimFile();
 
-//  DIR *dp;
-//  struct dirent *ep;
-//
-//  dp = opendir("../fit_files/gs");
-//  if (dp != NULL) {
-//
-//    while (ep = readdir(dp))
-//    {
-//      if (ep->d_type == DT_REG) {
-//        std::string filename = "../fit_files/gs/";
-//        filename += ep->d_name;
-//        std::cout << filename << std::endl;
-//        ReadDefs(filename);
-//     }
-//    }
-//    closedir(dp);
-//  }
+ // DIR *dp;
+ // struct dirent *ep;
+
+ // dp = opendir("../fit_files/va");
+ // if (dp != NULL) {
+
+ //   while (ep = readdir(dp))
+ //   {
+ //     if (ep->d_type == DT_REG) {
+ //       std::string filename = "../fit_files/va/";
+ //       filename += ep->d_name;
+ //       std::cout << filename << std::endl;
+ //       CheckUpdateLapAndSession(filename);
+ //    }
+ //   }
+ //   closedir(dp);
+ // }
 }
 
 swt::Tests::~Tests() {
@@ -193,7 +193,7 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
         << endl;
     }
 
-    if (fit_file->GetProduct() == kGarminSwim || fit_file->GetProduct() == kGarminFr920)
+    if (fit_file->GetProduct() == kGarminSwim || fit_file->GetProduct() == kGarminFr920 || fit_file->GetProduct() == kGarminVivoActive)
     {
       const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
       const FIT_UINT8 kSessionMovingTimeFieldNum = 78;
@@ -405,7 +405,7 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
             << laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) << ","
             << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
         }
-      } else if (fit_file->GetProduct() == kGarminFr920) {
+      } else if (fit_file->GetProduct() == kGarminFr920 || fit_file->GetProduct() == kGarminVivoActive) {
         const FIT_UINT8 kLapAvgStrokeCountFieldNum = 90;
         const FIT_UINT8 kLapMovingTimeFieldNum = 70;
         const FIT_UINT8 kLapSwolfFieldNum = 73;
