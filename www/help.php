@@ -25,8 +25,8 @@ spl_autoload_register();
   <a href="http://support.garmin.com/support/searchSupport/case.faces?caseId={afea30d0-9b70-11e3-d5f4-000000000000}"
     target="_blank">FAQ</a> on the garmin web site.</p>
 
-  <p>Finally, you can access activity files on the Fénix 2, by connecting it to
-  your computer with a USB cable. Once connected, the Fénix 2 appears as a USB
+  <p>Finally, you can access activity files on the Fénix, by connecting it to
+  your computer with a USB cable. Once connected, the Fénix  appears as a USB
   drive.</p>
 
   <p>When you're ready, <a href="upload">Go to the upload page</a> and
@@ -106,7 +106,7 @@ spl_autoload_register();
   to selected length only, lengths in the same interval,  or all lengths.</p>
 
   <p>When you are happy with the results, download the new activity file to
-  your computer by clicking the download button.</p>
+  your computer by clicking the done button and download link.</p>
 </div>
 <div class="section">
   <h2>

@@ -20,8 +20,8 @@ spl_autoload_register();
     <li> Swimming watch tools includes both an editor and file viewer,</li>
     <li>The editor allows you to delete, merge, split and change Stroke
     or pool size</li>
-    <li>Supported devices: Garmin Swim, Forerunner 910/920, fénix 2 and
-    Tomtom Multisport</li>
+    <li>Supported devices: Garmin Swim, Forerunner 910/920, fénix 2/3, 
+    VivoActive and Tomtom Multisport</li>
     <li>Read the <a href="help">User's Guide</a>
     and start editing and analyzing your data.</li>
   </ul>
@@ -109,8 +109,16 @@ spl_autoload_register();
       target="_blank">Garmin Fénix 2</a> /
     <a href="http://www.dcrainmaker.com/2014/03/garmin-fenix2-multisport.html"
       target="_blank">Review</a></li>
+    <li><a href="http://fenix3.garmin.com"
+      target="_blank">Garmin Fénix 3</a> /
+    <a href="http://www.dcrainmaker.com/2015/03/garmin-fenix3-detailed-review.html"
+      target="_blank">Review</a></li>
     <li><a href="http://forerunner920.garmin.com"
       target="_blank">Garmin Forerunner 920</a> /
+    <a href="http://www.dcrainmaker.com/2014/11/garmin-forerunner-920xt-depth-review.html"
+      target="_blank">Review</a></li>
+    <li><a href="http://sites.garmin.com/en-US/vivo/vivoactive/"
+      target="_blank">Garmin VivoActive</a> /
     <a href="http://www.dcrainmaker.com/2014/11/garmin-forerunner-920xt-depth-review.html"
       target="_blank">Review</a></li>
     <li><a href="http://www.polar.com/en/products/maximize_performance/running_multisport/V800"
