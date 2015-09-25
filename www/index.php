@@ -21,7 +21,7 @@ spl_autoload_register();
     <li>The editor allows you to delete, merge, split and change Stroke
     or pool size</li>
     <li>Supported devices: Garmin Swim, Forerunner 910/920, fénix 2/3, 
-    VivoActive and Tomtom Multisport</li>
+    Epix, VivoActive and Tomtom Multisport</li>
     <li>Read the <a href="help">User's Guide</a>
     and start editing and analyzing your data.</li>
   </ul>
@@ -70,9 +70,9 @@ spl_autoload_register();
   </ul>
   <p>If you follow this advice, you data will be fine most of the time.
   If you still have errors in you data, feel free to use this site. At
-  this time, it is only compatible with the Garmin Swim, forerunner 910/920
-  and Fénix 2 devices, but if there is enough interest. Support could be
-  expanded to other devices.</p>
+  this time, it is compatible with the Garmin Swim, forerunner 910/920,
+  Fénix 2/3, Epix and TomTom Multisport, but if there is enough interest.
+  Support could be expanded to other devices.</p>
 
   <p>If you don't train with a swimming watch yet, and considering buying
   one, here are links to manufacturers and excellent independent reviews form
@@ -97,6 +97,10 @@ spl_autoload_register();
   </ul>
   <p>Multi-Sport (Triathlon) watches with swimming mode</p>
   <ul >
+    <li><a href="http://buy.garmin.com/en-US/US/on-the-trail/wrist-worn/epix-/prod146065.html"
+      target="_blank">Garmin Epix</a> /
+    <a href="http://www.dcrainmaker.com/2015/01/garmin-epix-mapping-multisport.html"
+      target="_blank">Review</a></li>
     <li><a href="http://sites.garmin.com/forerunner910xt/"
       target="_blank">Garmin Forerunner 910</a> /
     <a href="http://www.dcrainmaker.com/2011/10/garmin-forerunner-910xt-in-depth-review.html"
@@ -112,10 +116,6 @@ spl_autoload_register();
     <li><a href="http://fenix3.garmin.com"
       target="_blank">Garmin Fénix 3</a> /
     <a href="http://www.dcrainmaker.com/2015/03/garmin-fenix3-detailed-review.html"
-      target="_blank">Review</a></li>
-    <li><a href="http://forerunner920.garmin.com"
-      target="_blank">Garmin Forerunner 920</a> /
-    <a href="http://www.dcrainmaker.com/2014/11/garmin-forerunner-920xt-depth-review.html"
       target="_blank">Review</a></li>
     <li><a href="http://sites.garmin.com/en-US/vivo/vivoactive/"
       target="_blank">Garmin VivoActive</a> /

@@ -673,13 +673,15 @@ typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_FR220_JAPAN                                           ((FIT_GARMIN_PRODUCT)1930)
 #define FIT_GARMIN_PRODUCT_FR220_CHINA                                           ((FIT_GARMIN_PRODUCT)1931)
 #define FIT_GARMIN_PRODUCT_FENIX2                                                ((FIT_GARMIN_PRODUCT)1967)
+#define FIT_GARMIN_PRODUCT_EPIX                                                  ((FIT_GARMIN_PRODUCT)1988)
+#define FIT_GARMIN_PRODUCT_FENIX3                                                ((FIT_GARMIN_PRODUCT)2050)
 #define FIT_GARMIN_PRODUCT_FR920XT_TAIWAN                                        ((FIT_GARMIN_PRODUCT)2130)
 #define FIT_GARMIN_PRODUCT_SDM4                                                  ((FIT_GARMIN_PRODUCT)10007) // SDM4 footpod
 #define FIT_GARMIN_PRODUCT_EDGE_REMOTE                                           ((FIT_GARMIN_PRODUCT)10014)
 #define FIT_GARMIN_PRODUCT_TRAINING_CENTER                                       ((FIT_GARMIN_PRODUCT)20119)
 #define FIT_GARMIN_PRODUCT_ANDROID_ANTPLUS_PLUGIN                                ((FIT_GARMIN_PRODUCT)65532)
 #define FIT_GARMIN_PRODUCT_CONNECT                                               ((FIT_GARMIN_PRODUCT)65534) // Garmin Connect website
-#define FIT_GARMIN_PRODUCT_COUNT                                                 84
+#define FIT_GARMIN_PRODUCT_COUNT                                                 86
 
 typedef FIT_UINT8 FIT_DEVICE_TYPE;
 #define FIT_DEVICE_TYPE_INVALID                                                  FIT_UINT8_INVALID

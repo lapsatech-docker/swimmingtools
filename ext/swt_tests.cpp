@@ -19,25 +19,25 @@ swt::Tests::Tests() {
   log.open("test.csv");
 
 
-  TestSwimFile();
+   TestSwimFile();
 
- // DIR *dp;
- // struct dirent *ep;
+//  DIR *dp;
+//  struct dirent *ep;
 
- // dp = opendir("../fit_files/va");
- // if (dp != NULL) {
+//  dp = opendir("../fit_files/epix");
+//  if (dp != NULL) {
 
- //   while (ep = readdir(dp))
- //   {
- //     if (ep->d_type == DT_REG) {
- //       std::string filename = "../fit_files/va/";
- //       filename += ep->d_name;
- //       std::cout << filename << std::endl;
- //       CheckUpdateLapAndSession(filename);
- //    }
- //   }
- //   closedir(dp);
- // }
+//     while (ep = readdir(dp))
+//    {
+//      if (ep->d_type == DT_REG) {
+//        std::string filename = "../fit_files/epix/";
+//        filename += ep->d_name;
+//        std::cout << filename << std::endl;
+//        CheckUpdateLapAndSession(filename);
+//     }
+//    }
+//    closedir(dp);
+//  }
 }
 
 swt::Tests::~Tests() {
@@ -193,7 +193,11 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
         << endl;
     }
 
-    if (fit_file->GetProduct() == kGarminSwim || fit_file->GetProduct() == kGarminFr920 || fit_file->GetProduct() == kGarminVivoActive)
+    if (fit_file->GetProduct() == kGarminSwim || 
+        fit_file->GetProduct() == kGarminFr920 || 
+        fit_file->GetProduct() == kGarminVivoActive ||
+        fit_file->GetProduct() == kGarminFenix3 ||
+        fit_file->GetProduct() == kGarminEpix)
     {
       const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
       const FIT_UINT8 kSessionMovingTimeFieldNum = 78;
@@ -405,7 +409,10 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
             << laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) << ","
             << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
         }
-      } else if (fit_file->GetProduct() == kGarminFr920 || fit_file->GetProduct() == kGarminVivoActive) {
+      } else if (fit_file->GetProduct() == kGarminFr920 || 
+          fit_file->GetProduct() == kGarminVivoActive ||
+          fit_file->GetProduct() == kGarminFenix3 ||
+          fit_file->GetProduct() == kGarminEpix) {
         const FIT_UINT8 kLapAvgStrokeCountFieldNum = 90;
         const FIT_UINT8 kLapMovingTimeFieldNum = 70;
         const FIT_UINT8 kLapSwolfFieldNum = 73;
@@ -499,13 +506,10 @@ void swt::Tests::ReadFile(const std::string &filename, FIT_UINT16 *product,
   decode.Read(istream, *this, *this);
 
   for (fit::Mesg mesg : mesgs_) {
-    if (mesg.GetNum() == FIT_MESG_NUM_FILE_ID) {
-      fit::FileIdMesg file_id(mesg);
-      *product = file_id.GetProduct();
-    }
     if (mesg.GetNum() == FIT_MESG_NUM_DEVICE_INFO) {
       fit::DeviceInfoMesg device_info(mesg);
-      if (device_info.GetProduct() == *product) {
+      if (device_info.GetDeviceIndex() == 0) {
+        *product = device_info.GetProduct();
         *version = device_info.GetSoftwareVersion();
       }
     }

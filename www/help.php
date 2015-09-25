@@ -25,8 +25,8 @@ spl_autoload_register();
   <a href="http://support.garmin.com/support/searchSupport/case.faces?caseId={afea30d0-9b70-11e3-d5f4-000000000000}"
     target="_blank">FAQ</a> on the garmin web site.</p>
 
-  <p>Finally, you can access activity files on the Fénix, by connecting it to
-  your computer with a USB cable. Once connected, the Fénix  appears as a USB
+  <p>Finally, with most recent devices, you can access activity files, by connecting it to
+  your computer with a USB cable. Once connected, the device appears as a USB
   drive.</p>
 
   <p>When you're ready, <a href="upload">Go to the upload page</a> and
