@@ -5,6 +5,22 @@
 #include "fit_record_mesg.hpp"
 #include "swt_fr920_swim_file.h"
 
+void swt::Fr920SwimFile::AddMesg(const void *mesg) {
+
+  const fit::Mesg *fit_mesg = reinterpret_cast<const fit::Mesg*>(mesg);
+
+  // keep record messages with only a timestamp. Those are used with new
+  // heart rate data Garmin has added September 2015
+  if (fit_mesg->GetNum() == FIT_MESG_NUM_RECORD &&
+      fit_mesg->GetNumFields() == 1 &&
+      fit_mesg->HasField(kTimestampFieldNum)) {
+
+      mesgs_.push_back(std::unique_ptr<fit::Mesg>(new fit::Mesg(*fit_mesg)));
+  } else {
+    SwimFile::AddMesg(mesg);
+  }
+}
+
 void swt::Fr920SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
   std::string error;
 
@@ -28,14 +44,83 @@ void swt::Fr920SwimFile::Initialize() {
   RepairMissingLaps();
 }
 
+void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
+  std::string error;
+
+  if (!CanSplitChangeStrokeDelete(length_index, &error))
+    throw std::runtime_error(error);
+
+  fit::LengthMesg *existing_length = lengths_.at(length_index);
+  std::unique_ptr<fit::LengthMesg> added_length(new fit::LengthMesg(*existing_length));
+
+  FIT_FLOAT32 total_elapsed_time = existing_length->GetTotalElapsedTime() / 2;
+  FIT_FLOAT32 total_timer_time = existing_length->GetTotalTimerTime() / 2;
+  FIT_UINT16 total_strokes = existing_length->GetTotalStrokes();
+
+  LengthSetTimestamp(added_length.get(), existing_length->GetStartTime() +
+     static_cast<FIT_DATE_TIME>(total_timer_time));
+  added_length->SetTotalElapsedTime(total_elapsed_time);
+  added_length->SetTotalTimerTime(total_timer_time);
+  added_length->SetAvgSpeed(session_->GetPoolLength() / total_timer_time);
+  added_length->SetTotalStrokes(total_strokes / 2); // Integer Division
+  added_length->SetAvgSwimmingCadence(
+      static_cast<FIT_UINT8>(round(60.0 * added_length->GetTotalStrokes() / total_timer_time)));
+
+  for (fit::LengthMesg *length : lengths_) {
+    if (length->GetMessageIndex() >= length_index) {
+      length->SetMessageIndex(static_cast<FIT_MESSAGE_INDEX>
+          (length->GetMessageIndex() + 1));
+    }
+  }
+
+  existing_length->SetStartTime(added_length->GetTimestamp());  // second length start when first end
+  existing_length->SetTotalElapsedTime(total_elapsed_time);
+  existing_length->SetTotalTimerTime(total_timer_time);
+  existing_length->SetAvgSpeed(session_->GetPoolLength() / total_timer_time);
+
+  existing_length->SetTotalStrokes(static_cast<FIT_UINT16>((total_strokes / 2) +
+        (total_strokes % 2))); // Add mod to preserve stroke count when odd
+  existing_length->SetAvgSwimmingCadence(static_cast<FIT_UINT8>
+      (round(60.0 * existing_length->GetTotalStrokes() / total_timer_time)));
+
+  lengths_.insert(lengths_.begin() + length_index, added_length.get());
+  std::list<std::unique_ptr<fit::Mesg>>::iterator it;
+  it = std::find_if(mesgs_.begin(), mesgs_.end(),
+      [existing_length] (const std::unique_ptr<fit::Mesg> &mesg) {
+      return mesg.get() == existing_length;});
+
+  if (added_length->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID)
+    throw std::runtime_error("Fr920 Split, added length timestamp invalid"); 
+
+  while(it != mesgs_.begin() &&
+      (it->get()->GetFieldUINT32Value(kTimestampFieldNum) > added_length->GetTimestamp() &&
+       it->get()->GetFieldUINT32Value(kTimestampFieldNum) != FIT_UINT32_INVALID) ||
+       it->get()->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID)
+    it--;
+
+  mesgs_.insert(++it, move(added_length));
+
+  fit::LapMesg *the_lap = GetLap(length_index);
+  the_lap->SetNumLengths(static_cast<FIT_UINT16>(the_lap->GetNumLengths() + 1));
+  UpdateLap(the_lap);
+
+  for (fit::LapMesg *lap: laps_) {
+    if ((lap->GetMessageIndex() > the_lap->GetMessageIndex()) &&
+        (lap->GetFirstLengthIndex() != FIT_UINT16_INVALID)) {
+      lap->SetFirstLengthIndex(static_cast<FIT_UINT16>(lap->GetFirstLengthIndex() + 1));
+    }
+  }
+  UpdateSession();
+}
+
 void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*/) const {
   unsigned int active_length_counter = 0;
   fit::Encode encode;
-  std::fstream fit_file(filename, 
+  std::fstream fit_file(filename,
       std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
 
   if (!fit_file.is_open())
-    throw std::runtime_error("Error opening file"); 
+    throw std::runtime_error("Error opening file");
 
   encode.Open(fit_file);
 
@@ -47,37 +132,42 @@ void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*
 
       if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
         active_length_counter++;
-        record.SetDistance(static_cast<FIT_FLOAT32>(active_length_counter) * 
+        record.SetDistance(static_cast<FIT_FLOAT32>(active_length_counter) *
             session_->GetPoolLength());
         record.SetSpeed(length->GetAvgSpeed());
         record.SetCadence(length->GetAvgSwimmingCadence());
-      } else if (length->GetLengthType() == FIT_LENGTH_TYPE_IDLE) { 
-        record.SetDistance(static_cast<FIT_FLOAT32>(active_length_counter) * 
+      } else if (length->GetLengthType() == FIT_LENGTH_TYPE_IDLE) {
+        record.SetDistance(static_cast<FIT_FLOAT32>(active_length_counter) *
             session_->GetPoolLength());
         record.SetFieldUINT16Value(kRecordAvgSpeedFieldNum, FIT_UINT16_INVALID);
         record.SetCadence(FIT_UINT8_INVALID);
       }
       encode.Write(record);
       encode.Write(*length);
-    } else { 
+    } else {
       encode.Write(*mesg);
     }
   }
 
+
   if (!encode.Close())
     throw std::runtime_error("Error writing file");
+
+  for (int i = 0; i < hr_data_.size(); i++) {
+    fit_file << hr_data_[i];
+  }
 
   fit_file.close();
 }
 
 
 void swt::Fr920SwimFile::LapSetAvgStrokeCount(fit::LapMesg *lap, FIT_FLOAT32 avg_stroke_count) {
-    lap->SetFieldUINT16Value(kLapAvgStrokeCountFieldNnum, 
+    lap->SetFieldUINT16Value(kLapAvgStrokeCountFieldNnum,
         static_cast<FIT_UINT16>(round(avg_stroke_count * 10)));
 }
 
 void swt::Fr920SwimFile::LapSetMovingTime(fit::LapMesg *lap, FIT_FLOAT32 moving_time) {
-  lap->SetFieldUINT32Value(kLapMovingTimeFieldNnum, 
+  lap->SetFieldUINT32Value(kLapMovingTimeFieldNnum,
       static_cast<FIT_UINT32>(round(moving_time * 1000)));
 }
 
@@ -133,12 +223,12 @@ void swt::Fr920SwimFile::RepairMissingLaps() {
       mesgs_.insert(it, move(lap));
 
       UpdateSession();
-    }  
+    }
   }
 }
 
 void swt::Fr920SwimFile::SessionSetAvgStrokeCount(FIT_FLOAT32 avg_stroke_count) {
-    session_->SetFieldUINT16Value(kSessionAvgStrokeCountFieldNum, 
+    session_->SetFieldUINT16Value(kSessionAvgStrokeCountFieldNum,
         static_cast<FIT_UINT16>(round(avg_stroke_count * 10)));
 }
 
@@ -147,7 +237,7 @@ void swt::Fr920SwimFile::SessionSetNumLengthsInActiveLaps(FIT_UINT16 num_lengths
 }
 
 void swt::Fr920SwimFile::SessionSetMovingTime(FIT_FLOAT32 moving_time) {
-  session_->SetFieldUINT32Value(kSessionMovingTimeFieldNum, 
+  session_->SetFieldUINT32Value(kSessionMovingTimeFieldNum,
       static_cast<FIT_UINT32>(round(moving_time * 1000)));
 }
 
@@ -167,7 +257,7 @@ void swt::Fr920SwimFile::UpdateLap(fit::LapMesg *lap) {
   FIT_UINT16 total_calories = 0;
 
   FIT_UINT16 first_length_index = lap->GetFirstLengthIndex();
-  FIT_UINT16 last_length_index = static_cast<FIT_UINT16>(lap->GetFirstLengthIndex() + 
+  FIT_UINT16 last_length_index = static_cast<FIT_UINT16>(lap->GetFirstLengthIndex() +
       lap->GetNumLengths() - 1);
 
   for (int index = first_length_index; index <= last_length_index; index++) {
@@ -186,12 +276,12 @@ void swt::Fr920SwimFile::UpdateLap(fit::LapMesg *lap) {
           swim_stroke = FIT_SWIM_STROKE_MIXED;
       }
       // Prior to version 2.50, calories were cumulative
-      if (software_version_ >= 250) 
+      if (software_version_ >= 250)
         total_calories = static_cast<FIT_UINT16>(total_calories + length->GetTotalCalories());
       else
         total_calories = length->GetTotalCalories();
 
-      if (length->GetAvgSpeed() != FIT_FLOAT32_INVALID && 
+      if (length->GetAvgSpeed() != FIT_FLOAT32_INVALID &&
           max_speed < length->GetAvgSpeed()) {
         max_speed = length->GetAvgSpeed();
       }
@@ -227,7 +317,7 @@ void swt::Fr920SwimFile::UpdateLap(fit::LapMesg *lap) {
       lap->SetAvgCadence(static_cast<FIT_UINT8>
           (round(static_cast<FIT_FLOAT32>(total_cycles) / moving_time * 60)));
       lap->SetAvgSpeed(total_distance / moving_time);
-      FIT_FLOAT32 avg_stroke_count = static_cast<FIT_FLOAT32>(total_cycles) / 
+      FIT_FLOAT32 avg_stroke_count = static_cast<FIT_FLOAT32>(total_cycles) /
         num_active_lengths;
       LapSetAvgStrokeCount(lap, avg_stroke_count);
       lap->SetAvgStrokeDistance(total_distance / static_cast<FIT_FLOAT32>(total_cycles));
@@ -252,7 +342,7 @@ void swt::Fr920SwimFile::UpdateSession() {
   FIT_UINT32 total_cycles = 0;
   bool is_swim_stroke_init = false; // Allows to perform swimStroke initialization on first length
   FIT_SWIM_STROKE swim_stroke = FIT_SWIM_STROKE_INVALID;
-  
+
   FIT_FLOAT32 max_speed = 0;
   FIT_UINT16 total_calories = 0;
   FIT_FLOAT32 total_distance = 0;
@@ -275,14 +365,14 @@ void swt::Fr920SwimFile::UpdateSession() {
         swim_stroke = length->GetSwimStroke();
         is_swim_stroke_init = true;
       } else {
-        if (swim_stroke != length->GetSwimStroke()) 
+        if (swim_stroke != length->GetSwimStroke())
           swim_stroke = FIT_SWIM_STROKE_MIXED;
       }
-      if (length->GetAvgSpeed() != FIT_FLOAT32_INVALID && 
+      if (length->GetAvgSpeed() != FIT_FLOAT32_INVALID &&
           max_speed < length->GetAvgSpeed()) {
         max_speed = length->GetAvgSpeed();
       }
- 
+
     }
   }
 
@@ -290,9 +380,9 @@ void swt::Fr920SwimFile::UpdateSession() {
     if (lap->GetNumActiveLengths() > 0) {
       num_lengths_in_active_laps += lap->GetNumLengths();
 
-      if (lap->GetSwimStroke() != FIT_SWIM_STROKE_DRILL) 
+      if (lap->GetSwimStroke() != FIT_SWIM_STROKE_DRILL)
         total_calories = static_cast<FIT_UINT16>(total_calories + lap->GetTotalCalories());
-    
+
     }
   }
 
@@ -302,7 +392,7 @@ void swt::Fr920SwimFile::UpdateSession() {
   total_distance = num_active_lengths * session_->GetPoolLength();
   total_distance_without_drills = num_active_lengths_without_drills * session_->GetPoolLength();
 
-  session_->SetNumActiveLengths(num_active_lengths); 
+  session_->SetNumActiveLengths(num_active_lengths);
   SessionSetNumLengthsInActiveLaps(num_lengths_in_active_laps);
   SessionSetMovingTime(moving_time);
   session_->SetTotalCycles(total_cycles);
@@ -312,13 +402,13 @@ void swt::Fr920SwimFile::UpdateSession() {
       (round(static_cast<FIT_FLOAT32>(total_cycles) /
              moving_time_without_drills * 60)));
   session_->SetAvgSpeed(total_distance_without_drills / moving_time_without_drills);
-  FIT_FLOAT32 avg_stroke_count = static_cast<FIT_FLOAT32>(total_cycles) / 
+  FIT_FLOAT32 avg_stroke_count = static_cast<FIT_FLOAT32>(total_cycles) /
     static_cast<FIT_FLOAT32>(num_active_lengths_without_drills);
   SessionSetAvgStrokeCount(avg_stroke_count);
   session_->SetAvgStrokeDistance(total_distance_without_drills / static_cast<FIT_FLOAT32>(total_cycles));
   session_->SetMaxSpeed(max_speed);
   FIT_FLOAT32 avgTimePerLength = moving_time_without_drills / num_active_lengths_without_drills;
-  SessionSetSwolf(static_cast<FIT_UINT16>(round(avg_stroke_count + avgTimePerLength))); 
+  SessionSetSwolf(static_cast<FIT_UINT16>(round(avg_stroke_count + avgTimePerLength)));
   session_->SetTotalCalories(total_calories);
   session_->SetTotalDistance(total_distance);
 }

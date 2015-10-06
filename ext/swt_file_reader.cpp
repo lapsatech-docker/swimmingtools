@@ -24,8 +24,19 @@ std::unique_ptr<swt::SwimFile> swt::FileReader::Read(const std::string &filename
   ProductReader pr;
   swim_file = pr.Read(istream);
   
-  decode.Read(istream, *this);
   if (swim_file) {
+    decode.Read(istream, *this);
+
+    // Garmin store heart rate Data after the end of the activity file
+    // Hearth Rate Data appear as fit file following the activity file
+    // within the same file, so if we are not at the end of the file after
+    // reading the activity file. It probably means there is Heart rate
+    // Data following, so we will load it so that we can restore when 
+    // saving the file back after editing.
+    if (!istream.eof())
+    {
+      swim_file->LoadHrData(istream);
+    }
     std::string error;
     if (!swim_file->IsValid(&error))
       throw FileNotValidException(error);

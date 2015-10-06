@@ -2,6 +2,7 @@
 #include <cmath>
 #include <ctime>
 #include <algorithm>
+#include <iostream>
 #include "fit_device_info_mesg.hpp"
 #include "fit_event_mesg.hpp"
 
@@ -344,6 +345,13 @@ void swt::SwimFile::LengthSetTimestamp(fit::LengthMesg *length, FIT_DATE_TIME ti
   length->SetTimestamp(timestamp);
 }
 
+void swt::SwimFile::LoadHrData(std::istream& istream) {
+  char c;
+
+  while (istream.get(c)) {
+    hr_data_.push_back(c);
+  }
+}
 
 void swt::SwimFile::Merge(FIT_MESSAGE_INDEX length_index) {
   std::string error;
@@ -353,21 +361,22 @@ void swt::SwimFile::Merge(FIT_MESSAGE_INDEX length_index) {
   fit::LengthMesg *first_length = lengths_.at(length_index);
   fit::LengthMesg *second_length = lengths_.at(length_index + 1);
 
-  LengthSetTimestamp(first_length, second_length->GetTimestamp());
-  first_length->SetTotalElapsedTime(first_length->GetTotalElapsedTime() +
+  second_length->SetStartTime(first_length->GetStartTime());
+  second_length->SetSwimStroke(first_length->GetSwimStroke());
+  second_length->SetTotalElapsedTime(first_length->GetTotalElapsedTime() +
       second_length->GetTotalElapsedTime());
-  first_length->SetTotalTimerTime(first_length->GetTotalTimerTime() +
+  second_length->SetTotalTimerTime(first_length->GetTotalTimerTime() +
       second_length->GetTotalTimerTime());
-  first_length->SetTotalStrokes(static_cast<FIT_UINT16>
+  second_length->SetTotalStrokes(static_cast<FIT_UINT16>
       (first_length->GetTotalStrokes() + second_length->GetTotalStrokes()));
-  first_length->SetAvgSpeed(session_->GetPoolLength() / first_length->GetTotalTimerTime());
-  first_length->SetAvgSwimmingCadence(static_cast<FIT_UINT8>
-      (round(60.0 * first_length->GetTotalStrokes() /
-             first_length->GetTotalTimerTime())));
+  second_length->SetAvgSpeed(session_->GetPoolLength() / second_length->GetTotalTimerTime());
+  second_length->SetAvgSwimmingCadence(static_cast<FIT_UINT8>
+      (round(60.0 * second_length->GetTotalStrokes() /
+             second_length->GetTotalTimerTime())));
 
-  mesgs_.remove_if([second_length] (std::unique_ptr<fit::Mesg> &mesg)
-      {return mesg.get() == second_length;});
-  lengths_.erase(lengths_.begin() + length_index + 1);
+  mesgs_.remove_if([first_length] (std::unique_ptr<fit::Mesg> &mesg)
+      {return mesg.get() == first_length;});
+  lengths_.erase(lengths_.begin() + length_index);
 
   for (fit::LengthMesg *length : lengths_) {
     if (length->GetMessageIndex() > length_index)
@@ -396,11 +405,6 @@ void swt::SwimFile::Recalculate()
   }
   UpdateSession();
 }
-
-
-
-
-
 
 void swt::SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   std::string error;

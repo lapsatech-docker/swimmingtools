@@ -59,13 +59,15 @@ namespace swt
       virtual void Initialize() {};
       virtual bool IsDuplicate(FIT_MESSAGE_INDEX length_index) const {return false;};
       virtual bool IsValid(std::string *error) const;
+      void LoadHrData(std::istream& istream);
       virtual void Merge(FIT_MESSAGE_INDEX length_index);
       void Recalculate();
       virtual void Save(const std::string &filename, bool convert=false) const = 0;
-      void Split(FIT_MESSAGE_INDEX length_index);
+      virtual void Split(FIT_MESSAGE_INDEX length_index);
 
     protected:  
       fit::LapMesg* GetLap(FIT_MESSAGE_INDEX length_index) const;  
+      virtual void LengthSetTimestamp(fit::LengthMesg *length, FIT_DATE_TIME timestamp);
     
       fit::ActivityMesg * activity_;
       fit::SessionMesg *session_;
@@ -73,6 +75,7 @@ namespace swt
       std::vector<fit::LengthMesg*> lengths_;
       std::list<std::unique_ptr<fit::Mesg>> mesgs_;
       std::vector<FIT_DATE_TIME> timer_stop_timestamps_;
+      std::vector<char> hr_data_;
 
       FIT_UINT32Z serial_number_;
       FIT_UINT16 software_version_;
@@ -80,7 +83,6 @@ namespace swt
     private:
       static const FIT_UINT16 kSoftwareVersionFieldNum = 5;
       const std::string GetSportAsString(FIT_ENUM sport, FIT_ENUM sub_sport) const;
-      virtual void LengthSetTimestamp(fit::LengthMesg *length, FIT_DATE_TIME timestamp);
       virtual void UpdateSession() = 0;
       virtual void UpdateLap(fit::LapMesg *lap) = 0;
 
