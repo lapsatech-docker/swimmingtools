@@ -45,15 +45,20 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
     swim_file.reset(new Fenix2SwimFile());
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
       && ((product_ == FIT_GARMIN_PRODUCT_FR920XT) ||
-        (product_ == FIT_GARMIN_PRODUCT_FR920XT_TAIWAN))) {
+        (product_ == FIT_GARMIN_PRODUCT_FR920XT_TAIWAN) ||
+        (product_ == FIT_GARMIN_PRODUCT_FR920XT_CHINA) ||
+        (product_ == FIT_GARMIN_PRODUCT_FR920XT_JAPAN))) {
     swim_file.reset(new Fr920SwimFile());
   } else if (manufacturer_ == FIT_MANUFACTURER_TOMTOM) {
     swim_file.reset(new TomtomSwimFile());
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
-      && product_ == FIT_GARMIN_PRODUCT_VIVOACTIVE) {
+      && ((product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE) ||
+       (product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE_APAC))) {
     swim_file.reset(new VaSwimFile());
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
-      && product_ == FIT_GARMIN_PRODUCT_FENIX3) {
+      && ((product_ == FIT_GARMIN_PRODUCT_FENIX3) ||
+       (product_ == FIT_GARMIN_PRODUCT_FENIX3_CHINA) ||
+       (product_ == FIT_GARMIN_PRODUCT_FENIX3_TWN))) {
     swim_file.reset(new Fenix3SwimFile());
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
       && product_ == FIT_GARMIN_PRODUCT_EPIX) {
