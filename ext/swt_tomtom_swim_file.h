@@ -9,6 +9,7 @@ namespace swt
     public:
       TomtomSwimFile() : lap_num_fields_(0), session_num_fields_(0) {};
 
+      void AddMesg(const void *mesg);
       Product GetProduct() const {return Product::kTomtom;}
       bool CanMerge(FIT_MESSAGE_INDEX length_index, std::string *error) const;
       void Delete(FIT_MESSAGE_INDEX length_index);

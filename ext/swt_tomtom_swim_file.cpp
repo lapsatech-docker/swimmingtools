@@ -4,8 +4,28 @@
 #include "fit_encode.hpp"
 #include "fit_event_mesg.hpp"
 #include "fit_record_mesg.hpp"
+#include "fit_session_mesg.hpp"
 #include "swt_gs_swim_file.h"
 #include "swt_tomtom_swim_file.h"
+
+void swt::TomtomSwimFile::AddMesg(const void *mesg) {
+
+  const fit::Mesg *fit_mesg = reinterpret_cast<const fit::Mesg*>(mesg);
+  if (fit_mesg->GetNum() == FIT_MESG_NUM_SESSION) {
+    
+    // There is a bug in latest version of TomTom. It affect last two lengths. See below.
+    // Data,0,length,,message_index,"24",,total_strokes,"9",,length_type,"0",, <- 9 strokes but type INACTIVE
+    //                message_index,"25"  MISSING                       
+    // Data,0,length,,message_index,"26",,length_type,"0",,,,,,,,,,,,,,,,,,,,
+    if (lengths_.size() > 1 && lengths_.back()->GetMessageIndex() == lengths_.size())
+    {
+      lengths_.back()->SetMessageIndex(lengths_.size() - 1);
+      lengths_.at(lengths_.size() -2)->SetLengthType(FIT_LENGTH_TYPE_ACTIVE);
+    } 
+
+  }
+  SwimFile::AddMesg(mesg);
+}
 
 bool swt::TomtomSwimFile::CanMerge(FIT_MESSAGE_INDEX length_index, std::string *error) const {
   *error ="";
@@ -119,28 +139,25 @@ void swt::TomtomSwimFile::FixRestWithinLength(fit::LengthMesg * length) {
 
 }
 
-
-
 void swt::TomtomSwimFile::Initialize() {
 
-  if (session_->GetTotalCycles() != lengths_.at(lengths_.size() - 1)->GetTotalStrokes())
-    throw std::runtime_error("Tomtom num strokes is not cumulative");
+  if (session_->GetTotalCycles() == lengths_.at(lengths_.size() - 1)->GetTotalStrokes())
+  {
+    FIT_UINT32 cumulative_total_strokes = lengths_.at(0)->GetTotalStrokes();
 
-  FIT_UINT32 cumulative_total_strokes = lengths_.at(0)->GetTotalStrokes();
-
-  for (unsigned int i = 1; i < lengths_.size(); i++) {
-    fit::LengthMesg *length = lengths_.at(i);
-    if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
-      FIT_UINT32 total_strokes = length->GetTotalStrokes();
-      if (total_strokes != FIT_UINT32_INVALID) {
-        length->SetTotalStrokes(total_strokes - cumulative_total_strokes);
-        cumulative_total_strokes += (total_strokes - cumulative_total_strokes);
+    for (unsigned int i = 1; i < lengths_.size(); i++) {
+      fit::LengthMesg *length = lengths_.at(i);
+      if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
+        FIT_UINT32 total_strokes = length->GetTotalStrokes();
+        if (total_strokes != FIT_UINT32_INVALID) {
+          length->SetTotalStrokes(total_strokes - cumulative_total_strokes);
+          cumulative_total_strokes += (total_strokes - cumulative_total_strokes);
+        }
+      } else {
+        throw std::runtime_error("Rest length in tomtom file");
       }
-    } else {
-      throw std::runtime_error("Rest length in tomtom file");
     }
   }
-
   for (fit::LengthMesg *length :  lengths_) {
     if (length->GetTotalElapsedTime() > length->GetTotalTimerTime()) {
       FixRestWithinLength(length);
@@ -249,50 +266,35 @@ void swt::TomtomSwimFile::Save(const std::string &filename, bool convert/*=false
 
     encode.Open(fit_file);
 
-    FIT_FLOAT32 moving_time = 0;
-    for(fit::LengthMesg *length : lengths_) {
-      if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE)
-        moving_time += (length->GetTotalTimerTime() + 1);
-    }
-
-    FIT_FLOAT32 calories_increment = moving_time / session_->GetTotalCalories();
-    FIT_FLOAT32 cumulative_distance = 0;
-    FIT_UINT16 cumulative_moving_time = 0;
-    FIT_UINT16 cumulative_strokes = 0;
-    FIT_DATE_TIME current_timestamp = 0 ;
+    unsigned int active_length_counter = 0;
+    FIT_UINT16 total_calories  = 0;
 
     for (const std::unique_ptr<fit::Mesg> &mesg : mesgs_) {
       if (typeid(*mesg) == typeid(fit::LengthMesg)) {
         fit::LengthMesg *length = dynamic_cast<fit::LengthMesg*>(mesg.get());
 
-        cumulative_strokes += length->GetTotalStrokes();
-        length->SetTotalStrokes(cumulative_strokes);
-
-        FIT_FLOAT32 speed  = length->GetAvgSpeed();
-        current_timestamp = current_timestamp > length->GetStartTime() ? current_timestamp : length->GetStartTime();
-        FIT_DATE_TIME end_time = current_timestamp + static_cast<FIT_UINT32>(length->GetTotalTimerTime());
-
-        FIT_FLOAT32 distance_increment = session_->GetPoolLength() / (end_time - current_timestamp + 1);
-
-        while (current_timestamp <= end_time) {
-
-          cumulative_distance += distance_increment;
-          cumulative_moving_time++;
+        if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
+          active_length_counter++;
           fit::RecordMesg record;
-          record.SetTimestamp(current_timestamp++);
-          record.SetDistance(cumulative_distance);
-          record.SetSpeed(speed);
-          record.SetCalories(cumulative_moving_time / calories_increment);
+          record.SetTimestamp(length->GetTimestamp());
+          record.SetDistance(static_cast<FIT_FLOAT32>(active_length_counter) * 
+              session_->GetPoolLength());
+          record.SetSpeed(length->GetAvgSpeed());
+          if (length->GetTotalCalories() != FIT_UINT16_INVALID)
+            total_calories += length->GetTotalCalories();
+          record.SetCalories(total_calories);
           encode.Write(record);
+          encode.Write(*length);
+        } else if (length->GetLengthType() == FIT_LENGTH_TYPE_IDLE) { 
+          encode.Write(*length);
         }
-        encode.Write(*length);
+
       } else if (typeid(*mesg) == typeid(fit::LapMesg)) {
         fit::LapMesg tomtom_lap(mesg->GetNum());
         tomtom_lap.SetLocalNum(mesg->GetLocalNum());
         for (int i = 0; i < lap_num_fields_; i++) {
           tomtom_lap.AddField(*(mesg->GetFieldByIndex(i)));
         }
-        tomtom_lap.SetTotalCycles(cumulative_strokes);
         encode.Write(tomtom_lap);
       } else if (typeid(*mesg) == typeid(fit::SessionMesg)) {
         fit::SessionMesg tomtom_session(mesg->GetNum());
@@ -317,6 +319,8 @@ void swt::TomtomSwimFile::UpdateLap(fit::LapMesg *lap) {
   FIT_UINT16 num_active_lengths = 0;
   FIT_FLOAT32 moving_time = 0;
   FIT_UINT32 total_cycles = 0;
+  bool is_swim_stroke_init = false ; // Allows to perform swimStroke initialization on first length
+  FIT_SWIM_STROKE swim_stroke = FIT_SWIM_STROKE_INVALID;
 
   FIT_UINT8 max_cadence = 0;
   FIT_FLOAT32 max_speed = 0;
@@ -346,20 +350,31 @@ void swt::TomtomSwimFile::UpdateLap(fit::LapMesg *lap) {
     for (int index = first_length_index; index <= last_length_index; index++) {
       fit::LengthMesg *length = lengths_.at(index);
 
-      num_active_lengths++;
-      moving_time += length->GetTotalTimerTime();
-      total_cycles += length->GetTotalStrokes();
+      if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
+        num_active_lengths++;
+        moving_time += length->GetTotalTimerTime();
+        total_cycles += length->GetTotalStrokes();
 
-      if (length->GetAvgSpeed() != FIT_FLOAT32_INVALID && 
-          max_speed < length->GetAvgSpeed()) {
-        max_speed = length->GetAvgSpeed();
+        if (!is_swim_stroke_init) {
+          swim_stroke = length->GetSwimStroke();
+          is_swim_stroke_init = true;
+        } else {
+          if (swim_stroke != length->GetSwimStroke())
+            swim_stroke = FIT_SWIM_STROKE_MIXED;
+        }
+
+        if (length->GetAvgSwimmingCadence() != FIT_UINT8_INVALID && 
+            max_cadence < length->GetAvgSwimmingCadence()) {
+          max_cadence = length->GetAvgSwimmingCadence();
+        }
+        if (length->GetAvgSpeed() != FIT_FLOAT32_INVALID && 
+            max_speed < length->GetAvgSpeed()) {
+          max_speed = length->GetAvgSpeed();
+        }
+
+        if (length->GetTotalCalories() != FIT_UINT16_INVALID) 
+          total_calories += length->GetTotalCalories();
       }
-      if (length->GetAvgSwimmingCadence() != FIT_UINT8_INVALID && 
-          max_cadence < length->GetAvgSwimmingCadence()) {
-        max_cadence = length->GetAvgSwimmingCadence();
-      }
-      if (length->GetTotalCalories() != FIT_UINT16_INVALID) 
-        total_calories += length->GetTotalCalories();
     }
 
     total_distance = num_active_lengths * session_->GetPoolLength();
@@ -367,6 +382,7 @@ void swt::TomtomSwimFile::UpdateLap(fit::LapMesg *lap) {
     lap->SetNumActiveLengths(num_active_lengths);
     lap->SetTotalCycles(total_cycles);
     lap->SetTotalDistance(total_distance);
+    lap->SetSwimStroke(swim_stroke);
 
     lap->SetAvgCadence(static_cast<FIT_UINT8>
         (round(static_cast<FIT_FLOAT32>(total_cycles) / moving_time * 60)));
@@ -383,6 +399,8 @@ void swt::TomtomSwimFile::UpdateSession() {
   FIT_UINT16 num_active_lengths = 0;
   FIT_FLOAT32 moving_time = 0;
   FIT_UINT32 total_cycles = 0;
+  bool is_swim_stroke_init = false; // Allows to perform swimStroke initialization on first length
+  FIT_SWIM_STROKE swim_stroke = FIT_SWIM_STROKE_INVALID;
   FIT_FLOAT32 max_speed = 0;
   FIT_UINT8 max_cadence = 0;
   FIT_UINT16 total_calories = 0;
@@ -390,20 +408,30 @@ void swt::TomtomSwimFile::UpdateSession() {
 
   for (fit::LengthMesg *length: lengths_)
   {
-    num_active_lengths++;
-    moving_time += length->GetTotalTimerTime();
-    total_cycles += length->GetTotalStrokes();
+    if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
+      num_active_lengths++;
+      moving_time += length->GetTotalTimerTime();
+      total_cycles += length->GetTotalStrokes();
 
-    if (length->GetAvgSpeed() != FIT_FLOAT32_INVALID && 
-        max_speed < length->GetAvgSpeed()) {
-      max_speed = length->GetAvgSpeed();
+      if (!is_swim_stroke_init) {
+        swim_stroke = length->GetSwimStroke();
+        is_swim_stroke_init = true;
+      } else {
+        if (swim_stroke != length->GetSwimStroke()) 
+          swim_stroke = FIT_SWIM_STROKE_MIXED;
+      }
+
+      if (length->GetAvgSpeed() != FIT_FLOAT32_INVALID && 
+          max_speed < length->GetAvgSpeed()) {
+        max_speed = length->GetAvgSpeed();
+      }
+      if (length->GetAvgSwimmingCadence() != FIT_UINT8_INVALID && 
+          max_cadence < length->GetAvgSwimmingCadence()) {
+        max_cadence = length->GetAvgSwimmingCadence();
+      }
+      if (length->GetTotalCalories() != FIT_UINT16_INVALID) 
+        total_calories += length->GetTotalCalories();
     }
-    if (length->GetAvgSwimmingCadence() != FIT_UINT8_INVALID && 
-        max_cadence < length->GetAvgSwimmingCadence()) {
-      max_cadence = length->GetAvgSwimmingCadence();
-    }
-    if (length->GetTotalCalories() != FIT_UINT16_INVALID) 
-      total_calories += length->GetTotalCalories();
   }
 
   if (num_active_lengths == 0)
@@ -413,6 +441,7 @@ void swt::TomtomSwimFile::UpdateSession() {
   session_->SetTotalTimerTime(moving_time);
   session_->SetNumActiveLengths(num_active_lengths);
   session_->SetTotalCycles(total_cycles);
+  session_->SetSwimStroke(swim_stroke);
 
   session_->SetAvgCadence(static_cast<FIT_UINT8>
       (round(static_cast<FIT_FLOAT32>(total_cycles) /
