@@ -58,7 +58,8 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
       && ((product_ == FIT_GARMIN_PRODUCT_FENIX3) ||
        (product_ == FIT_GARMIN_PRODUCT_FENIX3_CHINA) ||
-       (product_ == FIT_GARMIN_PRODUCT_FENIX3_TWN))) {
+       (product_ == FIT_GARMIN_PRODUCT_FENIX3_TWN) ||
+       (product_ == FIT_GARMIN_PRODUCT_FENIX3_HR))) {
     swim_file.reset(new Fenix3SwimFile());
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
       && product_ == FIT_GARMIN_PRODUCT_EPIX) {
