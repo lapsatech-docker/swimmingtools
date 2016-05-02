@@ -4,7 +4,6 @@
 #include "fit_encode.hpp"
 #include "fit_record_mesg.hpp"
 #include "swt_fr920_swim_file.h"
-#include <iostream>
 
 void swt::Fr920SwimFile::AddMesg(const void *mesg) {
 
@@ -195,25 +194,28 @@ void swt::Fr920SwimFile::LapSetSwolf(fit::LapMesg *lap, FIT_UINT16 swolf) {
 }
 
 void swt::Fr920SwimFile::RepairMissingLaps() {
-  // assume missing lap won't be the first or last one
 
-  if (laps_.at(0)->GetMessageIndex() != 0) {
-    throw std::runtime_error("FR920 first lap missing");
-  }
-
-  for(FIT_MESSAGE_INDEX i = 1; i < laps_.size(); i++) {
+  for(FIT_MESSAGE_INDEX i = 0; i < laps_.size(); i++) {
     if (laps_.at(i)->GetMessageIndex() == (i + 1)) {
-      std::unique_ptr<fit::LapMesg> lap(new fit::LapMesg(*laps_.at(0)));
-      fit::LapMesg *lap_before = laps_.at(i - 1);
+
+      std::unique_ptr<fit::LapMesg> lap(new fit::LapMesg(*laps_.at(i)));
       fit::LapMesg *lap_after = laps_.at(i);
       lap->SetMessageIndex(i);
       FIT_MESSAGE_INDEX first_length_index = FIT_MESSAGE_INDEX_INVALID;
       FIT_MESSAGE_INDEX last_length_index = FIT_MESSAGE_INDEX_INVALID;
 
-      if (lap_before->GetNumActiveLengths() == 0) {
-        first_length_index = lap_before->GetFirstLengthIndex() + 1;
+
+      if (i == 0) {
+        first_length_index = 0;
       } else {
-        first_length_index = lap_before->GetFirstLengthIndex() + lap_before->GetNumLengths();
+
+        fit::LapMesg *lap_before = laps_.at(i - 1);
+
+        if (lap_before->GetNumActiveLengths() == 0) {
+          first_length_index = lap_before->GetFirstLengthIndex() + 1;
+        } else {
+          first_length_index = lap_before->GetFirstLengthIndex() + lap_before->GetNumLengths();
+        }
       }
       last_length_index = lap_after->GetFirstLengthIndex() - 1;
 
