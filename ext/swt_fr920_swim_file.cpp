@@ -4,6 +4,7 @@
 #include "fit_encode.hpp"
 #include "fit_record_mesg.hpp"
 #include "swt_fr920_swim_file.h"
+#include <iostream>
 
 void swt::Fr920SwimFile::AddMesg(const void *mesg) {
 
@@ -56,9 +57,15 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   FIT_FLOAT32 total_elapsed_time = existing_length->GetTotalElapsedTime() / 2;
   FIT_FLOAT32 total_timer_time = existing_length->GetTotalTimerTime() / 2;
   FIT_UINT16 total_strokes = existing_length->GetTotalStrokes();
+  
+  FIT_DATE_TIME timestamp_lag = 0;
+  if (existing_length->GetTimestamp() > (existing_length->GetStartTime() + 
+        static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime())))
+    timestamp_lag = existing_length->GetTimestamp() - (existing_length->GetStartTime() + 
+        static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime()));
 
   LengthSetTimestamp(added_length.get(), existing_length->GetStartTime() +
-     static_cast<FIT_DATE_TIME>(total_timer_time));
+     static_cast<FIT_DATE_TIME>(total_timer_time) + timestamp_lag);
   added_length->SetTotalElapsedTime(total_elapsed_time);
   added_length->SetTotalTimerTime(total_timer_time);
   added_length->SetAvgSpeed(session_->GetPoolLength() / total_timer_time);
@@ -73,7 +80,8 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
     }
   }
 
-  existing_length->SetStartTime(added_length->GetTimestamp());  // second length start when first end
+  existing_length->SetStartTime(added_length->GetStartTime() + 
+      static_cast<FIT_DATE_TIME>(added_length->GetTotalTimerTime()));  // second length start when first end
   existing_length->SetTotalElapsedTime(total_elapsed_time);
   existing_length->SetTotalTimerTime(total_timer_time);
   existing_length->SetAvgSpeed(session_->GetPoolLength() / total_timer_time);
@@ -89,15 +97,26 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
       [existing_length] (const std::unique_ptr<fit::Mesg> &mesg) {
       return mesg.get() == existing_length;});
 
+  fit::LengthMesg * preceding_length = NULL;
+  std::list<std::unique_ptr<fit::Mesg>>::iterator preceding_length_it  = mesgs_.begin();
+  
+  if (length_index > 0) {
+    preceding_length = lengths_.at(length_index -1);
+    preceding_length_it = std::find_if(mesgs_.begin(), it,
+        [preceding_length] (const std::unique_ptr<fit::Mesg> &mesg) {
+      return mesg.get() == preceding_length;});
+  }
+
   if (added_length->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID)
     throw std::runtime_error("Fr920 Split, added length timestamp invalid"); 
 
-  while(it != mesgs_.begin() &&
-      (it->get()->GetFieldUINT32Value(kTimestampFieldNum) > added_length->GetTimestamp() &&
-       it->get()->GetFieldUINT32Value(kTimestampFieldNum) != FIT_UINT32_INVALID) ||
-       it->get()->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID)
-    it--;
 
+  while((it != preceding_length_it) &&
+      ((it->get()->GetFieldUINT32Value(kTimestampFieldNum) > added_length->GetTimestamp() &&
+       it->get()->GetFieldUINT32Value(kTimestampFieldNum) != FIT_UINT32_INVALID) ||
+       it->get()->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID))
+    it--;
+  
   mesgs_.insert(++it, move(added_length));
 
   fit::LapMesg *the_lap = GetLap(length_index);
