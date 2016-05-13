@@ -53,7 +53,8 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
     swim_file.reset(new TomtomSwimFile());
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
       && ((product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE) ||
-       (product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE_APAC))) {
+       (product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE_APAC) ||
+       (product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE_HR))) {
     swim_file.reset(new VaSwimFile());
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
       && ((product_ == FIT_GARMIN_PRODUCT_FENIX3) ||
