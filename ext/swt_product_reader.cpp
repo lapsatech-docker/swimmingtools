@@ -4,14 +4,12 @@
 #include "fit_decode.hpp"
 #include "fit_mesg_broadcaster.hpp"
 #include "fit_file_id_mesg.hpp"
-#include "swt_epix_swim_file.h"
 #include "swt_fenix2_swim_file.h"
-#include "swt_fenix3_swim_file.h"
 #include "swt_fr910_swim_file.h"
 #include "swt_fr920_swim_file.h"
+#include "swt_garmin_generic_swim_file.h"
 #include "swt_gs_swim_file.h"
 #include "swt_tomtom_swim_file.h"
-#include "swt_va_swim_file.h"
 
 swt::ProductReader::ProductReader()
 : file_type_(FIT_FILE_INVALID), manufacturer_(FIT_MANUFACTURER_INVALID),
@@ -55,17 +53,21 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
       && ((product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE) ||
        (product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE_APAC) ||
        (product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE_HR))) {
-    swim_file.reset(new VaSwimFile());
+    swim_file.reset(new GarminGenericSwimFile(kGarminVivoActive));
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
       && ((product_ == FIT_GARMIN_PRODUCT_FENIX3) ||
        (product_ == FIT_GARMIN_PRODUCT_FENIX3_CHINA) ||
        (product_ == FIT_GARMIN_PRODUCT_FENIX3_TWN) ||
        (product_ == FIT_GARMIN_PRODUCT_FENIX3_HR))) {
-    swim_file.reset(new Fenix3SwimFile());
+    swim_file.reset(new GarminGenericSwimFile(kGarminFenix3));
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
       && product_ == FIT_GARMIN_PRODUCT_EPIX) {
-    swim_file.reset(new EpixSwimFile());
-  } else {
+    swim_file.reset(new GarminGenericSwimFile(kGarminEpix));
+  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
+      && ((product_ == FIT_GARMIN_PRODUCT_FR735) ||
+       (product_ == FIT_GARMIN_PRODUCT_FR735_TAIWAN))) {
+    swim_file.reset(new GarminGenericSwimFile(kGarminFr735));
+ } else {
     std::string message = "This Device is not supported. See list of supported devices above ("
       + std::to_string(manufacturer_) + "/" 
       + std::to_string(product_) + ")";

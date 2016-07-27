@@ -1,6 +1,10 @@
-#include "swt_epix_swim_file.h"
+#include "swt_garmin_generic_swim_file.h"
 
-void swt::EpixSwimFile::UpdateLap(fit::LapMesg *lap) {
+swt::GarminGenericSwimFile::GarminGenericSwimFile(Product product)
+: product_(product)
+{}
+
+void swt::GarminGenericSwimFile::UpdateLap(fit::LapMesg *lap) {
   Fr920SwimFile::UpdateLap(lap);
 
 
@@ -17,8 +21,8 @@ void swt::EpixSwimFile::UpdateLap(fit::LapMesg *lap) {
 
   lap->SetTotalCalories(total_calories);
 }
-
-void swt::EpixSwimFile::UpdateSession() {
+ 
+void swt::GarminGenericSwimFile::UpdateSession() {
 
   Fr920SwimFile::UpdateSession();
 }

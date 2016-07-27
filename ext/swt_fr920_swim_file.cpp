@@ -401,7 +401,7 @@ void swt::Fr920SwimFile::UpdateSession() {
     if (lap->GetNumActiveLengths() > 0) {
       num_lengths_in_active_laps += lap->GetNumLengths();
 
-      if (lap->GetSwimStroke() != FIT_SWIM_STROKE_DRILL)
+      if (lap->GetTotalCalories() != FIT_UINT16_INVALID)
         total_calories = static_cast<FIT_UINT16>(total_calories + lap->GetTotalCalories());
 
     }

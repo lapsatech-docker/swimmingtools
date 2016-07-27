@@ -678,11 +678,13 @@ typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_FR920XT_TAIWAN                                        ((FIT_GARMIN_PRODUCT)2130)
 #define FIT_GARMIN_PRODUCT_FR920XT_CHINA                                         ((FIT_GARMIN_PRODUCT)2131)
 #define FIT_GARMIN_PRODUCT_FR920XT_JAPAN                                         ((FIT_GARMIN_PRODUCT)2132)
+#define FIT_GARMIN_PRODUCT_FR735                                                 ((FIT_GARMIN_PRODUCT)2158)
 #define FIT_GARMIN_PRODUCT_VIVO_ACTIVE_APAC                                      ((FIT_GARMIN_PRODUCT)2160)
 #define FIT_GARMIN_PRODUCT_FENIX3_CHINA                                          ((FIT_GARMIN_PRODUCT)2188)
 #define FIT_GARMIN_PRODUCT_FENIX3_TWN                                            ((FIT_GARMIN_PRODUCT)2189)
 #define FIT_GARMIN_PRODUCT_VIVO_ACTIVE_HR                                        ((FIT_GARMIN_PRODUCT)2337)
 #define FIT_GARMIN_PRODUCT_FENIX3_HR                                             ((FIT_GARMIN_PRODUCT)2413)
+#define FIT_GARMIN_PRODUCT_FR735_TAIWAN                                          ((FIT_GARMIN_PRODUCT)2533)
 #define FIT_GARMIN_PRODUCT_SDM4                                                  ((FIT_GARMIN_PRODUCT)10007) // SDM4 footpod
 #define FIT_GARMIN_PRODUCT_EDGE_REMOTE                                           ((FIT_GARMIN_PRODUCT)10014)
 #define FIT_GARMIN_PRODUCT_TRAINING_CENTER                                       ((FIT_GARMIN_PRODUCT)20119)

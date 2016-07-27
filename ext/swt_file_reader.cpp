@@ -1,14 +1,7 @@
 #include "swt_file_reader.h"
 #include <fstream>
 #include "fit_decode.hpp"
-#include "fit_file_id_mesg.hpp"
-#include "swt_fenix2_swim_file.h"
-#include "swt_fr910_swim_file.h"
-#include "swt_fr920_swim_file.h"
-#include "swt_gs_swim_file.h"
 #include "swt_product_reader.h"
-#include "swt_tomtom_swim_file.h"
-#include "swt_va_swim_file.h"
 
 std::unique_ptr<swt::SwimFile> swt::FileReader::Read(const std::string &filename) {
   std::ifstream istream;
