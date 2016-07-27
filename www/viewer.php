@@ -88,7 +88,7 @@ NOWDOC;
   $sum = $activity->summaries[swt\Activity::SUM_REST];
   if ($rest_time > 0) {
     $template = '<tr class="rest"><td>Rest</td><td></td><td></td><td>%s</td><td></td><td></td><td></td></tr>'.PHP_EOL;
-    $table .= sprintf($template, swt\Functions::formatTime($rest_time ));
+    $table .= sprintf($template, swt\Functions::formatTime($rest_time, TRUE));
   }
   $sum = $activity->summaries[swt\Activity::SUM_TOTAL];
   if ($rest_time > 0 || $drill_time > 0) {
@@ -185,7 +185,7 @@ NOWDOC;
       strtolower($fields['stroke']), $index+1, $fields['distance'], $fields['stroke'],
       $fields['time'], $fields['pace_str'], $fields['spm'], $fields['spl']);
     if ($length['rest'] > 0)  {
-      $rest = swt\Functions::formatTime($length['rest']);
+      $rest = swt\Functions::formatTime($length['rest'], TRUE);
       $table .= '<tr class="rest"><td>Rest</td><td></td><td></td><td>'.$rest.'</td><td></td><td></td><td></td></tr>'.PHP_EOL;
     }
     $print_interval = FALSE;

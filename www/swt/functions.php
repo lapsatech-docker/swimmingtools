@@ -100,7 +100,7 @@ class Functions {
     $fields['pace_str'] = self::getPace($fields['distance'], $time, TRUE);
     $fields['spl'] = self::getSpl($stroke_count, $num_lengths);
     $fields['spm'] = self::getSpm($stroke_count, $time);
-    $fields['time'] = self::formatTime($time);
+    $fields['time'] = self::formatTime($time, TRUE);
     return $fields;
   }
 
