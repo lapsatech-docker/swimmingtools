@@ -34,6 +34,8 @@ Field::Field(const Field &field)
     : FieldBase(field)
     , profile(field.profile)
     , profileIndex(field.profileIndex)
+    , fieldNum(field.fieldNum)
+    , fieldType(field.fieldType)
 {
 }
 
@@ -41,13 +43,17 @@ Field::Field(const Profile::MESG_INDEX mesgIndex, const FIT_UINT16 fieldIndex)
     : FieldBase()
     , profile(&Profile::mesgs[mesgIndex])
     , profileIndex(fieldIndex)
+    , fieldNum(FIT_UINT8_INVALID)
+    , fieldType(FIT_UINT8_INVALID)
 {
 }
 
-Field::Field(const FIT_UINT16 mesgNum, const FIT_UINT8 fieldNum)
+Field::Field(const FIT_UINT16 mesgNum, const FIT_UINT8 fieldNum, const FIT_UINT8 fieldType)
     : FieldBase()
     , profile(Profile::GetMesg(mesgNum))
     , profileIndex(Profile::GetFieldIndex(mesgNum, fieldNum))
+    , fieldNum(fieldNum)
+    , fieldType(fieldType)
 {
 }
 
@@ -55,17 +61,21 @@ Field::Field(const std::string& mesgName, const std::string& fieldName)
     : FieldBase()
     , profile(Profile::GetMesg(mesgName))
     , profileIndex(Profile::GetFieldIndex(mesgName, fieldName))
+    , fieldNum(FIT_UINT8_INVALID)
+    , fieldType(FIT_UINT8_INVALID)
 {
 }
 
 FIT_BOOL Field::IsValid(void) const
 {
-    return profileIndex != FIT_UINT16_INVALID;
+    return true; // profileIndex != FIT_UINT16_INVALID;
 }
 
 FIT_BOOL Field::GetIsAccumulated() const
 {
-    return profile->fields[profileIndex].isAccumulated;
+   if ((profile == NULL) || (profileIndex >= profile->numFields))
+        return FIT_FALSE;
+   return profile->fields[profileIndex].isAccumulated;
 }
 
 FIT_UINT16 Field::GetIndex(void) const
@@ -83,14 +93,14 @@ std::string Field::GetName() const
 FIT_UINT8 Field::GetNum(void) const
 {
     if ((profile == NULL) || (profileIndex >= profile->numFields))
-        return FIT_FIELD_NUM_INVALID;
+        return fieldNum; // FIT_FIELD_NUM_INVALID;
     return profile->fields[profileIndex].num;
 }
 
 FIT_UINT8 Field::GetType() const
 {
     if ((profile == NULL) || (profileIndex >= profile->numFields))
-        return FIT_UINT8_INVALID;
+        return fieldType; // FIT_UINT8_INVALID;
     return profile->fields[profileIndex].type;
 }
 

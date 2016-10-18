@@ -1107,11 +1107,15 @@ FIT_BOOL FieldBase::Read(const void *data, const FIT_UINT8 size)
 
             while (bytes > 0)
             {
-                if (memcmp(point, baseTypeInvalids[GetType() & FIT_BASE_TYPE_NUM_MASK], typeSize) != 0)
-                {
+               // In the context of swimmingwatchtools. Prevent invalid values from being discarded. 
+               // If we don't do that invalid values from the source file, will not be saved to
+               // the edited file
+               //
+               // if (memcmp(point, baseTypeInvalids[GetType() & FIT_BASE_TYPE_NUM_MASK], typeSize) != 0)
+               // {
                     values.insert(values.end(), byteData, byteData + bytesLeft);
                     break;
-                }
+               // }
                 point += typeSize;
                 bytes -= typeSize;
             }

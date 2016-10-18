@@ -132,6 +132,7 @@ public:
     //    value             The value to set the flag to.
     ///////////////////////////////////////////////////////////////////////
 
+    fit::ProtocolVersion GetProtocolVersion();
 private:
     typedef enum
     {
@@ -204,6 +205,7 @@ private:
     FIT_UINT32 currentByteIndex;
     FIT_UINT32 bytesRead;
     char buffer[BufferSize];
+    fit::ProtocolVersion protocolVersion;
 
     void InitRead(std::istream &file);
     void InitRead(std::istream &file, FIT_BOOL startOfFile);

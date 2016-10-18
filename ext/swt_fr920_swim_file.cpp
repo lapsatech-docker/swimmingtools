@@ -133,7 +133,7 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
 
 void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*/) const {
   unsigned int active_length_counter = 0;
-  fit::Encode encode;
+  fit::Encode encode(fit_protocol_version_);
   std::fstream fit_file(filename,
       std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
 

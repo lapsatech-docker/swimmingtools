@@ -16,9 +16,11 @@ std::unique_ptr<swt::SwimFile> swt::FileReader::Read(const std::string &filename
 
   ProductReader pr;
   swim_file = pr.Read(istream);
-  
+
   if (swim_file) {
     decode.Read(istream, *this);
+
+    swim_file->SetFitProtocolVersion(decode.GetProtocolVersion());
 
     // Garmin store heart rate Data after the end of the activity file
     // Hearth Rate Data appear as fit file following the activity file

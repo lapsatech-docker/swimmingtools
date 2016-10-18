@@ -257,7 +257,7 @@ void swt::TomtomSwimFile::Save(const std::string &filename, bool convert/*=false
     gs.CloseNewFile();
     gs.Save(filename);
   } else {
-    fit::Encode encode;
+    fit::Encode encode(fit_protocol_version_);
     std::fstream fit_file(filename, 
         std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
 

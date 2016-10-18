@@ -28,6 +28,7 @@ Mesg::Mesg()
     , localNum(0)
     , fields()
     , devFields()
+    , num(FIT_MESG_NUM_INVALID)
 {
 }
 
@@ -36,6 +37,7 @@ Mesg::Mesg(const Mesg &mesg)
     , localNum(mesg.localNum)
     , fields(mesg.fields)
     , devFields(mesg.devFields)
+    , num(mesg.num)
 {
 }
 
@@ -45,6 +47,10 @@ Mesg::Mesg(const Profile::MESG_INDEX index)
     , fields()
     , devFields()
 {
+  if (profile != NULL)
+    num = profile->num;
+  else
+    num = FIT_MESG_NUM_INVALID;
 }
 
 Mesg::Mesg(const std::string& name)
@@ -53,6 +59,10 @@ Mesg::Mesg(const std::string& name)
     , fields()
     , devFields()
 {
+  if (profile != NULL)
+    num = profile->num;
+  else
+    num = FIT_MESG_NUM_INVALID;
 }
 
 Mesg::Mesg(const FIT_UINT16 num)
@@ -60,6 +70,7 @@ Mesg::Mesg(const FIT_UINT16 num)
     , localNum(0)
     , fields()
     , devFields()
+    , num(num)
 {
 }
 
@@ -150,7 +161,7 @@ std::string Mesg::GetName() const
 FIT_UINT16 Mesg::GetNum() const
 {
     if (profile == FIT_NULL)
-        return FIT_MESG_NUM_INVALID;
+        return num; //_MESG_NUM_INVALID;
 
     return profile->num;
 }
@@ -191,8 +202,12 @@ Field* Mesg::AddField(const FIT_UINT8 fieldNum)
 
     if (field == FIT_NULL)
     {
-        fields.push_back(Field(profile->num, fieldNum));
-        field = &fields[fields.size() - 1];
+        const Profile::FIELD *profileField = Profile::GetField(profile->num, fieldNum);
+        if (profileField != NULL)
+        {
+          fields.push_back(Field(profile->num, fieldNum, profileField->type));
+          field = &fields[fields.size() - 1];
+        }
     }
 
     return field;

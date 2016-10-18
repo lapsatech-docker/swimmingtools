@@ -39,6 +39,7 @@ public:
     Mesg(const Profile::MESG_INDEX index);
     Mesg(const std::string& name);
     Mesg(const FIT_UINT16 num);
+    virtual ~Mesg() {};
     FIT_BOOL IsValid(void) const;
     FIT_BOOL GetIsFieldAccumulated(const FIT_UINT8 num) const;
     const DeveloperField* GetDeveloperField(FIT_UINT8 developerDataIndex, FIT_UINT8 num) const;
@@ -108,6 +109,7 @@ private:
     static int WriteField(std::ostream& file, const FieldBase* field, FIT_UINT8 defSize, FIT_UINT8 defType);
     const Profile::MESG* profile;
     FIT_UINT8 localNum;
+    FIT_UINT16 num; // contains profile num of custom mesgs
     std::vector<Field> fields;
     std::vector<DeveloperField> devFields;
 };

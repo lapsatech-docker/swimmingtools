@@ -266,7 +266,7 @@ void swt::GarminSwimFile::CloseNewFile() {
   device_info->SetProduct(FIT_GARMIN_PRODUCT_SWIM);
   device_info->SetSoftwareVersion(3.6);
   device_info->SetDeviceIndex(0);
-  device_info->SetDeviceType(FIT_DEVICE_TYPE_ANTFS);
+  device_info->SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_ANTFS);
   mesgs_.push_back(move(device_info));
 
   session_->SetTimestamp(current_timestamp_);
@@ -296,7 +296,7 @@ void swt::GarminSwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
 
 void swt::GarminSwimFile::Save(const std::string &filename, bool convert/*=false*/) const {
   unsigned int active_length_counter = 0;
-  fit::Encode encode;
+  fit::Encode encode(fit_protocol_version_);
   std::fstream fit_file(filename, 
       std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
 

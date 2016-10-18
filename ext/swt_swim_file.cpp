@@ -406,6 +406,12 @@ void swt::SwimFile::Recalculate()
   UpdateSession();
 }
 
+void swt::SwimFile::SetFitProtocolVersion(fit::ProtocolVersion fit_protocol_version)
+{
+  fit_protocol_version_ = fit_protocol_version;
+}
+
+
 void swt::SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   std::string error;
 

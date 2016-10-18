@@ -91,7 +91,7 @@ void swt::Fenix2SwimFile::Save(const std::string &filename, bool convert/*=false
   unsigned short active_length_counter = 0;
   FIT_FLOAT32 pool_length = session_->GetPoolLength();
 
-  fit::Encode encode;
+  fit::Encode encode(fit_protocol_version_);
   std::fstream fit_file(filename, 
       std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
 

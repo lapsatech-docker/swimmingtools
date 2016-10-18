@@ -36,7 +36,7 @@ public:
     Field(void);
     Field(const Field &field);
     Field(const Profile::MESG_INDEX mesgIndex, const FIT_UINT16 fieldIndex);
-    Field(const FIT_UINT16 mesgNum, const FIT_UINT8 fieldNum);
+    Field(const FIT_UINT16 mesgNum, const FIT_UINT8 fieldNum, FIT_UINT8 fieldType);
     Field(const std::string& mesgName, const std::string& fieldName);
 
     FIT_UINT16 GetIndex(void) const;
@@ -64,6 +64,8 @@ public:
 private:
     const Profile::MESG* profile;
     FIT_UINT16 profileIndex;
+    FIT_UINT8 fieldNum;
+    FIT_UINT8 fieldType;
 };
 
 } // namespace fit

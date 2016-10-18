@@ -64,6 +64,7 @@ namespace swt
       virtual void Merge(FIT_MESSAGE_INDEX length_index);
       void Recalculate();
       virtual void Save(const std::string &filename, bool convert=false) const = 0;
+      void SetFitProtocolVersion (fit::ProtocolVersion protocol_version);
       virtual void Split(FIT_MESSAGE_INDEX length_index);
 
     protected:  
@@ -80,6 +81,7 @@ namespace swt
 
       FIT_UINT32Z serial_number_;
       FIT_UINT16 software_version_;
+      fit::ProtocolVersion fit_protocol_version_;
 
     private:
       static const FIT_UINT16 kSoftwareVersionFieldNum = 5;

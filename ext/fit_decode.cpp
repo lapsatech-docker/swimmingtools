@@ -50,6 +50,7 @@ Decode::Decode()
     currentByteOffset = 0;
     bytesRead = 0;
     currentByteIndex = 0;
+    protocolVersion = ProtocolVersion::V20;
 }
 
 FIT_BOOL Decode::IsFIT(std::istream &file)
@@ -237,7 +238,18 @@ FIT_BOOL Decode::Resume(void)
     {
         if ( currentByteIndex == 0 )
         {
+          // In the context of swimmingwatchtools(editor). We don't want to process chained files
+          // Chained files usually contain Heart rate data. This data will be read in class
+          // SwimFile, and written as is when saving the edited file. if a file is composed of
+          // chained file, fileBytesLeft is the number of bytes left in the file being read. So we
+          // must avoid reading past the end of the first file. The file pointer will be at the
+          // correct position when reading subsequent files
+          //
+          if ( fileBytesLeft < BufferSize)
+            file->read(buffer, fileBytesLeft);
+          else
             file->read(buffer, BufferSize);
+
             bytesRead = (FIT_UINT32)file->gcount();
         }
 
@@ -295,7 +307,10 @@ FIT_BOOL Decode::Resume(void)
                      // Increment so we do not read the same byte twice in the case of a chained file
                     currentByteIndex++;
                     currentByteOffset++;
-                    return FIT_TRUE;
+                    // In the context of swimmingwatchtools(editor). We don't want to process chained files
+                    // Chained files usually contain Heart rate data. This data will be read in class
+                    // SwimFile, and written as is when saving the edited file.
+                    return FIT_FALSE;  // FIT_TRUE;
 
                 default:
                     currentByteOffset++;
@@ -438,7 +453,6 @@ Decode::RETURN Decode::ReadByte(FIT_UINT8 data)
                 message << "FIT decode error: File CRC failed. Error at byte: " << currentByteOffset;
                 throw(RuntimeException(message.str()));
             }
-
             return RETURN_END_OF_FILE;
         }
     }
@@ -458,6 +472,16 @@ Decode::RETURN Decode::ReadByte(FIT_UINT8 data)
                         message << "FIT decode error: Protocol version " << (data & FIT_PROTOCOL_VERSION_MAJOR_MASK) << FIT_PROTOCOL_VERSION_MAJOR_SHIFT << "." << (data & FIT_PROTOCOL_VERSION_MINOR_MASK) << " not supported.  Must be " << FIT_PROTOCOL_VERSION_MAJOR << ".15 or earlier.";
                         headerException = message.str();
                     }
+                    
+                    if (data == 0x10)
+                    {
+                      protocolVersion = ProtocolVersion::V10;
+                    }
+                    else if (data == 0x20)
+                    {
+                      protocolVersion = ProtocolVersion::V20;
+                    }
+
                     break;
                 case 4:
                     fileDataSize = data & 0xFF;
@@ -774,7 +798,7 @@ Decode::RETURN Decode::ReadByte(FIT_UINT8 data)
                 {
                     UpdateEndianness(fldDefn->GetType(), fldDefn->GetSize());
 
-                    Field field(mesg.GetNum(), fldDefn->GetNum());
+                    Field field(mesg.GetNum(), fldDefn->GetNum(), fldDefn->GetType());
                     if (field.IsValid()) // If known field type.
                     {
                         field.Read(&fieldData, defn.GetFieldByIndex(fieldIndex)->GetSize());
@@ -913,106 +937,119 @@ Decode::RETURN Decode::ReadByte(FIT_UINT8 data)
 
 void Decode::ExpandComponents(Field* containingField, const Profile::FIELD_COMPONENT* components, FIT_UINT16 numComponents)
 {
-    FIT_UINT16 offset = 0;
-    FIT_UINT16 i;
-
-    for (i = 0; i < numComponents; i++)
-    {
-        const Profile::FIELD_COMPONENT* component = &components[i];
-
-        if (component->num != FIT_FIELD_NUM_INVALID)
-        {
-            Field componentField(mesg.GetNum(), component->num);
-            FIT_UINT16 subfieldIndex = mesg.GetActiveSubFieldIndex( componentField.GetNum() );
-            FIT_FLOAT64 value;
-            FIT_UINT32 bitsValue = FIT_UINT32_INVALID;
-            FIT_SINT32 signedBitsValue = FIT_SINT32_INVALID;
-
-            if (componentField.IsSignedInteger())
-            {
-                signedBitsValue = containingField->GetBitsSignedValue(offset, component->bits);
-
-                if (signedBitsValue == FIT_SINT32_INVALID)
-                    break; // No more data for components.
-
-                if (component->accumulate)
-                    bitsValue = accumulator.Accumulate(mesg.GetNum(), component->num, signedBitsValue, component->bits);
-            }
-            else
-            {
-                bitsValue = containingField->GetBitsValue(offset, component->bits);
-
-                if (bitsValue == FIT_UINT32_INVALID)
-                    break; // No more data for components.
-
-                if (component->accumulate)
-                    bitsValue = accumulator.Accumulate(mesg.GetNum(), component->num, bitsValue, component->bits);
-            }
-
-            // If the component field itself has *one* component apply the scale and offset of the componentField's
-            // (nested) component
-            if (componentField.GetNumComponents() == 1)
-            {
-                if(componentField.IsSignedInteger())
-                    value = (((signedBitsValue / (FIT_FLOAT64)component->scale) - component->offset) + componentField.GetComponent(0)->offset) * componentField.GetComponent(0)->scale;
-                else
-                    value = (((bitsValue / (FIT_FLOAT64)component->scale) - component->offset) + componentField.GetComponent(0)->offset) * componentField.GetComponent(0)->scale;
-                if (mesg.HasField(componentField.GetNum()))
-                {
-                    fit::Field *currentField = mesg.GetField(componentField.GetNum());
-                    currentField->AddRawValue(value, currentField->GetNumValues());
-                }
-                else
-                {
-                    componentField.AddRawValue(value, componentField.GetNumValues());
-                    mesg.AddField(componentField);
-                }
-            }
-            // The component field is itself a composite field (more than one component).  Don't use scale/offset, containing
-            // field data must already be encoded.  Add elements to it until we have added bitsvalue
-            else if (componentField.GetNumComponents() > 1)
-            {
-                int bitsAdded = 0;
-                long mask;
-
-                while (bitsAdded < component->bits)
-                {
-                    mask = ((long)1 << baseTypeSizes[componentField.GetType() & FIT_BASE_TYPE_NUM_MASK]) - 1;
-                    if (mesg.HasField(componentField.GetNum()))
-                    {
-                        Field* field = mesg.GetField( componentField.GetNum() );
-                        field->AddValue( bitsValue & mask, field->GetNumValues() );
-                    }
-                    else
-                    {
-                        componentField.AddValue(bitsValue & mask, componentField.GetNumValues());
-                        mesg.AddField(componentField);
-                    }
-                    bitsValue >>= baseTypeSizes[componentField.GetType() & FIT_BASE_TYPE_NUM_MASK];
-                    bitsAdded += baseTypeSizes[componentField.GetType() & FIT_BASE_TYPE_NUM_MASK];
-                }
-            }
-            // componentField is an ordinary field, apply scale and offset as usual
-            else
-            {
-                if(componentField.IsSignedInteger())
-                    value = (((signedBitsValue / (FIT_FLOAT64)component->scale) - component->offset) + componentField.GetOffset(subfieldIndex)) * componentField.GetScale(subfieldIndex);
-                else
-                    value = (((bitsValue / (FIT_FLOAT64)component->scale) - component->offset) + componentField.GetOffset(subfieldIndex)) * componentField.GetScale(subfieldIndex);
-                if (mesg.HasField(componentField.GetNum()))
-                {
-                    fit::Field *currentField = mesg.GetField(componentField.GetNum());
-                    currentField->AddRawValue(value, currentField->GetNumValues());
-                }
-                else
-                {
-                    componentField.AddRawValue(value, componentField.GetNumValues());
-                    mesg.AddField(componentField);
-                }
-            }
-        }
-        offset += component->bits;
-    }
+//   in the context of the editor in swimmingwatchtools. we don't want to expand component. The only 2 fiels that
+//   have components define are avg_speed (enhanced_avg_speed), and max_speed (enhanced_max_speed).
+//   Expanding these fields will create two values when decoding  and will result in these two fields being
+//   saved back to file when we re-encoding
+//
+//
+//    FIT_UINT16 offset = 0;
+//    FIT_UINT16 i;
+//
+//    for (i = 0; i < numComponents; i++)
+//    {
+//        const Profile::FIELD_COMPONENT* component = &components[i];
+//
+//        if (component->num != FIT_FIELD_NUM_INVALID)
+//        {
+//            FIT_UINT8 componentType = Profile::GetField(mesg.GetNum(), component->num)->type;
+//            Field componentField(mesg.GetNum(), component->num, componentType);
+//            FIT_UINT16 subfieldIndex = mesg.GetActiveSubFieldIndex( componentField.GetNum() );
+//            FIT_FLOAT64 value;
+//            FIT_UINT32 bitsValue = FIT_UINT32_INVALID;
+//            FIT_SINT32 signedBitsValue = FIT_SINT32_INVALID;
+//
+//            if (componentField.IsSignedInteger())
+//            {
+//                signedBitsValue = containingField->GetBitsSignedValue(offset, component->bits);
+//
+//                if (signedBitsValue == FIT_SINT32_INVALID)
+//                    break; // No more data for components.
+//
+//                if (component->accumulate)
+//                    bitsValue = accumulator.Accumulate(mesg.GetNum(), component->num, signedBitsValue, component->bits);
+//            }
+//            else
+//            {
+//                bitsValue = containingField->GetBitsValue(offset, component->bits);
+//
+//                if (bitsValue == FIT_UINT32_INVALID)
+//                    break; // No more data for components.
+//
+//                if (component->accumulate)
+//                    bitsValue = accumulator.Accumulate(mesg.GetNum(), component->num, bitsValue, component->bits);
+//            }
+//
+//            // If the component field itself has *one* component apply the scale and offset of the componentField's
+//            // (nested) component
+//            if (componentField.GetNumComponents() == 1)
+//            {
+//                if(componentField.IsSignedInteger())
+//                    value = (((signedBitsValue / (FIT_FLOAT64)component->scale) - component->offset) + componentField.GetComponent(0)->offset) * componentField.GetComponent(0)->scale;
+//                else
+//                    value = (((bitsValue / (FIT_FLOAT64)component->scale) - component->offset) + componentField.GetComponent(0)->offset) * componentField.GetComponent(0)->scale;
+//                if (mesg.HasField(componentField.GetNum()))
+//                {
+//                    fit::Field *currentField = mesg.GetField(componentField.GetNum());
+//                    currentField->AddRawValue(value, currentField->GetNumValues());
+//                }
+//                else
+//                {
+//                    componentField.AddRawValue(value, componentField.GetNumValues());
+//                    mesg.AddField(componentField);
+//                }
+//            }
+//            // The component field is itself a composite field (more than one component).  Don't use scale/offset, containing
+//            // field data must already be encoded.  Add elements to it until we have added bitsvalue
+//            else if (componentField.GetNumComponents() > 1)
+//            {
+//                int bitsAdded = 0;
+//                long mask;
+//
+//                while (bitsAdded < component->bits)
+//                {
+//                    mask = ((long)1 << baseTypeSizes[componentField.GetType() & FIT_BASE_TYPE_NUM_MASK]) - 1;
+//                    if (mesg.HasField(componentField.GetNum()))
+//                    {
+//                        Field* field = mesg.GetField( componentField.GetNum() );
+//                        field->AddValue( bitsValue & mask, field->GetNumValues() );
+//                    }
+//                    else
+//                    {
+//                        componentField.AddValue(bitsValue & mask, componentField.GetNumValues());
+//                        mesg.AddField(componentField);
+//                    }
+//                    bitsValue >>= baseTypeSizes[componentField.GetType() & FIT_BASE_TYPE_NUM_MASK];
+//                    bitsAdded += baseTypeSizes[componentField.GetType() & FIT_BASE_TYPE_NUM_MASK];
+//                }
+//            }
+//            // componentField is an ordinary field, apply scale and offset as usual
+//            else
+//            {
+//                if(componentField.IsSignedInteger())
+//                    value = (((signedBitsValue / (FIT_FLOAT64)component->scale) - component->offset) + componentField.GetOffset(subfieldIndex)) * componentField.GetScale(subfieldIndex);
+//                else
+//                    value = (((bitsValue / (FIT_FLOAT64)component->scale) - component->offset) + componentField.GetOffset(subfieldIndex)) * componentField.GetScale(subfieldIndex);
+//                if (mesg.HasField(componentField.GetNum()))
+//                {
+//                    fit::Field *currentField = mesg.GetField(componentField.GetNum());
+//                    currentField->AddRawValue(value, currentField->GetNumValues());
+//                }
+//                else
+//                {
+//                    componentField.AddRawValue(value, componentField.GetNumValues());
+//                    mesg.AddField(componentField);
+//                }
+//            }
+//        }
+//        offset += component->bits;
+//    }
 }
+
+fit::ProtocolVersion fit::Decode::GetProtocolVersion()
+{
+  return protocolVersion;
+}
+
 
 } // namespace fit
