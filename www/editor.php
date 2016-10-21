@@ -142,7 +142,7 @@ style="background-color:white;padding:5px;border:1px solid black;display:none;po
 <?php } ?>
   <br/><a href="viewer" onclick="hideDownloadPopup()">Open in File Viewer</a>
 </div>
-<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript" src="/scripts/editor9.js"></script>
 <?php
 swt\layout::analytics();

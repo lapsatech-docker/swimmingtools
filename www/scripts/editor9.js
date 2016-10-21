@@ -1,4 +1,4 @@
-google.load('visualization', '1', {packages: ['corechart', 'controls']});
+google.charts.load('42', {packages: ['corechart', 'controls']});
 
 var EDITOR_ACTION_MERGE = 1;
 var EDITOR_ACTION_SPLIT = 2;
@@ -369,4 +369,4 @@ function hideDownloadPopup() {
   popup.style.display = 'none';
 }
 
-google.setOnLoadCallback(initialize);
+google.charts.setOnLoadCallback(initialize);
