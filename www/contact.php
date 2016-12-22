@@ -80,7 +80,7 @@ case OUTPUT_FORM:
   <h2>
     Problems with the site, suggestions, comments? Your messages are welcomed
   </h2>
-  <p>Hi, I'm Stephane, I'm a Garmin Swim User ang programmer of this 
+  <p>Hi, I'm Stephane, I'm a Garmin Swim User and programmer of this 
   application. I live in Montreal, Quebec, Canada. I like to run, bike and
   swim...for fun. I'm also a fan of sport devices. I bought a Garmin swim 
   because I was frustrated with my swimming and wanted to improve. The 

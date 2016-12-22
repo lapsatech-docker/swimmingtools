@@ -21,7 +21,7 @@ spl_autoload_register();
     <li>The editor allows you to delete, merge, split and change Stroke
     or pool size</li>
     <li>Supported devices: Garmin Swim, Forerunner 910/920, fénix 2/3, 
-    Epix, VivoActive and Tomtom Multisport</li>
+    Epix, VivoActive, Forerunner 735 and Tomtom Multisport</li>
     <li>Read the <a href="help">User's Guide</a>
     and start editing and analyzing your data.</li>
   </ul>
@@ -71,8 +71,8 @@ spl_autoload_register();
   <p>If you follow this advice, you data will be fine most of the time.
   If you still have errors in you data, feel free to use this site. At
   this time, it is compatible with the Garmin Swim, forerunner 910/920,
-  Fénix 2/3, Epix and TomTom Multisport, but if there is enough interest.
-  Support could be expanded to other devices.</p>
+  Fénix 2/3, Epix, Forerunner 735  and TomTom Multisport, but if there
+  is enough interest. Support could be expanded to other devices.</p>
 
   <p>If you don't train with a swimming watch yet, and considering buying
   one, here are links to manufacturers and excellent independent reviews form
@@ -81,10 +81,6 @@ spl_autoload_register();
   <p>Swimming watches</p>
 
   <ul>
-    <li><a href="http://www.finisinc.com/SwimSense-Watch"
-      target="_blank">Finis SwimSense </a> /
-    <a href="http://www.dcrainmaker.com/2010/12/hands-on-look-at-finis-swimsense.html"
-      target="_blank">Review</a></li>
     <li><a href="http://sites.garmin.com/swim/" target="_blank">Garmin Swim</a> /
     <a href="http://www.dcrainmaker.com/2012/06/garmin-swim-watch-in-depth-review.html"
       target="_blank">Review</a></li>
@@ -101,35 +97,31 @@ spl_autoload_register();
       target="_blank">Garmin Epix</a> /
     <a href="http://www.dcrainmaker.com/2015/01/garmin-epix-mapping-multisport.html"
       target="_blank">Review</a></li>
-    <li><a href="http://sites.garmin.com/forerunner910xt/"
-      target="_blank">Garmin Forerunner 910</a> /
-    <a href="http://www.dcrainmaker.com/2011/10/garmin-forerunner-910xt-in-depth-review.html"
-      target="_blank">Review</a></li>
-    <li><a href="http://forerunner920.garmin.com"
-      target="_blank">Garmin Forerunner 920</a> /
-    <a href="http://www.dcrainmaker.com/2014/11/garmin-forerunner-920xt-depth-review.html"
-      target="_blank">Review</a></li>
-    <li><a href="https://buy.garmin.com/en-US/US/prod159116.html"
-      target="_blank">Garmin Fénix 2</a> /
-    <a href="http://www.dcrainmaker.com/2014/03/garmin-fenix2-multisport.html"
-      target="_blank">Review</a></li>
-    <li><a href="http://fenix3.garmin.com"
+    <li><a href="https://buy.garmin.com/en-US/US/into-sports/hiking/fenix-3/prod160512.html"
       target="_blank">Garmin Fénix 3</a> /
     <a href="http://www.dcrainmaker.com/2015/03/garmin-fenix3-detailed-review.html"
       target="_blank">Review</a></li>
-    <li><a href="http://sites.garmin.com/en-US/vivo/vivoactive/"
-      target="_blank">Garmin VivoActive</a> /
+    <li><a href="https://buy.garmin.com/en-US/US/sports-recreation/running-fitness/forerunner-920xt/prod137024.html"
+      target="_blank">Garmin Forerunner 920</a> /
     <a href="http://www.dcrainmaker.com/2014/11/garmin-forerunner-920xt-depth-review.html"
+      target="_blank">Review</a></li>
+    <li><a href="https://buy.garmin.com/en-US/US/into-sports/running/forerunner-735xt/prod541225.html"
+      target="_blank">Garmin Forerunner 735XT</a> /
+    <a href="http://www.dcrainmaker.com/2016/06/garmin-forerunner-735xt-in-depth-review.html"
+      target="_blank">Review</a></li>
+    <li><a href="https://buy.garmin.com/en-US/US/into-sports/health-fitness/vivoactive-hr/prod538374.html"
+      target="_blank">Garmin VivoActive HR</a> /
+    <a href="http://www.dcrainmaker.com/2016/05/garmin-vivoactivehr-review.html"
       target="_blank">Review</a></li>
     <li><a href="http://www.polar.com/en/products/maximize_performance/running_multisport/V800"
       target="_blank">Polar V800</a> /
     <a href="http://www.dcrainmaker.com/2014/06/polar-v800-depth-review.html"
       target="_blank">Review</a></li>
-    <li><a href="http://www.suunto.com/ambit/" target="_blank">Suunto Ambit 2 </a> /
-    <a href="http://www.dcrainmaker.com/2013/04/suunto-ambit2-review.html"
+    <li><a href="http://www.suunto.com/ambit3/" target="_blank">Suunto Ambit 3 </a> /
+    <a href="http://www.dcrainmaker.com/2014/09/ambit3-multisport-review.html"
       target="_blank">Review</a></li>
-    <li><a href="http://sports.tomtom.com/en_us/" target="_blank">TomTom Multisport</a> /
-    <a href="http://www.dcrainmaker.com/2014/04/tomtom-cardio.html"
+    <li><a href="https://www.tomtom.com/en_us/sports/multi-sport/" target="_blank">TomTom Spark</a> /
+    <a href="http://www.dcrainmaker.com/2015/11/tomtom-spark-review.html"
       target="_blank">Review</a></li>
   </ul>
 </div>
