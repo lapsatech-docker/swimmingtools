@@ -127,17 +127,15 @@ spl_autoload_register();
   custom information you added that is not part of the data file, like activity
   name, comments etc.</p>
 
-  <p>After the original activity is deleted, click on the 'Import' link at
-  the top left of the page,</p>
+  <p>After the original activity is deleted, click on the big Plus sign at
+  the top left of the page, and select 'Import data'</p>
 
   <img src="content/gc_import1.jpg"  alt="Garmin Connect import link"
-  style="display: block; height: 59px; width: 235px; margin: auto">
+  style="display: block; height: 181px; width: 214px; margin: auto">
 
-  <p>Select the new activity file, and click the 'Upload activity from file'
-  button</p>
+  <p>Click the 'Browse' link, select the new activity file, and click the 'Import Data'
+  button.</p>
 
-  <img src="content/gc_import2.jpg" alt="Garmin Connect Select File dialog"
-  style="display: block; height: 411px; width: 521px; margin: auto">
 </div>
 <?php
 swt\Layout::analytics();
