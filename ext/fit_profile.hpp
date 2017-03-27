@@ -1204,6 +1204,7 @@ typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_EDGE_820                                              ((FIT_GARMIN_PRODUCT)2530)
 #define FIT_GARMIN_PRODUCT_EDGE_EXPLORE_820                                      ((FIT_GARMIN_PRODUCT)2531)
 #define FIT_GARMIN_PRODUCT_FR735_TAIWAN                                          ((FIT_GARMIN_PRODUCT)2533)
+#define FIT_GARMIN_PRODUCT_FENIX5                                                ((FIT_GARMIN_PRODUCT)2697)
 #define FIT_GARMIN_PRODUCT_SDM4                                                  ((FIT_GARMIN_PRODUCT)10007) // SDM4 footpod
 #define FIT_GARMIN_PRODUCT_EDGE_REMOTE                                           ((FIT_GARMIN_PRODUCT)10014)
 #define FIT_GARMIN_PRODUCT_TRAINING_CENTER                                       ((FIT_GARMIN_PRODUCT)20119)

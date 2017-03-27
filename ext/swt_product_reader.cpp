@@ -67,7 +67,10 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
       && ((product_ == FIT_GARMIN_PRODUCT_FR735) ||
        (product_ == FIT_GARMIN_PRODUCT_FR735_TAIWAN))) {
     swim_file.reset(new GarminGenericSwimFile(kGarminFr735));
- } else {
+  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
+      && ((product_ == FIT_GARMIN_PRODUCT_FENIX5))) {
+    swim_file.reset(new GarminGenericSwimFile(kGarminFenix5));
+  } else {
     std::string message = "This Device is not supported. See list of supported devices above ("
       + std::to_string(manufacturer_) + "/" 
       + std::to_string(product_) + ")";
