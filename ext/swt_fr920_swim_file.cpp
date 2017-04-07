@@ -8,14 +8,28 @@
 void swt::Fr920SwimFile::AddMesg(const void *mesg) {
 
   const fit::Mesg *fit_mesg = reinterpret_cast<const fit::Mesg*>(mesg);
+  static FIT_SINT8 temp = FIT_SINT8_INVALID;
 
   // keep record messages with only a timestamp. Those are used with new
   // heart rate data Garmin has added September 2015
-  if (fit_mesg->GetNum() == FIT_MESG_NUM_RECORD &&
-      fit_mesg->GetNumFields() == 1 &&
-      fit_mesg->HasField(kTimestampFieldNum)) {
+  if (fit_mesg->GetNum() == FIT_MESG_NUM_RECORD) {
+
+    if (fit_mesg->GetNumFields() == 1 &&
+        fit_mesg->HasField(kTimestampFieldNum)) {
 
       mesgs_.push_back(std::unique_ptr<fit::Mesg>(new fit::Mesg(*fit_mesg)));
+    } else if (fit_mesg->HasField(kRecordTemperatureFieldNum)) {
+
+      record_local_num_ = fit_mesg->GetLocalNum();
+
+      fit::RecordMesg record(*fit_mesg);
+      if (record.GetTemperature() != FIT_SINT8_INVALID &&
+          record.GetTimestamp() != FIT_DATE_TIME_INVALID &&
+          record.GetTemperature() != temp ) {
+        temp = record.GetTemperature();
+        temp_data_.push_back(record);
+      }
+    }
   } else {
     SwimFile::AddMesg(mesg);
   }
@@ -142,10 +156,17 @@ void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*
 
   encode.Open(fit_file);
 
+  FIT_SINT8 current_temp = FIT_SINT8_INVALID;
+
   for (const std::unique_ptr<fit::Mesg> &mesg : mesgs_) {
+
     if (typeid(*mesg) == typeid(fit::LengthMesg)) {
       fit::LengthMesg *length = dynamic_cast<fit::LengthMesg*>(mesg.get());
       fit::RecordMesg record;
+
+      if (record_local_num_ != FIT_UINT8_INVALID)
+        record.SetLocalNum(record_local_num_);
+
       record.SetTimestamp(length->GetTimestamp());
 
       if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
@@ -160,6 +181,19 @@ void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*
         record.SetFieldUINT16Value(kRecordAvgSpeedFieldNum, FIT_UINT16_INVALID);
         record.SetCadence(FIT_UINT8_INVALID);
       }
+
+      for (std::vector<fit::RecordMesg>::const_reverse_iterator temp_record = temp_data_.rbegin() 
+          ; temp_record != temp_data_.rend(); ++temp_record ) {
+
+        if (temp_record->GetTimestamp() <= length->GetTimestamp()) {
+          current_temp = temp_record->GetTemperature();
+          break;
+        }
+      }
+
+      if (current_temp != FIT_SINT8_INVALID)
+        record.SetTemperature(current_temp);
+
       encode.Write(record);
       encode.Write(*length);
     } else {

@@ -1,6 +1,7 @@
 #if !defined(SWT_FR920_SWIM_FILE)
 #define SWT_FR920_SWIM_FILE
 #include "swt_swim_file.h"
+#include "fit_record_mesg.hpp" 
 
 namespace swt
 {
@@ -22,6 +23,7 @@ namespace swt
       static const FIT_UINT8 kLapSwolfFieldNum = 73;
       static const FIT_UINT8 kLengthAvgSpeedFieldNum = 6;
       static const FIT_UINT8 kRecordAvgSpeedFieldNum = 6;
+      static const FIT_UINT8 kRecordTemperatureFieldNum = 13;
       static const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
       static const FIT_UINT8 kSessionMovingTimeFieldNum = 78;
       static const FIT_UINT8 kSessionNumLengthsInActiveLapsFieldNum = 33;
@@ -36,9 +38,13 @@ namespace swt
       void SessionSetMovingTime(FIT_FLOAT32 moving_time);
       void SessionSetNumLengthsInActiveLaps(FIT_UINT16 num_lengths_in_active_laps);
       void SessionSetSwolf(FIT_UINT16 swolf);
+ 
+
     protected:
       void UpdateLap(fit::LapMesg *lap);
       void UpdateSession();
+
+      std::vector<fit::RecordMesg> temp_data_;
   };
 }
 #endif

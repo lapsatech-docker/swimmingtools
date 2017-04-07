@@ -83,6 +83,7 @@ namespace swt
       FIT_UINT32Z serial_number_;
       FIT_UINT16 software_version_;
       fit::ProtocolVersion fit_protocol_version_;
+      FIT_UINT8 record_local_num_ = FIT_UINT8_INVALID;
 
     private:
       static const FIT_UINT16 kSoftwareVersionFieldNum = 5;

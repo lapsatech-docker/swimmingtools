@@ -65,7 +65,11 @@ void swt::SwimFile::AddMesg(const void *mesg)
         break;
       }
     case FIT_MESG_NUM_RECORD:
-      // Do nothing, we'll recreate Record mesgs when saving file
+      // Just keep local num, we'll recreate Record mesgs when saving file
+      // NEW variable as of April 2017, used for the first time in Fr920SwimFile, 
+      // using the default (0) caused a problem because 0 is used in other message defs
+      // and was causing constant redefinition.
+      record_local_num_ = fit_mesg->GetLocalNum();
       break;
 
     default:
