@@ -20,8 +20,8 @@ spl_autoload_register();
     <li> Swimming watch tools includes both an editor and file viewer,</li>
     <li>The editor allows you to delete, merge, split and change Stroke
     or pool size</li>
-    <li>Supported devices: Garmin Swim, Forerunner 910/920, fénix 2/3, 
-    Epix, VivoActive, Forerunner 735 and Tomtom Multisport</li>
+    <li>Supported devices: Garmin Swim, Forerunner 735/910/920/935, fénix 2/3/5, 
+    Epix, VivoActive, and Tomtom Multisport</li>
     <li>Read the <a href="help">User's Guide</a>
     and start editing and analyzing your data.</li>
   </ul>
@@ -58,72 +58,8 @@ spl_autoload_register();
   not, and if all this work is paying off. </p>
   <p>Swimming watches are very accurate...most of the time. Unfortunately,
   depending on your skills and environment (crowded lanes), data will
-  sometimes show some inaccuracies. Here is Advice from Garmin on how
-  to improve accuracy and reduce errors in the data</p>
-  <ul >
-    <li><a href="http://support.garmin.com/support/searchSupport/case.faces?supportPage=Garmin%20Swim&caseId={41c35e70-facc-11e0-73d0-000000000000}&locale=en_US"
-      target="_blank">
-      Why am I experiencing errors with my pool swimming distance?</a></li>
-    <li><a href="http://support.garmin.com/support/searchSupport/case.faces?caseId={08519320-0271-11e2-e8a7-000000000000}"
-      target="_blank">Can traffic from other swimmers in my lane cause
-      distance errors when Pool Swimming?</a></li>
-  </ul>
-  <p>If you follow this advice, you data will be fine most of the time.
-  If you still have errors in you data, feel free to use this site. At
-  this time, it is compatible with the Garmin Swim, forerunner 910/920,
-  Fénix 2/3, Epix, Forerunner 735  and TomTom Multisport, but if there
-  is enough interest. Support could be expanded to other devices.</p>
-
-  <p>If you don't train with a swimming watch yet, and considering buying
-  one, here are links to manufacturers and excellent independent reviews form
-  <a href="http://www.dcrainmaker.com/" target="_blank">DC Rainmaker</a></p>
-
-  <p>Swimming watches</p>
-
-  <ul>
-    <li><a href="http://sites.garmin.com/swim/" target="_blank">Garmin Swim</a> /
-    <a href="http://www.dcrainmaker.com/2012/06/garmin-swim-watch-in-depth-review.html"
-      target="_blank">Review</a></li>
-    <li><a href="http://swimovateusa.com/product/poolmate-pro/"
-      target="_blank">Swimovate PoolMatePro</a> and
-    <a href="http://swimovateusa.com/product/swimovate-poolmate-heart-rate-watch/"
-      target="_blank">PoolMatePro HR</a> /
-    <a href="http://www.dcrainmaker.com/2011/02/hands-on-look-at-swimovate-pool-mate.html"
-      target="_blank">Review</a></li>
-  </ul>
-  <p>Multi-Sport (Triathlon) watches with swimming mode</p>
-  <ul >
-    <li><a href="http://buy.garmin.com/en-US/US/on-the-trail/wrist-worn/epix-/prod146065.html"
-      target="_blank">Garmin Epix</a> /
-    <a href="http://www.dcrainmaker.com/2015/01/garmin-epix-mapping-multisport.html"
-      target="_blank">Review</a></li>
-    <li><a href="https://buy.garmin.com/en-US/US/into-sports/hiking/fenix-3/prod160512.html"
-      target="_blank">Garmin Fénix 3</a> /
-    <a href="http://www.dcrainmaker.com/2015/03/garmin-fenix3-detailed-review.html"
-      target="_blank">Review</a></li>
-    <li><a href="https://buy.garmin.com/en-US/US/sports-recreation/running-fitness/forerunner-920xt/prod137024.html"
-      target="_blank">Garmin Forerunner 920</a> /
-    <a href="http://www.dcrainmaker.com/2014/11/garmin-forerunner-920xt-depth-review.html"
-      target="_blank">Review</a></li>
-    <li><a href="https://buy.garmin.com/en-US/US/into-sports/running/forerunner-735xt/prod541225.html"
-      target="_blank">Garmin Forerunner 735XT</a> /
-    <a href="http://www.dcrainmaker.com/2016/06/garmin-forerunner-735xt-in-depth-review.html"
-      target="_blank">Review</a></li>
-    <li><a href="https://buy.garmin.com/en-US/US/into-sports/health-fitness/vivoactive-hr/prod538374.html"
-      target="_blank">Garmin VivoActive HR</a> /
-    <a href="http://www.dcrainmaker.com/2016/05/garmin-vivoactivehr-review.html"
-      target="_blank">Review</a></li>
-    <li><a href="http://www.polar.com/en/products/maximize_performance/running_multisport/V800"
-      target="_blank">Polar V800</a> /
-    <a href="http://www.dcrainmaker.com/2014/06/polar-v800-depth-review.html"
-      target="_blank">Review</a></li>
-    <li><a href="http://www.suunto.com/ambit3/" target="_blank">Suunto Ambit 3 </a> /
-    <a href="http://www.dcrainmaker.com/2014/09/ambit3-multisport-review.html"
-      target="_blank">Review</a></li>
-    <li><a href="https://www.tomtom.com/en_us/sports/multi-sport/" target="_blank">TomTom Spark</a> /
-    <a href="http://www.dcrainmaker.com/2015/11/tomtom-spark-review.html"
-      target="_blank">Review</a></li>
-  </ul>
+  sometimes show some inaccuracies. If you have errors in you data, and wish
+  to fix them, feel free to use this site.</p>
 </div>
 <?php
 swt\Layout::analytics();
