@@ -70,8 +70,9 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
     swim_file.reset(new GarminGenericSwimFile(kGarminFr735));
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
       && ((product_ == FIT_GARMIN_PRODUCT_FENIX5) ||
-        (product_ == FIT_GARMIN_PRODUCT_FENIX5_X) ||
-        (product_ == FIT_GARMIN_PRODUCT_FENIX5_SAPHIRE))) {
+        (product_ == FIT_GARMIN_PRODUCT_FENIX5X) ||
+        (product_ == FIT_GARMIN_PRODUCT_FENIX5_SAPHIRE) ||
+        (product_ == FIT_GARMIN_PRODUCT_FENIX5S))) {
     swim_file.reset(new GarminGenericSwimFile(kGarminFenix5));
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
       && product_ == FIT_GARMIN_PRODUCT_FR935) {
