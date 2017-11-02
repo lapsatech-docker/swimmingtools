@@ -1,7 +1,7 @@
 #if !defined(SWT_FR920_SWIM_FILE)
 #define SWT_FR920_SWIM_FILE
 #include "swt_swim_file.h"
-#include "fit_record_mesg.hpp" 
+#include "fit_record_mesg.hpp"
 
 namespace swt
 {
@@ -30,15 +30,17 @@ namespace swt
       static const FIT_UINT8 kSessionSwolfFieldNum = 80;
       static const FIT_UINT8 kTimestampFieldNum = 253;
 
+      void CheckLapsIndexes();
       void LapSetAvgStrokeCount(fit::LapMesg *lap, FIT_FLOAT32 avg_stroke_count);
       void LapSetMovingTime(fit::LapMesg *lap, FIT_FLOAT32 moving_time);
       void LapSetSwolf(fit::LapMesg *lap, FIT_UINT16 swolf);
+      void RepairLapsIndexes();
       void RepairMissingLaps();
       void SessionSetAvgStrokeCount(FIT_FLOAT32 avg_stroke_count);
       void SessionSetMovingTime(FIT_FLOAT32 moving_time);
       void SessionSetNumLengthsInActiveLaps(FIT_UINT16 num_lengths_in_active_laps);
       void SessionSetSwolf(FIT_UINT16 swolf);
- 
+
 
     protected:
       void UpdateLap(fit::LapMesg *lap);

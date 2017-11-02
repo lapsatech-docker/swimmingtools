@@ -55,7 +55,10 @@ void swt::Fr920SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
 }
 
 void swt::Fr920SwimFile::Initialize() {
+
+  CheckLapsIndexes();
   RepairMissingLaps();
+
 }
 
 void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
@@ -70,11 +73,11 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   FIT_FLOAT32 total_elapsed_time = existing_length->GetTotalElapsedTime() / 2;
   FIT_FLOAT32 total_timer_time = existing_length->GetTotalTimerTime() / 2;
   FIT_UINT16 total_strokes = existing_length->GetTotalStrokes();
-  
+
   FIT_DATE_TIME timestamp_lag = 0;
-  if (existing_length->GetTimestamp() > (existing_length->GetStartTime() + 
+  if (existing_length->GetTimestamp() > (existing_length->GetStartTime() +
         static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime())))
-    timestamp_lag = existing_length->GetTimestamp() - (existing_length->GetStartTime() + 
+    timestamp_lag = existing_length->GetTimestamp() - (existing_length->GetStartTime() +
         static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime()));
 
   LengthSetTimestamp(added_length.get(), existing_length->GetStartTime() +
@@ -93,7 +96,7 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
     }
   }
 
-  existing_length->SetStartTime(added_length->GetStartTime() + 
+  existing_length->SetStartTime(added_length->GetStartTime() +
       static_cast<FIT_DATE_TIME>(added_length->GetTotalTimerTime()));  // second length start when first end
   existing_length->SetTotalElapsedTime(total_elapsed_time);
   existing_length->SetTotalTimerTime(total_timer_time);
@@ -112,7 +115,7 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
 
   fit::LengthMesg * preceding_length = NULL;
   std::list<std::unique_ptr<fit::Mesg>>::iterator preceding_length_it  = mesgs_.begin();
-  
+
   if (length_index > 0) {
     preceding_length = lengths_.at(length_index -1);
     preceding_length_it = std::find_if(mesgs_.begin(), it,
@@ -121,7 +124,7 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   }
 
   if (added_length->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID)
-    throw std::runtime_error("Fr920 Split, added length timestamp invalid"); 
+    throw std::runtime_error("Fr920 Split, added length timestamp invalid");
 
 
   while((it != preceding_length_it) &&
@@ -129,7 +132,7 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
        it->get()->GetFieldUINT32Value(kTimestampFieldNum) != FIT_UINT32_INVALID) ||
        it->get()->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID))
     it--;
-  
+
   mesgs_.insert(++it, move(added_length));
 
   fit::LapMesg *the_lap = GetLap(length_index);
@@ -182,7 +185,7 @@ void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*
         record.SetCadence(FIT_UINT8_INVALID);
       }
 
-      for (std::vector<fit::RecordMesg>::const_reverse_iterator temp_record = temp_data_.rbegin() 
+      for (std::vector<fit::RecordMesg>::const_reverse_iterator temp_record = temp_data_.rbegin()
           ; temp_record != temp_data_.rend(); ++temp_record ) {
 
         if (temp_record->GetTimestamp() <= length->GetTimestamp()) {
@@ -213,6 +216,31 @@ void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*
 }
 
 
+// The first_length_index field of lap message is corrupted in some files.
+// The field is used by the code to associate lengths to their corresponding
+// laps (GetLap Function). If the field is corrupted an attempt is made
+// to fix it (RepairLapsIndexes)
+void swt::Fr920SwimFile::CheckLapsIndexes() {
+
+  FIT_UINT16 current_first_index = 0;
+
+  for(fit::LapMesg *lap: laps_) {
+
+    FIT_UINT16 first_length_index = lap->GetFirstLengthIndex();
+    FIT_UINT16 num_lengths = lap->GetNumLengths();
+
+    if (first_length_index != FIT_UINT16_INVALID &&
+        num_lengths != FIT_UINT16_INVALID) {
+      if (first_length_index >= current_first_index) {
+          current_first_index = first_length_index + num_lengths;
+      } else {
+        RepairLapsIndexes();
+        break;
+      }
+    }
+  }
+}
+
 void swt::Fr920SwimFile::LapSetAvgStrokeCount(fit::LapMesg *lap, FIT_FLOAT32 avg_stroke_count) {
     lap->SetFieldUINT16Value(kLapAvgStrokeCountFieldNnum,
         static_cast<FIT_UINT16>(round(avg_stroke_count * 10)));
@@ -226,6 +254,87 @@ void swt::Fr920SwimFile::LapSetMovingTime(fit::LapMesg *lap, FIT_FLOAT32 moving_
 void swt::Fr920SwimFile::LapSetSwolf(fit::LapMesg *lap, FIT_UINT16 swolf) {
     lap->SetFieldUINT16Value(kLapSwolfFieldNum, swolf);
 }
+
+
+// If the field first_length_index is corrupted (CheckLapsIndexex). An attempt is made to
+// fix it. The function assumes that lengths and laps messages are ordered by timestamp.
+// All lengths messages preceding a lap message will be associated to this lap.
+//
+// Length 1
+// length 2
+// Lap 1 first_length_index = 1, num_lengths = 2
+// length 3
+// length 4
+// lenght 5
+// lap 2 first_length_index = 3, num_lengths = 3
+void swt::Fr920SwimFile::RepairLapsIndexes() {
+
+  FIT_MESSAGE_INDEX length_message_index = 0;
+  FIT_MESSAGE_INDEX lap_message_index = 0;
+  FIT_UINT16 num_active_lengths = 0;
+  FIT_UINT16 num_idle_lengths = 0;
+  FIT_FLOAT32 lap_timer_time = 0;
+
+  for (auto mesg = mesgs_.begin(); mesg != mesgs_.end();) {
+
+    if (typeid(**mesg) == typeid(fit::LengthMesg)) {
+      fit::LengthMesg *length = dynamic_cast<fit::LengthMesg*>((*mesg).get());
+      if (length->GetMessageIndex() == length_message_index) {
+        length_message_index++;
+
+        if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
+          num_active_lengths++;
+        } else {
+          num_idle_lengths++;
+        }
+
+        FIT_FLOAT32 length_timer_time = length->GetTotalTimerTime();
+
+        if (length_timer_time != FIT_FLOAT32_INVALID)
+          lap_timer_time += length_timer_time;
+
+      } else {
+        std::string error = "Length message index error (" + std::to_string(length_message_index) + ")";
+        throw std::runtime_error(error);
+      }
+    } else if (typeid(**mesg) == typeid(fit::LapMesg)) {
+
+      fit::LapMesg *lap = dynamic_cast<fit::LapMesg*>((*mesg).get());
+      if (num_active_lengths > 0 || num_idle_lengths > 0) {
+        lap->SetMessageIndex(lap_message_index);
+        lap->SetNumActiveLengths(num_active_lengths);
+        lap->SetNumLengths(num_active_lengths + num_idle_lengths);
+        lap->SetFirstLengthIndex(length_message_index - num_active_lengths - num_idle_lengths);
+        lap->SetTotalTimerTime(lap_timer_time);
+        lap->SetTotalElapsedTime(lap_timer_time);
+
+        UpdateLap(lap);
+
+        num_active_lengths = 0;
+        num_idle_lengths = 0;
+        lap_timer_time = 0;
+        lap_message_index++;
+
+      } else {
+
+        lap->SetMessageIndex(lap_message_index);
+        lap->SetNumActiveLengths(FIT_UINT16_INVALID);
+        lap->SetNumLengths(FIT_UINT16_INVALID);
+        lap->SetFirstLengthIndex(FIT_UINT16_INVALID);
+        lap->SetTotalTimerTime(FIT_FLOAT32_INVALID);
+        lap->SetTotalElapsedTime(FIT_FLOAT32_INVALID);
+
+        mesg = mesgs_.erase(mesg);
+        laps_.erase(laps_.begin()+ lap_message_index);
+      }
+
+
+    }
+    mesg++;
+  }
+  session_->SetNumLaps(lap_message_index);
+}
+
 
 void swt::Fr920SwimFile::RepairMissingLaps() {
 
@@ -442,7 +551,7 @@ void swt::Fr920SwimFile::UpdateSession() {
   }
 
   if (num_active_lengths_without_drills == 0)
-    throw std::runtime_error("Session is empty (no lengths)");
+    throw std::runtime_error("File is empty (no lengths or only drills)");
 
   total_distance = num_active_lengths * session_->GetPoolLength();
   total_distance_without_drills = num_active_lengths_without_drills * session_->GetPoolLength();
