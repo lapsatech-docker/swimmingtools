@@ -127,11 +127,11 @@ spl_autoload_register();
   custom information you added that is not part of the data file, like activity
   name, comments etc.</p>
 
-  <p>After the original activity is deleted, click on the big Plus sign at
+  <p>After the original activity is deleted, click on the cloud icon at
   the top left of the page, and select 'Import data'</p>
 
   <img src="content/gc_import1.jpg"  alt="Garmin Connect import link"
-  style="display: block; height: 181px; width: 214px; margin: auto">
+  style="display: block; height: 163px; width:357px; margin: auto">
 
   <p>Click the 'Browse' link, select the new activity file, and click the 'Import Data'
   button.</p>
