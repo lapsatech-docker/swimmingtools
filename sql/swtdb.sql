@@ -172,5 +172,5 @@ SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 -- begin attached script 'script'
 INSERT INTO editor_actions VALUES (1, 'Merge'), (2, 'Split'), (3, 'Change stroke'), (4, 'Delete'), (5, 'Change Pool Size'), (6, 'Undo All'), (7, 'Download');
-INSERT INTO products VALUES (1, 'Garmin Swim'), (2, 'Garmin Forerunner 910'), (3, 'Garmin Fénix 2'), (4, 'Garmin Forerunner 920'), (5, 'Tomtom Multisport'), (6, 'Garmin VivoActive'), (7, 'Garmin Fénix 3'), (8, 'Garmin Epix'), (9, 'Garmin Forerunner 735'), (10, 'Garmin Fénix 5'), (11, 'Garmin Forerunner 935");
+INSERT INTO products VALUES (1, 'Garmin Swim'), (2, 'Garmin Forerunner 910'), (3, 'Garmin Fénix 2'), (4, 'Garmin Forerunner 920'), (5, 'Tomtom Multisport'), (6, 'Garmin VivoActive'), (7, 'Garmin Fénix 3'), (8, 'Garmin Epix'), (9, 'Garmin Forerunner 735'), (10, 'Garmin Fénix 5'), (11, 'Garmin Forerunner 935'), (12, 'Garmin Vivoactive 3') ;
 -- end attached script 'script'

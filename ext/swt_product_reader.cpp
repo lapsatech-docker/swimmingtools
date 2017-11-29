@@ -80,6 +80,9 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
       && ((product_ == FIT_GARMIN_PRODUCT_FR935) ||
         (product_ == FIT_GARMIN_PRODUCT_FR935_UNKNOWN))) {
     swim_file.reset(new GarminGenericSwimFile(kGarminFr935));
+  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
+      && product_ == FIT_GARMIN_PRODUCT_VIVOACTIVE3) {
+    swim_file.reset(new GarminGenericSwimFile(kGarminVivoActive3));
   } else {
     std::string message = "This Device is not supported. See list of supported devices above ("
       + std::to_string(manufacturer_) + "/" 

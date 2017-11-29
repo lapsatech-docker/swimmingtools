@@ -1209,6 +1209,7 @@ typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_FENIX5X                                               ((FIT_GARMIN_PRODUCT)2604)
 #define FIT_GARMIN_PRODUCT_FR935                                                 ((FIT_GARMIN_PRODUCT)2691)
 #define FIT_GARMIN_PRODUCT_FENIX5                                                ((FIT_GARMIN_PRODUCT)2697)
+#define FIT_GARMIN_PRODUCT_VIVOACTIVE3                                           ((FIT_GARMIN_PRODUCT)2700)
 #define FIT_GARMIN_PRODUCT_FENIX5_SAPHIRE                                        ((FIT_GARMIN_PRODUCT)2796)
 #define FIT_GARMIN_PRODUCT_FENIX5_UNKNOWN1                                       ((FIT_GARMIN_PRODUCT)2797)
 #define FIT_GARMIN_PRODUCT_FENIX5_UNKNOWN2                                       ((FIT_GARMIN_PRODUCT)2798)
