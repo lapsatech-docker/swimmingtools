@@ -1213,6 +1213,7 @@ typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_FENIX5_SAPHIRE                                        ((FIT_GARMIN_PRODUCT)2796)
 #define FIT_GARMIN_PRODUCT_FENIX5_UNKNOWN1                                       ((FIT_GARMIN_PRODUCT)2797)
 #define FIT_GARMIN_PRODUCT_FENIX5_UNKNOWN2                                       ((FIT_GARMIN_PRODUCT)2798)
+#define FIT_GARMIN_PRODUCT_D2_CHARLIE                                            ((FIT_GARMIN_PRODUCT)2819)
 #define FIT_GARMIN_PRODUCT_FR935_UNKNOWN                                         ((FIT_GARMIN_PRODUCT)2833)
 #define FIT_GARMIN_PRODUCT_SDM4                                                  ((FIT_GARMIN_PRODUCT)10007) // SDM4 footpod
 #define FIT_GARMIN_PRODUCT_EDGE_REMOTE                                           ((FIT_GARMIN_PRODUCT)10014)
