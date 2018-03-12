@@ -26,7 +26,8 @@ namespace swt
     kGarminFenix5 = 10,
     kGarminFr935 = 11,
     kGarminVivoActive3 = 12,
-    kGarminD2Charlie = 13
+    kGarminD2Charlie = 13,
+    kGarminDescentMK1 = 14
   }; 
 
   enum ChangeStrokeOption {

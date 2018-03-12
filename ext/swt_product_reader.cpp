@@ -86,6 +86,9 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
       && product_ == FIT_GARMIN_PRODUCT_D2_CHARLIE) {
     swim_file.reset(new GarminGenericSwimFile(kGarminD2Charlie));
+  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
+      && product_ == FIT_GARMIN_PRODUCT_DESCENT_MK1) {
+    swim_file.reset(new GarminGenericSwimFile(kGarminDescentMK1));
   } else {
     std::string message = "This Device is not supported. See list of supported devices above ("
       + std::to_string(manufacturer_) + "/" 
