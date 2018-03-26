@@ -56,9 +56,7 @@ void swt::Fr920SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
 
 void swt::Fr920SwimFile::Initialize() {
 
-  CheckLapsIndexes();
-  RepairMissingLaps();
-
+  CheckIndexes();
 }
 
 void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
@@ -220,7 +218,27 @@ void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*
 // The field is used by the code to associate lengths to their corresponding
 // laps (GetLap Function). If the field is corrupted an attempt is made
 // to fix it (RepairLapsIndexes)
-void swt::Fr920SwimFile::CheckLapsIndexes() {
+void swt::Fr920SwimFile::CheckIndexes() {
+
+  FIT_UINT16 length_message_index = 0;
+
+  for(fit::LengthMesg *length: lengths_) {
+    if (length->GetMessageIndex() == length_message_index) {
+      length_message_index++;
+    }  else {
+      RepairIndexes();
+    }
+  }
+
+  FIT_UINT16 lap_message_index = 0;
+
+  for(fit::LapMesg *lap: laps_) {
+    if (lap->GetMessageIndex() == lap_message_index) {
+      lap_message_index++;
+    }  else {
+      RepairIndexes();
+    }
+  }
 
   FIT_UINT16 current_first_index = 0;
 
@@ -234,7 +252,7 @@ void swt::Fr920SwimFile::CheckLapsIndexes() {
       if (first_length_index >= current_first_index) {
           current_first_index = first_length_index + num_lengths;
       } else {
-        RepairLapsIndexes();
+        RepairIndexes();
         break;
       }
     }
@@ -267,36 +285,39 @@ void swt::Fr920SwimFile::LapSetSwolf(fit::LapMesg *lap, FIT_UINT16 swolf) {
 // length 4
 // lenght 5
 // lap 2 first_length_index = 3, num_lengths = 3
-void swt::Fr920SwimFile::RepairLapsIndexes() {
+void swt::Fr920SwimFile::RepairIndexes() {
 
   FIT_MESSAGE_INDEX length_message_index = 0;
   FIT_MESSAGE_INDEX lap_message_index = 0;
   FIT_UINT16 num_active_lengths = 0;
   FIT_UINT16 num_idle_lengths = 0;
   FIT_FLOAT32 lap_timer_time = 0;
+  FIT_DATE_TIME lap_start_time = FIT_DATE_TIME_INVALID;
 
   for (auto mesg = mesgs_.begin(); mesg != mesgs_.end();) {
 
+    bool mesg_was_erased = false;
+
     if (typeid(**mesg) == typeid(fit::LengthMesg)) {
       fit::LengthMesg *length = dynamic_cast<fit::LengthMesg*>((*mesg).get());
-      if (length->GetMessageIndex() == length_message_index) {
-        length_message_index++;
+      length->SetMessageIndex(length_message_index);
+      length_message_index++;
 
-        if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
-          num_active_lengths++;
-        } else {
-          num_idle_lengths++;
-        }
-
-        FIT_FLOAT32 length_timer_time = length->GetTotalTimerTime();
-
-        if (length_timer_time != FIT_FLOAT32_INVALID)
-          lap_timer_time += length_timer_time;
-
-      } else {
-        std::string error = "Length message index error (" + std::to_string(length_message_index) + ")";
-        throw std::runtime_error(error);
+      if (num_active_lengths == 0 && num_idle_lengths == 0) {
+        lap_start_time = length->GetStartTime();
       }
+
+      if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
+        num_active_lengths++;
+      } else {
+        num_idle_lengths++;
+      }
+
+      FIT_FLOAT32 length_timer_time = length->GetTotalTimerTime();
+
+      if (length_timer_time != FIT_FLOAT32_INVALID)
+        lap_timer_time += length_timer_time;
+
     } else if (typeid(**mesg) == typeid(fit::LapMesg)) {
 
       fit::LapMesg *lap = dynamic_cast<fit::LapMesg*>((*mesg).get());
@@ -305,6 +326,7 @@ void swt::Fr920SwimFile::RepairLapsIndexes() {
         lap->SetNumActiveLengths(num_active_lengths);
         lap->SetNumLengths(num_active_lengths + num_idle_lengths);
         lap->SetFirstLengthIndex(length_message_index - num_active_lengths - num_idle_lengths);
+        lap->SetStartTime(lap_start_time);
         lap->SetTotalTimerTime(lap_timer_time);
         lap->SetTotalElapsedTime(lap_timer_time);
 
@@ -317,79 +339,20 @@ void swt::Fr920SwimFile::RepairLapsIndexes() {
 
       } else {
 
-        lap->SetMessageIndex(lap_message_index);
-        lap->SetNumActiveLengths(FIT_UINT16_INVALID);
-        lap->SetNumLengths(FIT_UINT16_INVALID);
-        lap->SetFirstLengthIndex(FIT_UINT16_INVALID);
-        lap->SetTotalTimerTime(FIT_FLOAT32_INVALID);
-        lap->SetTotalElapsedTime(FIT_FLOAT32_INVALID);
-
-        mesg = mesgs_.erase(mesg);
         laps_.erase(laps_.begin()+ lap_message_index);
+        mesg = mesgs_.erase(mesg);
+        mesg_was_erased = true;
       }
-
-
     }
-    mesg++;
+    if (!mesg_was_erased) mesg++;
   }
+
+  if (num_active_lengths > 0 || num_idle_lengths > 0)
+    throw std::runtime_error("Last lap missing");
+  
   session_->SetNumLaps(lap_message_index);
 }
 
-
-void swt::Fr920SwimFile::RepairMissingLaps() {
-
-  for(FIT_MESSAGE_INDEX i = 0; i < laps_.size(); i++) {
-    if (laps_.at(i)->GetMessageIndex() == (i + 1)) {
-
-      std::unique_ptr<fit::LapMesg> lap(new fit::LapMesg(*laps_.at(i)));
-      fit::LapMesg *lap_after = laps_.at(i);
-      lap->SetMessageIndex(i);
-      FIT_MESSAGE_INDEX first_length_index = FIT_MESSAGE_INDEX_INVALID;
-      FIT_MESSAGE_INDEX last_length_index = FIT_MESSAGE_INDEX_INVALID;
-
-
-      if (i == 0) {
-        first_length_index = 0;
-      } else {
-
-        fit::LapMesg *lap_before = laps_.at(i - 1);
-
-        if (lap_before->GetNumActiveLengths() == 0) {
-          first_length_index = lap_before->GetFirstLengthIndex() + 1;
-        } else {
-          first_length_index = lap_before->GetFirstLengthIndex() + lap_before->GetNumLengths();
-        }
-      }
-      last_length_index = lap_after->GetFirstLengthIndex() - 1;
-
-      lap->SetFirstLengthIndex(first_length_index);
-      lap->SetNumLengths(last_length_index - first_length_index + 1);
-      lap->SetStartTime(lengths_.at(first_length_index)->GetStartTime());
-      lap->SetTimestamp(lengths_.at(last_length_index)->GetTimestamp());
-
-      FIT_FLOAT32 timer_time = 0;
-      for (FIT_MESSAGE_INDEX j = first_length_index; j <= last_length_index; j++) {
-        timer_time += lengths_.at(j)->GetTotalTimerTime();
-      }
-      lap->SetTotalElapsedTime(timer_time);
-      lap->SetTotalTimerTime(timer_time);
-
-      UpdateLap(lap.get());
-
-      fit::LengthMesg *last_length = lengths_.at(last_length_index);
-
-      laps_.insert(laps_.begin() + i, lap.get());
-      std::list<std::unique_ptr<fit::Mesg>>::iterator it;
-      it = std::find_if(mesgs_.begin(), mesgs_.end(),
-          [last_length] (const std::unique_ptr<fit::Mesg> &mesg) {
-          return mesg.get() == last_length;});
-      ++it;
-      mesgs_.insert(it, move(lap));
-
-      UpdateSession();
-    }
-  }
-}
 
 void swt::Fr920SwimFile::SessionSetAvgStrokeCount(FIT_FLOAT32 avg_stroke_count) {
     session_->SetFieldUINT16Value(kSessionAvgStrokeCountFieldNum,
