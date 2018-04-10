@@ -416,7 +416,6 @@ void swt::Fr920SwimFile::UpdateLap(fit::LapMesg *lap) {
   }
 
   if (num_active_lengths == 0) {// Active lap must be converted to Rest Lap
-    lap->SetNumLengths(0);
     lap->SetNumActiveLengths(0);
     LapSetMovingTime(lap, 0);
     lap->SetTotalCycles(0);

@@ -14,9 +14,12 @@ void swt::GarminGenericSwimFile::UpdateLap(fit::LapMesg *lap) {
   FIT_UINT16 first_length_index = lap->GetFirstLengthIndex();
   FIT_UINT16 last_length_index = static_cast<FIT_UINT16>(lap->GetFirstLengthIndex() + 
       lap->GetNumLengths() - 1);
+  FIT_UINT16 length_total_calories = FIT_UINT16_INVALID;
   for (int index = first_length_index; index <= last_length_index; index++) {
     fit::LengthMesg *length = lengths_.at(index);
-    total_calories = static_cast<FIT_UINT16>(total_calories + length->GetTotalCalories());
+    length_total_calories = length->GetTotalCalories() ;
+    if (length_total_calories != FIT_UINT16_INVALID)
+      total_calories += length_total_calories;
   }  
 
   lap->SetTotalCalories(total_calories);
