@@ -1207,6 +1207,7 @@ typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_FR735_TAIWAN                                          ((FIT_GARMIN_PRODUCT)2533)
 #define FIT_GARMIN_PRODUCT_FENIX5S                                               ((FIT_GARMIN_PRODUCT)2544)
 #define FIT_GARMIN_PRODUCT_FENIX5X                                               ((FIT_GARMIN_PRODUCT)2604)
+#define FIT_GARMIN_PRODUCT_APPROACH_S60                                          ((FIT_GARMIN_PRODUCT)2656)
 #define FIT_GARMIN_PRODUCT_FR935                                                 ((FIT_GARMIN_PRODUCT)2691)
 #define FIT_GARMIN_PRODUCT_FENIX5                                                ((FIT_GARMIN_PRODUCT)2697)
 #define FIT_GARMIN_PRODUCT_VIVOACTIVE3                                           ((FIT_GARMIN_PRODUCT)2700)
@@ -1216,13 +1217,17 @@ typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_D2_CHARLIE                                            ((FIT_GARMIN_PRODUCT)2819)
 #define FIT_GARMIN_PRODUCT_DESCENT_MK1                                           ((FIT_GARMIN_PRODUCT)2859)
 #define FIT_GARMIN_PRODUCT_FR935_UNKNOWN                                         ((FIT_GARMIN_PRODUCT)2833)
+#define FIT_GARMIN_PRODUCT_FR645                                                 ((FIT_GARMIN_PRODUCT)2886)
+#define FIT_GARMIN_PRODUCT_FR645_MUSIC                                           ((FIT_GARMIN_PRODUCT)2888)
+#define FIT_GARMIN_PRODUCT_FR645_MUSIC2                                          ((FIT_GARMIN_PRODUCT)3004)
+#define FIT_GARMIN_PRODUCT_FENIX5_PLUS                                           ((FIT_GARMIN_PRODUCT)3110)
 #define FIT_GARMIN_PRODUCT_SDM4                                                  ((FIT_GARMIN_PRODUCT)10007) // SDM4 footpod
 #define FIT_GARMIN_PRODUCT_EDGE_REMOTE                                           ((FIT_GARMIN_PRODUCT)10014)
 #define FIT_GARMIN_PRODUCT_TRAINING_CENTER                                       ((FIT_GARMIN_PRODUCT)20119)
 #define FIT_GARMIN_PRODUCT_CONNECTIQ_SIMULATOR                                   ((FIT_GARMIN_PRODUCT)65531)
 #define FIT_GARMIN_PRODUCT_ANDROID_ANTPLUS_PLUGIN                                ((FIT_GARMIN_PRODUCT)65532)
 #define FIT_GARMIN_PRODUCT_CONNECT                                               ((FIT_GARMIN_PRODUCT)65534) // Garmin Connect website
-#define FIT_GARMIN_PRODUCT_COUNT                                                 149
+#define FIT_GARMIN_PRODUCT_COUNT                                                 167
 
 typedef FIT_UINT8 FIT_ANTPLUS_DEVICE_TYPE;
 #define FIT_ANTPLUS_DEVICE_TYPE_INVALID                                          FIT_UINT8_INVALID

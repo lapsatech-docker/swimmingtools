@@ -61,10 +61,10 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
        (product_ == FIT_GARMIN_PRODUCT_FENIX3_TWN) ||
        (product_ == FIT_GARMIN_PRODUCT_FENIX3_HR))) {
     swim_file.reset(new GarminGenericSwimFile(kGarminFenix3));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
+  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
       && product_ == FIT_GARMIN_PRODUCT_EPIX) {
     swim_file.reset(new GarminGenericSwimFile(kGarminEpix));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
+  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
       && ((product_ == FIT_GARMIN_PRODUCT_FR735) ||
        (product_ == FIT_GARMIN_PRODUCT_FR735_TAIWAN))) {
     swim_file.reset(new GarminGenericSwimFile(kGarminFr735));
@@ -89,6 +89,17 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
   } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
       && product_ == FIT_GARMIN_PRODUCT_DESCENT_MK1) {
     swim_file.reset(new GarminGenericSwimFile(kGarminDescentMK1));
+  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
+      && product_ == FIT_GARMIN_PRODUCT_APPROACH_S60) {
+    swim_file.reset(new GarminGenericSwimFile(kGarminApproachS60));
+  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
+      && (( product_ == FIT_GARMIN_PRODUCT_FR645) ||
+       (product_ == FIT_GARMIN_PRODUCT_FR645_MUSIC)  ||
+       (product_ == FIT_GARMIN_PRODUCT_FR645_MUSIC2))) {
+    swim_file.reset(new GarminGenericSwimFile(kGarminFr645));
+  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
+      && ((product_ == FIT_GARMIN_PRODUCT_FENIX5_PLUS))) {
+    swim_file.reset(new GarminGenericSwimFile(kGarminFenix5Plus));
   } else {
     std::string message = "This Device is not supported. See list of supported devices above ("
       + std::to_string(manufacturer_) + "/" 
