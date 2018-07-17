@@ -1219,15 +1219,17 @@ typedef FIT_UINT16 FIT_GARMIN_PRODUCT;
 #define FIT_GARMIN_PRODUCT_FR935_UNKNOWN                                         ((FIT_GARMIN_PRODUCT)2833)
 #define FIT_GARMIN_PRODUCT_FR645                                                 ((FIT_GARMIN_PRODUCT)2886)
 #define FIT_GARMIN_PRODUCT_FR645_MUSIC                                           ((FIT_GARMIN_PRODUCT)2888)
+#define FIT_GARMIN_PRODUCT_VIVOACTIVE3_MUSIC                                     ((FIT_GARMIN_PRODUCT)2988)
 #define FIT_GARMIN_PRODUCT_FR645_MUSIC2                                          ((FIT_GARMIN_PRODUCT)3004)
 #define FIT_GARMIN_PRODUCT_FENIX5_PLUS                                           ((FIT_GARMIN_PRODUCT)3110)
+#define FIT_GARMIN_PRODUCT_FENIX5X_PLUS                                          ((FIT_GARMIN_PRODUCT)3111)
 #define FIT_GARMIN_PRODUCT_SDM4                                                  ((FIT_GARMIN_PRODUCT)10007) // SDM4 footpod
 #define FIT_GARMIN_PRODUCT_EDGE_REMOTE                                           ((FIT_GARMIN_PRODUCT)10014)
 #define FIT_GARMIN_PRODUCT_TRAINING_CENTER                                       ((FIT_GARMIN_PRODUCT)20119)
 #define FIT_GARMIN_PRODUCT_CONNECTIQ_SIMULATOR                                   ((FIT_GARMIN_PRODUCT)65531)
 #define FIT_GARMIN_PRODUCT_ANDROID_ANTPLUS_PLUGIN                                ((FIT_GARMIN_PRODUCT)65532)
 #define FIT_GARMIN_PRODUCT_CONNECT                                               ((FIT_GARMIN_PRODUCT)65534) // Garmin Connect website
-#define FIT_GARMIN_PRODUCT_COUNT                                                 167
+#define FIT_GARMIN_PRODUCT_COUNT                                                 169
 
 typedef FIT_UINT8 FIT_ANTPLUS_DEVICE_TYPE;
 #define FIT_ANTPLUS_DEVICE_TYPE_INVALID                                          FIT_UINT8_INVALID

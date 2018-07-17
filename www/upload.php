@@ -79,8 +79,8 @@ if ($show_gcp) {
   </h2>
  <ul>
     <li>Only Lap Swimming activity files from the following devices are allowed:
-    Garmin Swim ,Forerunner 735/910/920/935, Fénix 2/3/5, Epix, VivoActive, 
-    Tomtom Multisport</li>
+    Garmin Swim ,Forerunner 645/735/910/920/935, Fénix 2/3/5, Epix, VivoActive 1/HR/3, 
+    D2 Charlie, Descent MK1, Approach S60 and Tomtom Multisport</li>
     <li>Files must be FIT files, or zip files exported from Garmin Connect,
     <li>Activity files can be exported form Garmin Connect (Modern version) by going
     to the activity page, clicking on the gear icon to the left, and selecting
