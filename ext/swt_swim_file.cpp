@@ -7,7 +7,7 @@
 #include "fit_event_mesg.hpp"
 
 swt::SwimFile::SwimFile()
-: session_(nullptr), serial_number_(FIT_UINT32Z_INVALID),
+: session_(nullptr), product_(FIT_UINT16_INVALID),serial_number_(FIT_UINT32Z_INVALID),
   software_version_(FIT_UINT16_INVALID)
 {}
 
@@ -52,6 +52,8 @@ void swt::SwimFile::AddMesg(const void *mesg)
         if (device_info->GetDeviceIndex() == 0) {
           software_version_ = device_info->GetFieldUINT16Value(kSoftwareVersionFieldNum);
           serial_number_  = device_info->GetSerialNumber();
+          product_ = device_info->GetProduct();
+
         }
         mesgs_.push_back(move(device_info));
         break;
@@ -233,6 +235,11 @@ fit::LapMesg* swt::SwimFile::GetLap(FIT_MESSAGE_INDEX length_index) const {
   throw std::runtime_error(error);
 }
 
+
+FIT_UINT16 swt::SwimFile::GetProduct() const {
+  return product_;
+}
+
 // Compute rest time. Some watches compute rest time and add rest
 // lenths to the file, this rest is confirmed. If the watch doesn't
 // compute rest, we have to estimate rest time between lengths by
@@ -292,54 +299,24 @@ double swt::SwimFile::GetRestTime(FIT_MESSAGE_INDEX length_index) const {
   return rest;
 }
 
-const std::string swt::SwimFile::GetSportAsString(FIT_ENUM sport, FIT_ENUM sub_sport) const {
-  std::string sport_string;
-  switch (sport) {
-    case FIT_SPORT_RUNNING:
-      sport_string = "Running";
-      break;
-    case FIT_SPORT_CYCLING:
-      sport_string = "Cycling";
-      break;
-    case FIT_SPORT_TRANSITION:
-      sport_string = "Transition";
-      break;
-    default:
-      sport_string = "Unknown";
-      break;
-  }
-  if (sport == FIT_SPORT_SWIMMING && sub_sport == FIT_SUB_SPORT_OPEN_WATER)
-    sport_string = "Open Water Swimming";
-  return sport_string;
-}
-
 bool swt::SwimFile::IsValid(std::string *error) const {
   *error = "";
 
-  if (session_->GetSport() != FIT_SPORT_SWIMMING ||
-      session_->GetSubSport() != FIT_SUB_SPORT_LAP_SWIMMING) {
-    *error = "File is not a lap swimming file ("
-      + GetSportAsString(session_->GetSport(), session_->GetSubSport())
-      + ")";
-  } else {
+  bool hasActiveLength = false;
 
-    bool hasActiveLength = false;
-
-    for (fit::LengthMesg *length : lengths_)
-    {
-      if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
-        hasActiveLength = true;
-        break;
-      }
+  for (fit::LengthMesg *length : lengths_)
+  {
+    if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
+      hasActiveLength = true;
+      break;
     }
-
-    if (!hasActiveLength)
-      *error = "File is empty (no lengths)";
-    else if (session_->GetSwimStroke() == FIT_SWIM_STROKE_DRILL)
-      *error = "File contains drills only (cannot be edited)";
-    else if (lengths_.size() != (lengths_.at(lengths_.size()-1)->GetMessageIndex() + 1))
-      *error = "File failed Validation";
   }
+
+  if (!hasActiveLength)
+    *error = "File is empty (no lengths)";
+  else if (lengths_.size() != (lengths_.at(lengths_.size()-1)->GetMessageIndex() + 1))
+    *error = "File failed Validation";
+
   return error->empty();
 }
 

@@ -13,25 +13,6 @@
 
 namespace swt
 {
-  enum Product {
-    kGarminSwim = 1,
-    kGarminFr910 = 2,
-    kGarminFenix2 = 3,
-    kGarminFr920 = 4,
-    kTomtom = 5,
-    kGarminVivoActive = 6,
-    kGarminFenix3 = 7,
-    kGarminEpix = 8,
-    kGarminFr735 = 9,
-    kGarminFenix5 = 10,
-    kGarminFr935 = 11,
-    kGarminVivoActive3 = 12,
-    kGarminD2Charlie = 13,
-    kGarminDescentMK1 = 14,
-    kGarminApproachS60 = 15,
-    kGarminFr645 = 16,
-    kGarminFenix5Plus = 17
-  }; 
 
   enum ChangeStrokeOption {
     kLengthOnly = 0,
@@ -57,7 +38,7 @@ namespace swt
       void ChangeStroke(FIT_MESSAGE_INDEX length_index, FIT_SWIM_STROKE stroke, ChangeStrokeOption option);
       void ChangePoolSize(FIT_FLOAT32 new_size_metric, FIT_DISPLAY_MEASURE display_measure); 
       virtual void Delete(FIT_MESSAGE_INDEX length_index) = 0;
-      virtual Product GetProduct() const = 0;
+      virtual FIT_UINT16 GetProduct() const;
       float GetSoftwareVersion() const {return software_version_;}
       unsigned int GetSerialNumber() const {return serial_number_;}
       const std::vector<fit::LapMesg*> &GetLaps() const {return laps_;};
@@ -87,6 +68,7 @@ namespace swt
       std::vector<FIT_DATE_TIME> timer_stop_timestamps_;
       std::vector<char> hr_data_;
 
+      FIT_UINT16 product_;
       FIT_UINT32Z serial_number_;
       FIT_UINT16 software_version_;
       fit::ProtocolVersion fit_protocol_version_;
@@ -94,7 +76,6 @@ namespace swt
 
     private:
       static const FIT_UINT16 kSoftwareVersionFieldNum = 5;
-      const std::string GetSportAsString(FIT_ENUM sport, FIT_ENUM sub_sport) const;
       virtual void UpdateSession() = 0;
       virtual void UpdateLap(fit::LapMesg *lap) = 0;
 

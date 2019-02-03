@@ -8,7 +8,6 @@ namespace swt
   {
     public:
       GarminSwimFile() : current_timestamp_(0) {};
-      Product GetProduct() const {return Product::kGarminSwim;}
       void CreateNewFile(FIT_DATE_TIME reated, FIT_UINT32Z serial_number, 
           FIT_FLOAT32 pool_length, FIT_DISPLAY_MEASURE pool_length_unit);
       void AddLength(FIT_FLOAT32 time, FIT_UINT16 stroke_count, FIT_SWIM_STROKE stroke, FIT_LENGTH_TYPE type);

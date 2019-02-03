@@ -1,7 +1,6 @@
 #include "swt_garmin_generic_swim_file.h"
 
-swt::GarminGenericSwimFile::GarminGenericSwimFile(Product product)
-: product_(product)
+swt::GarminGenericSwimFile::GarminGenericSwimFile()
 {}
 
 void swt::GarminGenericSwimFile::UpdateLap(fit::LapMesg *lap) {

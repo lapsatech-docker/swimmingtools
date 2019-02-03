@@ -7,13 +7,11 @@ namespace swt
   class GarminGenericSwimFile: public Fr920SwimFile
   {
     public:
-      GarminGenericSwimFile(Product product);
-      Product GetProduct() const {return product_;};
+      GarminGenericSwimFile();
 
     private:
       void UpdateLap(fit::LapMesg *lap);
       void UpdateSession();
-      Product product_;
   };
 }
 #endif

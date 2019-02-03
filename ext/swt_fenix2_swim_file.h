@@ -10,7 +10,6 @@ namespace swt
     public:
       Fenix2SwimFile() : record_(nullptr) {}; 
       void AddMesg(const void *mesg);
-      Product GetProduct() const {return Product::kGarminFenix2;}
       void Initialize();
       void Delete(FIT_MESSAGE_INDEX length_index);
       void RepairLapNumLengths();

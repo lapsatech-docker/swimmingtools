@@ -13,8 +13,30 @@
 
 swt::ProductReader::ProductReader()
 : file_type_(FIT_FILE_INVALID), manufacturer_(FIT_MANUFACTURER_INVALID),
-  product_(FIT_UINT16_INVALID)
+  product_(FIT_UINT16_INVALID), activity_(nullptr), session_(nullptr)
 {}
+
+const std::string swt::ProductReader::GetSportAsString(FIT_ENUM sport, FIT_ENUM sub_sport) const {
+  std::string sport_string;
+  switch (sport) {
+    case FIT_SPORT_RUNNING:
+      sport_string = "Running";
+      break;
+    case FIT_SPORT_CYCLING:
+      sport_string = "Cycling";
+      break;
+    case FIT_SPORT_TRANSITION:
+      sport_string = "Transition";
+      break;
+    default:
+      sport_string = "Unknown";
+      break;
+  }
+  if (sport == FIT_SPORT_SWIMMING && sub_sport == FIT_SUB_SPORT_OPEN_WATER)
+    sport_string = "Open Water Swimming";
+  return sport_string;
+}
+
 
 std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream) 
 {
@@ -23,12 +45,28 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
 
   broadcaster.AddListener(dynamic_cast<fit::FileIdMesgListener&>(*this));
   broadcaster.AddListener(dynamic_cast<fit::DeviceInfoMesgListener&>(*this));
+  broadcaster.AddListener(dynamic_cast<fit::ActivityMesgListener&>(*this));
+  broadcaster.AddListener(dynamic_cast<fit::SessionMesgListener&>(*this));
 
   broadcaster.Run(istream);
 
   if (file_type_ != FIT_FILE_ACTIVITY) {
     throw FileNotValidException("File is not an activity file");
   }
+
+  FIT_UINT16 numSessions = activity_->GetNumSessions();
+  if (numSessions != FIT_UINT16_INVALID && numSessions > 1)
+    throw FileNotValidException("Multi sport Files are not supported");
+
+  if (session_->GetSport() != FIT_SPORT_SWIMMING ||
+      session_->GetSubSport() != FIT_SUB_SPORT_LAP_SWIMMING) {
+    std::string message = "File is not a lap swimming file ("
+      + GetSportAsString(session_->GetSport(), session_->GetSubSport())
+      + ")";
+    throw FileNotValidException(message);
+
+  }
+
   if (manufacturer_ == FIT_MANUFACTURER_GARMIN && 
       product_ == FIT_GARMIN_PRODUCT_SWIM) {
     swim_file.reset(new GarminSwimFile());
@@ -49,59 +87,8 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
     swim_file.reset(new Fr920SwimFile());
   } else if (manufacturer_ == FIT_MANUFACTURER_TOMTOM) {
     swim_file.reset(new TomtomSwimFile());
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
-      && ((product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE) ||
-       (product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE_APAC) ||
-       (product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE_HR) ||
-       (product_ == FIT_GARMIN_PRODUCT_VIVO_ACTIVE_HR_ASIA))) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminVivoActive));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
-      && ((product_ == FIT_GARMIN_PRODUCT_FENIX3) ||
-       (product_ == FIT_GARMIN_PRODUCT_FENIX3_CHINA) ||
-       (product_ == FIT_GARMIN_PRODUCT_FENIX3_TWN) ||
-       (product_ == FIT_GARMIN_PRODUCT_FENIX3_HR))) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminFenix3));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
-      && product_ == FIT_GARMIN_PRODUCT_EPIX) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminEpix));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
-      && ((product_ == FIT_GARMIN_PRODUCT_FR735) ||
-       (product_ == FIT_GARMIN_PRODUCT_FR735_TAIWAN))) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminFr735));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
-      && ((product_ == FIT_GARMIN_PRODUCT_FENIX5) ||
-       (product_ == FIT_GARMIN_PRODUCT_FENIX5X) ||
-       (product_ == FIT_GARMIN_PRODUCT_FENIX5_SAPHIRE) ||
-       (product_ == FIT_GARMIN_PRODUCT_FENIX5_UNKNOWN1) ||
-       (product_ == FIT_GARMIN_PRODUCT_FENIX5_UNKNOWN2) ||
-       (product_ == FIT_GARMIN_PRODUCT_FENIX5S))) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminFenix5));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
-      && ((product_ == FIT_GARMIN_PRODUCT_FR935) ||
-       (product_ == FIT_GARMIN_PRODUCT_FR935_UNKNOWN))) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminFr935));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
-      && ((product_ == FIT_GARMIN_PRODUCT_VIVOACTIVE3) ||
-       (product_ == FIT_GARMIN_PRODUCT_VIVOACTIVE3_MUSIC))) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminVivoActive3));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
-      && product_ == FIT_GARMIN_PRODUCT_D2_CHARLIE) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminD2Charlie));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN 
-      && product_ == FIT_GARMIN_PRODUCT_DESCENT_MK1) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminDescentMK1));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
-      && product_ == FIT_GARMIN_PRODUCT_APPROACH_S60) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminApproachS60));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
-      && (( product_ == FIT_GARMIN_PRODUCT_FR645) ||
-       (product_ == FIT_GARMIN_PRODUCT_FR645_MUSIC)  ||
-       (product_ == FIT_GARMIN_PRODUCT_FR645_MUSIC2))) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminFr645));
-  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN
-      && ((product_ == FIT_GARMIN_PRODUCT_FENIX5_PLUS) ||
-       (product_ ==FIT_GARMIN_PRODUCT_FENIX5X_PLUS))) {
-    swim_file.reset(new GarminGenericSwimFile(kGarminFenix5Plus));
+  } else if (manufacturer_ == FIT_MANUFACTURER_GARMIN) {
+    swim_file.reset(new GarminGenericSwimFile());
   } else {
     std::string message = "This Device is not supported. See list of supported devices above ("
       + std::to_string(manufacturer_) + "/" 
@@ -113,12 +100,25 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
 
 void swt::ProductReader::OnMesg(fit::FileIdMesg& fileId) {
   file_type_ = fileId.GetType();
+  // Required to work with Tomtom files which do not contain a deviceInfo mesg
   manufacturer_ = fileId.GetManufacturer();
+
 }
+
 void swt::ProductReader::OnMesg(fit::DeviceInfoMesg& deviceInfo) {
   if (deviceInfo.GetDeviceIndex() == 0) {
     manufacturer_ = deviceInfo.GetManufacturer();
     product_ = deviceInfo.GetProduct();
   }
+}
+
+void swt::ProductReader::OnMesg(fit::ActivityMesg& activity) {
+  activity_.reset(new fit::ActivityMesg(activity));
+
+}
+
+void swt::ProductReader::OnMesg(fit::SessionMesg& session) {
+  session_.reset(new fit::SessionMesg(session));
+
 }
 

@@ -79,11 +79,6 @@ CREATE TABLE IF NOT EXISTS `swtdb`.`activities` (
     REFERENCES `swtdb`.`files` (`file_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_activities_products`
-    FOREIGN KEY (`product_id`)
-    REFERENCES `swtdb`.`products` (`product_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 

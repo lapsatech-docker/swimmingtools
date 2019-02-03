@@ -73,7 +73,7 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
 
   bool length_count_error = false;
   // Check for missing length bug in Fr910
-  if (device == kGarminFr910 && length_count != session_before.GetFieldUINT16Value(33)) {
+  if (device == FIT_GARMIN_PRODUCT_FR910XT && length_count != session_before.GetFieldUINT16Value(33)) {
     log << filename << "," << device << "," << version << ",Num length check failed,"
       << "," << session_before.GetFieldUINT16Value(33) << "," << length_count << std::endl;
     length_count_error = true;
@@ -193,12 +193,45 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
         << endl;
     }
 
-    if (fit_file->GetProduct() == kGarminSwim || 
-        fit_file->GetProduct() == kGarminFr920 || 
-        fit_file->GetProduct() == kGarminVivoActive ||
-        fit_file->GetProduct() == kGarminFenix3 ||
-        fit_file->GetProduct() == kGarminEpix)
-    {
+
+    if (fit_file->GetProduct() == FIT_GARMIN_PRODUCT_FR910XT) {
+      const FIT_UINT8 kSessionNumLengthsFieldNum = 33;
+
+      if (session_before.GetFieldUINT16Value(kSessionNumLengthsFieldNum) !=
+          session_after->GetFieldUINT16Value(kSessionNumLengthsFieldNum)) {
+
+        log << filename << "," << device << "," << version << ",session,num_lengths,"
+          << session_before.GetFieldUINT16Value(kSessionNumLengthsFieldNum) << ","
+          << session_after->GetFieldUINT16Value(kSessionNumLengthsFieldNum) << endl;
+      }
+    } else if (fit_file->GetProduct() == FIT_GARMIN_PRODUCT_FENIX2) {
+      const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
+      const FIT_UINT8 kSessionNumLengthsFieldNum = 33;
+      const FIT_UINT8 kSessionSwolfFieldNum = 80;
+
+      if (abs(session_before.GetFieldUINT16Value(kSessionAvgStrokeCountFieldNum) -
+            session_after->GetFieldUINT16Value(kSessionAvgStrokeCountFieldNum)) > 1) {
+
+        log << filename << "," << device << "," << version << ",session,avg_stroke_count,"
+          << session_before.GetFieldUINT16Value(kSessionAvgStrokeCountFieldNum) << ","
+          << session_after->GetFieldUINT16Value(kSessionAvgStrokeCountFieldNum) << endl;
+      }
+      if (session_before.GetFieldUINT16Value(kSessionNumLengthsFieldNum) !=
+          session_after->GetFieldUINT16Value(kSessionNumLengthsFieldNum)) {
+
+        log << filename << "," << device << "," << version << ",session,num_lengths,"
+          << session_before.GetFieldUINT16Value(kSessionNumLengthsFieldNum) << ","
+          << session_after->GetFieldUINT16Value(kSessionNumLengthsFieldNum) << endl;
+      }
+      if (abs(session_before.GetFieldUINT16Value(kSessionSwolfFieldNum) -
+            session_after->GetFieldUINT16Value(kSessionSwolfFieldNum)) > 1) {
+
+        log << filename << "," << device << "," << version << ",session,swolf,"
+          << session_before.GetFieldUINT16Value(kSessionSwolfFieldNum) << ","
+          << session_after->GetFieldUINT16Value(kSessionSwolfFieldNum) << endl;
+      }
+    } else {
+
       const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
       const FIT_UINT8 kSessionMovingTimeFieldNum = 78;
       const FIT_UINT8 kSessionNumActiveLengthsFieldNum = 33;
@@ -224,43 +257,6 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
         log << filename << "," << device << "," << version << ",session,num_active_lengths,"
           << session_before.GetFieldUINT16Value(kSessionNumActiveLengthsFieldNum) << ","
           << session_after->GetFieldUINT16Value(kSessionNumActiveLengthsFieldNum) << endl;
-      }
-      if (abs(session_before.GetFieldUINT16Value(kSessionSwolfFieldNum) -
-            session_after->GetFieldUINT16Value(kSessionSwolfFieldNum)) > 1) {
-
-        log << filename << "," << device << "," << version << ",session,swolf,"
-          << session_before.GetFieldUINT16Value(kSessionSwolfFieldNum) << ","
-          << session_after->GetFieldUINT16Value(kSessionSwolfFieldNum) << endl;
-      }
-
-    } else if (fit_file->GetProduct() == kGarminFr910) {
-      const FIT_UINT8 kSessionNumLengthsFieldNum = 33;
-
-      if (session_before.GetFieldUINT16Value(kSessionNumLengthsFieldNum) !=
-          session_after->GetFieldUINT16Value(kSessionNumLengthsFieldNum)) {
-
-        log << filename << "," << device << "," << version << ",session,num_lengths,"
-          << session_before.GetFieldUINT16Value(kSessionNumLengthsFieldNum) << ","
-          << session_after->GetFieldUINT16Value(kSessionNumLengthsFieldNum) << endl;
-      }
-    } else if (fit_file->GetProduct() == kGarminFenix2) {
-      const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
-      const FIT_UINT8 kSessionNumLengthsFieldNum = 33;
-      const FIT_UINT8 kSessionSwolfFieldNum = 80;
-
-      if (abs(session_before.GetFieldUINT16Value(kSessionAvgStrokeCountFieldNum) -
-            session_after->GetFieldUINT16Value(kSessionAvgStrokeCountFieldNum)) > 1) {
-
-        log << filename << "," << device << "," << version << ",session,avg_stroke_count,"
-          << session_before.GetFieldUINT16Value(kSessionAvgStrokeCountFieldNum) << ","
-          << session_after->GetFieldUINT16Value(kSessionAvgStrokeCountFieldNum) << endl;
-      }
-      if (session_before.GetFieldUINT16Value(kSessionNumLengthsFieldNum) !=
-          session_after->GetFieldUINT16Value(kSessionNumLengthsFieldNum)) {
-
-        log << filename << "," << device << "," << version << ",session,num_lengths,"
-          << session_before.GetFieldUINT16Value(kSessionNumLengthsFieldNum) << ","
-          << session_after->GetFieldUINT16Value(kSessionNumLengthsFieldNum) << endl;
       }
       if (abs(session_before.GetFieldUINT16Value(kSessionSwolfFieldNum) -
             session_after->GetFieldUINT16Value(kSessionSwolfFieldNum)) > 1) {
@@ -366,7 +362,7 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
           << endl;
       }
 
-      if (fit_file->GetProduct() == kGarminSwim)
+      if (fit_file->GetProduct() == FIT_GARMIN_PRODUCT_SWIM)
       {
         const FIT_UINT8 kLapAvgStrokeCountFieldNum = 72;
         const FIT_UINT8 kLapMovingTimeFieldNum = 70;
@@ -397,9 +393,9 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
             << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
         }
 
-      } else if (fit_file->GetProduct() == kGarminFr910) {
+      } else if (fit_file->GetProduct() == FIT_GARMIN_PRODUCT_FR910XT) {
         // fr910 has no custom lap fields
-      } else if (fit_file->GetProduct() == kGarminFenix2) {
+      } else if (fit_file->GetProduct() == FIT_GARMIN_PRODUCT_FENIX2) {
         const FIT_UINT8 kLapSwolfFieldNum = 73;
         if (abs(laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) -
               laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum)) > 1) {
@@ -409,10 +405,8 @@ void swt::Tests::CheckUpdateLapAndSession(std::string file) {
             << laps_before[i].GetFieldUINT16Value(kLapSwolfFieldNum) << ","
             << laps_after[i]->GetFieldUINT16Value(kLapSwolfFieldNum) << endl;
         }
-      } else if (fit_file->GetProduct() == kGarminFr920 || 
-          fit_file->GetProduct() == kGarminVivoActive ||
-          fit_file->GetProduct() == kGarminFenix3 ||
-          fit_file->GetProduct() == kGarminEpix) {
+      } else {
+
         const FIT_UINT8 kLapAvgStrokeCountFieldNum = 90;
         const FIT_UINT8 kLapMovingTimeFieldNum = 70;
         const FIT_UINT8 kLapSwolfFieldNum = 73;

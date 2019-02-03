@@ -9,7 +9,6 @@ namespace swt
   {
     public:
       void AddMesg(const void *mesg);
-      Product GetProduct() const {return Product::kGarminFr920;}
       void Delete(FIT_MESSAGE_INDEX length_index);
       void Initialize();
       void Save(const std::string &filename, bool convert=false) const;
