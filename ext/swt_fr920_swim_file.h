@@ -8,6 +8,7 @@ namespace swt
   class Fr920SwimFile: public SwimFile
   {
     public:
+      Fr920SwimFile();
       void AddMesg(const void *mesg);
       void Delete(FIT_MESSAGE_INDEX length_index);
       void Initialize();
@@ -44,6 +45,7 @@ namespace swt
       void UpdateLap(fit::LapMesg *lap);
       void UpdateSession();
 
+      FIT_SINT8 last_temp_ = FIT_SINT8_INVALID;
       std::vector<fit::RecordMesg> temp_data_;
   };
 }

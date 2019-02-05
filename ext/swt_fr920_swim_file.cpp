@@ -5,10 +5,14 @@
 #include "fit_record_mesg.hpp"
 #include "swt_fr920_swim_file.h"
 
+swt::Fr920SwimFile::Fr920SwimFile()
+:last_temp_(FIT_SINT8_INVALID)
+{}
+
+
 void swt::Fr920SwimFile::AddMesg(const void *mesg) {
 
   const fit::Mesg *fit_mesg = reinterpret_cast<const fit::Mesg*>(mesg);
-  static FIT_SINT8 temp = FIT_SINT8_INVALID;
 
   // keep record messages with only a timestamp. Those are used with new
   // heart rate data Garmin has added September 2015
@@ -18,16 +22,18 @@ void swt::Fr920SwimFile::AddMesg(const void *mesg) {
         fit_mesg->HasField(kTimestampFieldNum)) {
 
       mesgs_.push_back(std::unique_ptr<fit::Mesg>(new fit::Mesg(*fit_mesg)));
-    } else if (fit_mesg->HasField(kRecordTemperatureFieldNum)) {
+    } else {
 
       record_local_num_ = fit_mesg->GetLocalNum();
+      if (fit_mesg->HasField(kRecordTemperatureFieldNum)) {
 
-      fit::RecordMesg record(*fit_mesg);
-      if (record.GetTemperature() != FIT_SINT8_INVALID &&
-          record.GetTimestamp() != FIT_DATE_TIME_INVALID &&
-          record.GetTemperature() != temp ) {
-        temp = record.GetTemperature();
-        temp_data_.push_back(record);
+        fit::RecordMesg record(*fit_mesg);
+        if (record.IsTemperatureValid() &&
+            record.IsTimestampValid() &&
+            record.GetTemperature() != last_temp_ ) {
+          last_temp_ = record.GetTemperature();
+          temp_data_.push_back(record);
+        }
       }
     }
   } else {
@@ -79,7 +85,7 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
         static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime()));
 
   LengthSetTimestamp(added_length.get(), existing_length->GetStartTime() +
-     static_cast<FIT_DATE_TIME>(total_timer_time) + timestamp_lag);
+      static_cast<FIT_DATE_TIME>(total_timer_time) + timestamp_lag);
   added_length->SetTotalElapsedTime(total_elapsed_time);
   added_length->SetTotalTimerTime(total_timer_time);
   added_length->SetAvgSpeed(session_->GetPoolLength() / total_timer_time);
@@ -118,7 +124,7 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
     preceding_length = lengths_.at(length_index -1);
     preceding_length_it = std::find_if(mesgs_.begin(), it,
         [preceding_length] (const std::unique_ptr<fit::Mesg> &mesg) {
-      return mesg.get() == preceding_length;});
+        return mesg.get() == preceding_length;});
   }
 
   if (added_length->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID)
@@ -127,7 +133,7 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
 
   while((it != preceding_length_it) &&
       ((it->get()->GetFieldUINT32Value(kTimestampFieldNum) > added_length->GetTimestamp() &&
-       it->get()->GetFieldUINT32Value(kTimestampFieldNum) != FIT_UINT32_INVALID) ||
+        it->get()->GetFieldUINT32Value(kTimestampFieldNum) != FIT_UINT32_INVALID) ||
        it->get()->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID))
     it--;
 
@@ -250,7 +256,7 @@ void swt::Fr920SwimFile::CheckIndexes() {
     if (first_length_index != FIT_UINT16_INVALID &&
         num_lengths != FIT_UINT16_INVALID) {
       if (first_length_index >= current_first_index) {
-          current_first_index = first_length_index + num_lengths;
+        current_first_index = first_length_index + num_lengths;
       } else {
         RepairIndexes();
         break;
@@ -260,8 +266,8 @@ void swt::Fr920SwimFile::CheckIndexes() {
 }
 
 void swt::Fr920SwimFile::LapSetAvgStrokeCount(fit::LapMesg *lap, FIT_FLOAT32 avg_stroke_count) {
-    lap->SetFieldUINT16Value(kLapAvgStrokeCountFieldNnum,
-        static_cast<FIT_UINT16>(round(avg_stroke_count * 10)));
+  lap->SetFieldUINT16Value(kLapAvgStrokeCountFieldNnum,
+      static_cast<FIT_UINT16>(round(avg_stroke_count * 10)));
 }
 
 void swt::Fr920SwimFile::LapSetMovingTime(fit::LapMesg *lap, FIT_FLOAT32 moving_time) {
@@ -270,7 +276,7 @@ void swt::Fr920SwimFile::LapSetMovingTime(fit::LapMesg *lap, FIT_FLOAT32 moving_
 }
 
 void swt::Fr920SwimFile::LapSetSwolf(fit::LapMesg *lap, FIT_UINT16 swolf) {
-    lap->SetFieldUINT16Value(kLapSwolfFieldNum, swolf);
+  lap->SetFieldUINT16Value(kLapSwolfFieldNum, swolf);
 }
 
 
@@ -349,14 +355,14 @@ void swt::Fr920SwimFile::RepairIndexes() {
 
   if (num_active_lengths > 0 || num_idle_lengths > 0)
     throw std::runtime_error("Last lap missing");
-  
+
   session_->SetNumLaps(lap_message_index);
 }
 
 
 void swt::Fr920SwimFile::SessionSetAvgStrokeCount(FIT_FLOAT32 avg_stroke_count) {
-    session_->SetFieldUINT16Value(kSessionAvgStrokeCountFieldNum,
-        static_cast<FIT_UINT16>(round(avg_stroke_count * 10)));
+  session_->SetFieldUINT16Value(kSessionAvgStrokeCountFieldNum,
+      static_cast<FIT_UINT16>(round(avg_stroke_count * 10)));
 }
 
 void swt::Fr920SwimFile::SessionSetNumLengthsInActiveLaps(FIT_UINT16 num_lengths_in_active_laps) {
@@ -369,7 +375,7 @@ void swt::Fr920SwimFile::SessionSetMovingTime(FIT_FLOAT32 moving_time) {
 }
 
 void swt::Fr920SwimFile::SessionSetSwolf(FIT_UINT16 swolf) {
-    session_->SetFieldUINT16Value(kSessionSwolfFieldNum, swolf);
+  session_->SetFieldUINT16Value(kSessionSwolfFieldNum, swolf);
 }
 
 void swt::Fr920SwimFile::UpdateLap(fit::LapMesg *lap) {
