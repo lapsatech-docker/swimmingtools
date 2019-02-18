@@ -20,8 +20,7 @@ spl_autoload_register();
     <li> Swimming watch tools includes both an editor and file viewer,</li>
     <li>The editor allows you to delete, merge, split and change Stroke
     or pool size</li>
-    <li>Supported devices: Garmin Swim, Forerunner 645/735/910/920/935, fénix 2/3/5,
-    Epix, VivoActive 1/HR/3, D2 Charlie, Descent MK1, Approach S60, and Tomtom Multisport</li>
+    <li>Supported devices: All Garmin devices and Tomtom Multisport</li>
     <li>Read the <a href="help">User's Guide</a>
     and start editing and analyzing your data.</li>
   </ul>

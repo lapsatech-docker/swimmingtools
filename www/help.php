@@ -8,7 +8,7 @@ spl_autoload_register();
 ?>
 <div class="section">
   <h2>
-    <a id="upload">Uploading Activities</a>
+    <a id="upload">Getting a copy of your activity file</a>
   </h2>
 
   <p>The most convenient way to get a copy of your data, is to export it from
@@ -19,18 +19,8 @@ spl_autoload_register();
   <img src="content/gc_export.jpg" alt="how to export from Garmin Connect"
   style="display:block; height: 268px; width:838px; margin:auto">
 
-  <p>If you use a Garmin Swim or FR910, Garmin Express saves a copy of files
-  on your computer before uploading them to Garmin Connect. You can find
-  where Garmin Express saves files in this
-  <a href="http://support.garmin.com/support/searchSupport/case.faces?caseId={afea30d0-9b70-11e3-d5f4-000000000000}"
-    target="_blank">FAQ</a> on the garmin web site.</p>
-
-  <p>Finally, with most recent devices, you can access activity files, by connecting it to
-  your computer with a USB cable. Once connected, the device appears as a USB
-  drive.</p>
-
   <p>When you're ready, <a href="upload">Go to the upload page</a> and
-  start editing your activities</p>
+  start editing your data.</p>
 </div>
 <div class="section">
   <h2>
