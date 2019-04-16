@@ -14,12 +14,16 @@ try {
   $message_error = '';
   $email = '';
   $message = '';
-
+  $timestamp = time();
+  $is_spam = false;
   $error = false;
 
   if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $message = $_POST['message'];
+    $timestamp = (int) $_POST['timestamp'];
+    $is_spam = abs(time() - $timestamp) < 2;
+
 
     if (preg_match('/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i', $email) != 1) {
       $email_error = 'Please provide a valid email';
@@ -31,7 +35,7 @@ try {
       $error = true;
     }
 
-    if (!$error) {
+    if (!$error && !$is_spam) {
 
       $body = '';
       $body .= '<p>'.htmlspecialchars($message).'</p>'; 
@@ -106,6 +110,7 @@ case OUTPUT_FORM:
       style="margin: auto 30px; width: 840px"><?=$message?></textarea><br />
     <br>
     <p><input type="submit"></p>
+    <input type="hidden" name="timestamp" value="<?=time()?>">
   </form>
 </div>
 <?php
