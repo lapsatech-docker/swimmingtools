@@ -1,6 +1,7 @@
 #include <cmath>
 #include <algorithm>
 #include <fstream>
+#include <utility>
 #include "fit_encode.hpp"
 #include "fit_record_mesg.hpp"
 #include "swt_fr920_swim_file.h"
@@ -14,31 +15,23 @@ void swt::Fr920SwimFile::AddMesg(const void *mesg) {
 
   const fit::Mesg *fit_mesg = reinterpret_cast<const fit::Mesg*>(mesg);
 
-  // keep record messages with only a timestamp. Those are used with new
-  // heart rate data Garmin has added September 2015
   if (fit_mesg->GetNum() == FIT_MESG_NUM_RECORD) {
+    std::unique_ptr<fit::RecordMesg> record(new fit::RecordMesg(*fit_mesg));
 
-    if (fit_mesg->GetNumFields() == 1 &&
-        fit_mesg->HasField(kTimestampFieldNum)) {
-
-      mesgs_.push_back(std::unique_ptr<fit::Mesg>(new fit::Mesg(*fit_mesg)));
-    } else {
-
-      record_local_num_ = fit_mesg->GetLocalNum();
-      if (fit_mesg->HasField(kRecordTemperatureFieldNum)) {
-
-        fit::RecordMesg record(*fit_mesg);
-        if (record.IsTemperatureValid() &&
-            record.IsTimestampValid() &&
-            record.GetTemperature() != last_temp_ ) {
-          last_temp_ = record.GetTemperature();
-          temp_data_.push_back(record);
-        }
+    if (record->IsDistanceValid()) {
+      record_local_num_ = record->GetLocalNum();
+      if (record->IsTemperatureValid() &&
+          record->IsTimestampValid() &&
+          record->GetTemperature() != last_temp_ ) {
+        last_temp_ = record->GetTemperature();
+        temp_data_.push_back(*record);
       }
+    } else {
+      mesgs_.push_back(move(record));
     }
   } else {
     SwimFile::AddMesg(mesg);
-  }
+  }   
 }
 
 void swt::Fr920SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
@@ -77,15 +70,24 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   FIT_FLOAT32 total_elapsed_time = existing_length->GetTotalElapsedTime() / 2;
   FIT_FLOAT32 total_timer_time = existing_length->GetTotalTimerTime() / 2;
   FIT_UINT16 total_strokes = existing_length->GetTotalStrokes();
+  
+  // In latest watches (june 2019 an after) length messages are added to the file when
+  // the user hit the lap/pause button. All length have the same timestamp which is the
+  // same as the timestamp of the lap message.
+  if ((GetLap(length_index))->GetTimestamp() == existing_length->GetTimestamp()) {
+    added_length->SetTimestamp(existing_length->GetTimestamp()); 
+  } else {
 
-  FIT_DATE_TIME timestamp_lag = 0;
-  if (existing_length->GetTimestamp() > (existing_length->GetStartTime() +
-        static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime())))
-    timestamp_lag = existing_length->GetTimestamp() - (existing_length->GetStartTime() +
-        static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime()));
+    FIT_DATE_TIME timestamp_lag = 0;
+    if (existing_length->GetTimestamp() > (existing_length->GetStartTime() +
+          static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime())))
+      timestamp_lag = existing_length->GetTimestamp() - (existing_length->GetStartTime() +
+          static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime()));
 
-  LengthSetTimestamp(added_length.get(), existing_length->GetStartTime() +
-      static_cast<FIT_DATE_TIME>(total_timer_time) + timestamp_lag);
+    added_length->SetTimestamp( existing_length->GetStartTime() + 
+        static_cast<FIT_DATE_TIME>(total_timer_time) + timestamp_lag);
+  }
+  
   added_length->SetTotalElapsedTime(total_elapsed_time);
   added_length->SetTotalTimerTime(total_timer_time);
   added_length->SetAvgSpeed(session_->GetPoolLength() / total_timer_time);
@@ -169,39 +171,40 @@ void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*
 
     if (typeid(*mesg) == typeid(fit::LengthMesg)) {
       fit::LengthMesg *length = dynamic_cast<fit::LengthMesg*>(mesg.get());
-      fit::RecordMesg record;
 
-      if (record_local_num_ != FIT_UINT8_INVALID)
+      if (record_local_num_ != FIT_UINT8_INVALID) {
+        fit::RecordMesg record;
         record.SetLocalNum(record_local_num_);
 
-      record.SetTimestamp(length->GetTimestamp());
+        record.SetTimestamp(length->GetTimestamp());
 
-      if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
-        active_length_counter++;
-        record.SetDistance(static_cast<FIT_FLOAT32>(active_length_counter) *
-            session_->GetPoolLength());
-        record.SetSpeed(length->GetAvgSpeed());
-        record.SetCadence(length->GetAvgSwimmingCadence());
-      } else if (length->GetLengthType() == FIT_LENGTH_TYPE_IDLE) {
-        record.SetDistance(static_cast<FIT_FLOAT32>(active_length_counter) *
-            session_->GetPoolLength());
-        record.SetFieldUINT16Value(kRecordAvgSpeedFieldNum, FIT_UINT16_INVALID);
-        record.SetCadence(FIT_UINT8_INVALID);
-      }
-
-      for (std::vector<fit::RecordMesg>::const_reverse_iterator temp_record = temp_data_.rbegin()
-          ; temp_record != temp_data_.rend(); ++temp_record ) {
-
-        if (temp_record->GetTimestamp() <= length->GetTimestamp()) {
-          current_temp = temp_record->GetTemperature();
-          break;
+        if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
+          active_length_counter++;
+          record.SetDistance(static_cast<FIT_FLOAT32>(active_length_counter) *
+              session_->GetPoolLength());
+          record.SetSpeed(length->GetAvgSpeed());
+          record.SetCadence(length->GetAvgSwimmingCadence());
+        } else if (length->GetLengthType() == FIT_LENGTH_TYPE_IDLE) {
+          record.SetDistance(static_cast<FIT_FLOAT32>(active_length_counter) *
+              session_->GetPoolLength());
+          record.SetFieldUINT16Value(kRecordAvgSpeedFieldNum, FIT_UINT16_INVALID);
+          record.SetCadence(FIT_UINT8_INVALID);
         }
+
+        for (std::vector<fit::RecordMesg>::const_reverse_iterator temp_record = temp_data_.rbegin()
+            ; temp_record != temp_data_.rend(); ++temp_record ) {
+
+          if (temp_record->GetTimestamp() <= length->GetTimestamp()) {
+            current_temp = temp_record->GetTemperature();
+            break;
+          }
+        }
+
+        if (current_temp != FIT_SINT8_INVALID)
+          record.SetTemperature(current_temp);
+
+        encode.Write(record);
       }
-
-      if (current_temp != FIT_SINT8_INVALID)
-        record.SetTemperature(current_temp);
-
-      encode.Write(record);
       encode.Write(*length);
     } else {
       encode.Write(*mesg);
