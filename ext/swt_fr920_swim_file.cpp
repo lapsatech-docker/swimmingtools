@@ -70,24 +70,8 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   FIT_FLOAT32 total_elapsed_time = existing_length->GetTotalElapsedTime() / 2;
   FIT_FLOAT32 total_timer_time = existing_length->GetTotalTimerTime() / 2;
   FIT_UINT16 total_strokes = existing_length->GetTotalStrokes();
-  
-  // In latest watches (june 2019 an after) length messages are added to the file when
-  // the user hit the lap/pause button. All length have the same timestamp which is the
-  // same as the timestamp of the lap message.
-  if ((GetLap(length_index))->GetTimestamp() == existing_length->GetTimestamp()) {
-    added_length->SetTimestamp(existing_length->GetTimestamp()); 
-  } else {
 
-    FIT_DATE_TIME timestamp_lag = 0;
-    if (existing_length->GetTimestamp() > (existing_length->GetStartTime() +
-          static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime())))
-      timestamp_lag = existing_length->GetTimestamp() - (existing_length->GetStartTime() +
-          static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime()));
-
-    added_length->SetTimestamp( existing_length->GetStartTime() + 
-        static_cast<FIT_DATE_TIME>(total_timer_time) + timestamp_lag);
-  }
-  
+  SplitSetTimestamp(existing_length, added_length.get());  
   added_length->SetTotalElapsedTime(total_elapsed_time);
   added_length->SetTotalTimerTime(total_timer_time);
   added_length->SetAvgSpeed(session_->GetPoolLength() / total_timer_time);
@@ -95,12 +79,6 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   added_length->SetAvgSwimmingCadence(
       static_cast<FIT_UINT8>(round(60.0 * added_length->GetTotalStrokes() / total_timer_time)));
 
-  for (fit::LengthMesg *length : lengths_) {
-    if (length->GetMessageIndex() >= length_index) {
-      length->SetMessageIndex(static_cast<FIT_MESSAGE_INDEX>
-          (length->GetMessageIndex() + 1));
-    }
-  }
 
   existing_length->SetStartTime(added_length->GetStartTime() +
       static_cast<FIT_DATE_TIME>(added_length->GetTotalTimerTime()));  // second length start when first end
@@ -113,33 +91,48 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   existing_length->SetAvgSwimmingCadence(static_cast<FIT_UINT8>
       (round(60.0 * existing_length->GetTotalStrokes() / total_timer_time)));
 
-  lengths_.insert(lengths_.begin() + length_index, added_length.get());
+  for (fit::LengthMesg *length : lengths_) {
+    if (length->GetMessageIndex() >= length_index) {
+      length->SetMessageIndex(static_cast<FIT_MESSAGE_INDEX>
+          (length->GetMessageIndex() + 1));
+    }
+  }
+
   std::list<std::unique_ptr<fit::Mesg>>::iterator it;
+
+
   it = std::find_if(mesgs_.begin(), mesgs_.end(),
       [existing_length] (const std::unique_ptr<fit::Mesg> &mesg) {
       return mesg.get() == existing_length;});
 
-  fit::LengthMesg * preceding_length = NULL;
-  std::list<std::unique_ptr<fit::Mesg>>::iterator preceding_length_it  = mesgs_.begin();
+  lengths_.insert(lengths_.begin() + length_index, added_length.get());
+  if (existing_length->GetTimestamp() == added_length->GetTimestamp()) {
+    mesgs_.insert(it, move(added_length));
+  } else {
 
-  if (length_index > 0) {
-    preceding_length = lengths_.at(length_index -1);
-    preceding_length_it = std::find_if(mesgs_.begin(), it,
-        [preceding_length] (const std::unique_ptr<fit::Mesg> &mesg) {
-        return mesg.get() == preceding_length;});
+
+    fit::LengthMesg * preceding_length = NULL;
+    std::list<std::unique_ptr<fit::Mesg>>::iterator preceding_length_it  = mesgs_.begin();
+
+    if (length_index > 0) {
+      preceding_length = lengths_.at(length_index -1);
+      preceding_length_it = std::find_if(mesgs_.begin(), it,
+          [preceding_length] (const std::unique_ptr<fit::Mesg> &mesg) {
+          return mesg.get() == preceding_length;});
+    }
+
+    if (added_length->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID)
+      throw std::runtime_error("Fr920 Split, added length timestamp invalid");
+
+
+    while((it != preceding_length_it) &&
+        ((it->get()->GetFieldUINT32Value(kTimestampFieldNum) > added_length->GetTimestamp() &&
+          it->get()->GetFieldUINT32Value(kTimestampFieldNum) != FIT_UINT32_INVALID) ||
+         it->get()->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID))
+      it--;
+
+     mesgs_.insert(++it, move(added_length));
   }
-
-  if (added_length->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID)
-    throw std::runtime_error("Fr920 Split, added length timestamp invalid");
-
-
-  while((it != preceding_length_it) &&
-      ((it->get()->GetFieldUINT32Value(kTimestampFieldNum) > added_length->GetTimestamp() &&
-        it->get()->GetFieldUINT32Value(kTimestampFieldNum) != FIT_UINT32_INVALID) ||
-       it->get()->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID))
-    it--;
-
-  mesgs_.insert(++it, move(added_length));
 
   fit::LapMesg *the_lap = GetLap(length_index);
   the_lap->SetNumLengths(static_cast<FIT_UINT16>(the_lap->GetNumLengths() + 1));
@@ -222,6 +215,20 @@ void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*
   fit_file.close();
 }
 
+
+bool swt::Fr920SwimFile::LengthsInLapHaveSameTimestamp(fit::LapMesg *lap) {
+
+  FIT_MESSAGE_INDEX first_length_index = lap->GetFirstLengthIndex();
+  FIT_MESSAGE_INDEX last_length_index = first_length_index + lap->GetNumLengths() - 1;
+  FIT_DATE_TIME timestamp = lengths_.at(first_length_index)->GetTimestamp();
+
+  for(unsigned int index = first_length_index; index <= last_length_index; index++) {
+    if (lengths_.at(index)->GetTimestamp() != timestamp)
+      return false;
+  }
+  return true;
+
+}
 
 // The first_length_index field of lap message is corrupted in some files.
 // The field is used by the code to associate lengths to their corresponding
@@ -547,4 +554,28 @@ void swt::Fr920SwimFile::UpdateSession() {
   session_->SetTotalCalories(total_calories);
   session_->SetTotalDistance(total_distance);
 }
+
+void swt::Fr920SwimFile::SplitSetTimestamp(fit::LengthMesg *existing_length, fit::LengthMesg *added_length) {
+  fit::LapMesg *lap = GetLap(existing_length->GetMessageIndex());
+
+  if (!LengthsInLapHaveSameTimestamp(lap)) {
+    // In latest watches (june 2019 an after) length messages are added to the file when
+    // the user hit the lap/pause button. All length have the same timestamp which is the
+    // same as the timestamp of the lap message.
+
+    FIT_DATE_TIME timestamp_lag = 0;
+    if (existing_length->GetTimestamp() > (existing_length->GetStartTime() +
+          static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime())))
+      timestamp_lag = existing_length->GetTimestamp() - (existing_length->GetStartTime() +
+          static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime()));
+
+
+    FIT_FLOAT32 total_timer_time = existing_length->GetTotalTimerTime() / 2;
+    
+    added_length->SetTimestamp( existing_length->GetStartTime() + 
+        static_cast<FIT_DATE_TIME>(total_timer_time) + timestamp_lag);
+
+  }
+}
+
 
