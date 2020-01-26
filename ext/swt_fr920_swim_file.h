@@ -18,12 +18,19 @@ namespace swt
     private:
       static const FIT_UINT8 kLapAvgStrokeCountFieldNnum = 90;
       static const FIT_UINT8 kLapAvgStrokeDistanceFieldNum = 37;
-      static const FIT_UINT8 kLapMaxSpeedFieldNum = 14;
+      static const FIT_UINT8 kLapAvgSpeedFieldNum = 14;
+      static const FIT_UINT8 kLapEnhancedAvgSpeedFieldNum = 124;
+      static const FIT_UINT8 kLapMaxSpeedFieldNum = 15;
+      static const FIT_UINT8 kLapEnhancedMaxSpeedFieldNum = 125;
       static const FIT_UINT8 kLapMovingTimeFieldNnum = 70;
       static const FIT_UINT8 kLapSwolfFieldNum = 73;
       static const FIT_UINT8 kLengthAvgSpeedFieldNum = 6;
       static const FIT_UINT8 kRecordAvgSpeedFieldNum = 6;
       static const FIT_UINT8 kRecordTemperatureFieldNum = 13;
+      static const FIT_UINT8 kSessionAvgSpeedFieldNum = 14;
+      static const FIT_UINT8 kSessionEnhancedAvgSpeedFieldNum = 124;
+      static const FIT_UINT8 kSessionMaxSpeedFieldNum = 15;
+      static const FIT_UINT8 kSessionEnhancedMaxSpeedFieldNum = 125 ;
       static const FIT_UINT8 kSessionAvgStrokeCountFieldNum = 79;
       static const FIT_UINT8 kSessionMovingTimeFieldNum = 78;
       static const FIT_UINT8 kSessionNumLengthsInActiveLapsFieldNum = 33;

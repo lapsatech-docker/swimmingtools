@@ -438,10 +438,12 @@ void swt::Fr920SwimFile::UpdateLap(fit::LapMesg *lap) {
     lap->SetSwimStroke(FIT_SWIM_STROKE_INVALID);
 
     lap->SetAvgCadence(0);
-    lap->SetAvgSpeed(0);
+    if (lap->HasField(kLapAvgSpeedFieldNum))  lap->SetAvgSpeed(0);
+    if (lap->HasField(kLapEnhancedAvgSpeedFieldNum)) lap->SetEnhancedAvgSpeed(0);
     LapSetAvgStrokeCount(lap, 0);
     lap->SetAvgStrokeDistance(0);
-    lap->SetMaxSpeed(0);
+    if (lap->HasField(kLapMaxSpeedFieldNum)) lap->SetMaxSpeed(0);
+    if (lap->HasField(kLapEnhancedMaxSpeedFieldNum)) lap->SetEnhancedMaxSpeed(0);
     LapSetSwolf(lap, 0);
     lap->SetTotalCalories(0);
     lap->SetTotalDistance(0);
@@ -458,12 +460,14 @@ void swt::Fr920SwimFile::UpdateLap(fit::LapMesg *lap) {
 
       lap->SetAvgCadence(static_cast<FIT_UINT8>
           (round(static_cast<FIT_FLOAT32>(total_cycles) / moving_time * 60)));
-      lap->SetAvgSpeed(total_distance / moving_time);
+      if (lap->HasField(kLapAvgSpeedFieldNum)) lap->SetAvgSpeed(total_distance / moving_time);
+      if (lap->HasField(kLapEnhancedAvgSpeedFieldNum)) lap->SetEnhancedAvgSpeed(total_distance / moving_time);
       FIT_FLOAT32 avg_stroke_count = static_cast<FIT_FLOAT32>(total_cycles) /
         num_active_lengths;
       LapSetAvgStrokeCount(lap, avg_stroke_count);
       lap->SetAvgStrokeDistance(total_distance / static_cast<FIT_FLOAT32>(total_cycles));
-      lap->SetMaxSpeed(max_speed);
+      if (lap->HasField(kLapMaxSpeedFieldNum)) lap->SetMaxSpeed(max_speed);
+      if (lap->HasField(kLapEnhancedMaxSpeedFieldNum)) lap->SetEnhancedMaxSpeed(max_speed);
       FIT_FLOAT32 avg_time_per_length = moving_time / num_active_lengths;
       LapSetSwolf(lap, static_cast<FIT_UINT16>(round(avg_stroke_count + avg_time_per_length)));
       lap->SetTotalCalories(total_calories);
@@ -543,12 +547,14 @@ void swt::Fr920SwimFile::UpdateSession() {
   session_->SetAvgCadence(static_cast<FIT_UINT8>
       (round(static_cast<FIT_FLOAT32>(total_cycles) /
              moving_time_without_drills * 60)));
-  session_->SetAvgSpeed(total_distance_without_drills / moving_time_without_drills);
+  if (session_->HasField(kSessionAvgSpeedFieldNum)) session_->SetAvgSpeed(total_distance_without_drills / moving_time_without_drills);
+  if (session_->HasField(kSessionEnhancedAvgSpeedFieldNum)) session_->SetEnhancedAvgSpeed(total_distance_without_drills / moving_time_without_drills);
   FIT_FLOAT32 avg_stroke_count = static_cast<FIT_FLOAT32>(total_cycles) /
     static_cast<FIT_FLOAT32>(num_active_lengths_without_drills);
   SessionSetAvgStrokeCount(avg_stroke_count);
   session_->SetAvgStrokeDistance(total_distance_without_drills / static_cast<FIT_FLOAT32>(total_cycles));
-  session_->SetMaxSpeed(max_speed);
+  if (session_->HasField(kSessionMaxSpeedFieldNum)) session_->SetMaxSpeed(max_speed);
+  if (session_->HasField(kSessionEnhancedMaxSpeedFieldNum))  session_->SetEnhancedMaxSpeed(max_speed);
   FIT_FLOAT32 avgTimePerLength = moving_time_without_drills / num_active_lengths_without_drills;
   SessionSetSwolf(static_cast<FIT_UINT16>(round(avg_stroke_count + avgTimePerLength)));
   session_->SetTotalCalories(total_calories);
