@@ -171,7 +171,7 @@ NOWDOC;
   $num_lengths = count($activity->lengths);
   foreach($activity->lengths as $index => $length) {
     $lap_num_lengths++;
-    $lap_moving_time += $length['time'];
+    $lap_moving_time += round($length['time'],1);
     $lap_stroke_count += $length['stroke_count'];
     if ($lap_stroke == swt\STROKE_UNKNOWN) {
       $lap_stroke = $length['stroke'];

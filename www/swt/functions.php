@@ -26,6 +26,7 @@ class Functions {
 
   public static function formatTime($time_in_seconds, $show_fraction_second = FALSE)
   {
+    $time_in_seconds = round($time_in_seconds, 1);
     $deciseconds = ($time_in_seconds - floor($time_in_seconds)) * 10;
     $seconds = (int) floor($time_in_seconds);
     $minutes = (int) ($seconds / 60);
