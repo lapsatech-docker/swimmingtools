@@ -14,7 +14,7 @@ namespace swt
       void Pause(FIT_FLOAT32 time, FIT_UINT16 calories);
       void CloseNewFile();
       void Delete(FIT_MESSAGE_INDEX length_index);
-      void Save(const std::string &filename, bool convert=false) const;
+      void Save(const std::string &filename, bool convert=false);
 
     private:
       static const FIT_UINT8 kLapAvgStrokeCountFieldNum = 72;

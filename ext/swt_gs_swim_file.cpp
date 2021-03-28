@@ -294,7 +294,7 @@ void swt::GarminSwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
   UpdateSession();
 }
 
-void swt::GarminSwimFile::Save(const std::string &filename, bool convert/*=false*/) const {
+void swt::GarminSwimFile::Save(const std::string &filename, bool convert/*=false*/) {
   unsigned int active_length_counter = 0;
   fit::Encode encode(fit_protocol_version_);
   std::fstream fit_file(filename, 

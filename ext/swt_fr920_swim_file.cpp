@@ -7,7 +7,6 @@
 #include "swt_fr920_swim_file.h"
 
 swt::Fr920SwimFile::Fr920SwimFile()
-:last_temp_(FIT_SINT8_INVALID)
 {}
 
 
@@ -15,23 +14,12 @@ void swt::Fr920SwimFile::AddMesg(const void *mesg) {
 
   const fit::Mesg *fit_mesg = reinterpret_cast<const fit::Mesg*>(mesg);
 
-  if (fit_mesg->GetNum() == FIT_MESG_NUM_RECORD) {
-    std::unique_ptr<fit::RecordMesg> record(new fit::RecordMesg(*fit_mesg));
-
-    if (record->IsDistanceValid()) {
-      record_local_num_ = record->GetLocalNum();
-      if (record->IsTemperatureValid() &&
-          record->IsTimestampValid() &&
-          record->GetTemperature() != last_temp_ ) {
-        last_temp_ = record->GetTemperature();
-        temp_data_.push_back(*record);
-      }
-    } else {
-      mesgs_.push_back(move(record));
-    }
-  } else {
-    SwimFile::AddMesg(mesg);
-  }   
+   if (fit_mesg->GetNum() == FIT_MESG_NUM_RECORD) {
+     std::unique_ptr<fit::RecordMesg> record(new fit::RecordMesg(*fit_mesg));
+     mesgs_.push_back(move(record));
+   } else {
+     SwimFile::AddMesg(mesg);
+   }   
 }
 
 void swt::Fr920SwimFile::Delete(FIT_MESSAGE_INDEX length_index) {
@@ -71,7 +59,6 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   FIT_FLOAT32 total_timer_time = existing_length->GetTotalTimerTime() / 2;
   FIT_UINT16 total_strokes = existing_length->GetTotalStrokes();
 
-  SplitSetTimestamp(existing_length, added_length.get());  
   added_length->SetTotalElapsedTime(total_elapsed_time);
   added_length->SetTotalTimerTime(total_timer_time);
   added_length->SetAvgSpeed(session_->GetPoolLength() / total_timer_time);
@@ -106,33 +93,7 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
       return mesg.get() == existing_length;});
 
   lengths_.insert(lengths_.begin() + length_index, added_length.get());
-  if (existing_length->GetTimestamp() == added_length->GetTimestamp()) {
-    mesgs_.insert(it, move(added_length));
-  } else {
-
-
-    fit::LengthMesg * preceding_length = NULL;
-    std::list<std::unique_ptr<fit::Mesg>>::iterator preceding_length_it  = mesgs_.begin();
-
-    if (length_index > 0) {
-      preceding_length = lengths_.at(length_index -1);
-      preceding_length_it = std::find_if(mesgs_.begin(), it,
-          [preceding_length] (const std::unique_ptr<fit::Mesg> &mesg) {
-          return mesg.get() == preceding_length;});
-    }
-
-    if (added_length->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID)
-      throw std::runtime_error("Fr920 Split, added length timestamp invalid");
-
-
-    while((it != preceding_length_it) &&
-        ((it->get()->GetFieldUINT32Value(kTimestampFieldNum) > added_length->GetTimestamp() &&
-          it->get()->GetFieldUINT32Value(kTimestampFieldNum) != FIT_UINT32_INVALID) ||
-         it->get()->GetFieldUINT32Value(kTimestampFieldNum) == FIT_UINT32_INVALID))
-      it--;
-
-     mesgs_.insert(++it, move(added_length));
-  }
+  mesgs_.insert(it, move(added_length));
 
   fit::LapMesg *the_lap = GetLap(length_index);
   the_lap->SetNumLengths(static_cast<FIT_UINT16>(the_lap->GetNumLengths() + 1));
@@ -147,8 +108,10 @@ void swt::Fr920SwimFile::Split(FIT_MESSAGE_INDEX length_index) {
   UpdateSession();
 }
 
-void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*/) const {
-  unsigned int active_length_counter = 0;
+void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*/) {
+
+  UpdateRecords();
+
   fit::Encode encode(fit_protocol_version_);
   std::fstream fit_file(filename,
       std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
@@ -158,52 +121,9 @@ void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*
 
   encode.Open(fit_file);
 
-  FIT_SINT8 current_temp = FIT_SINT8_INVALID;
-
   for (const std::unique_ptr<fit::Mesg> &mesg : mesgs_) {
-
-    if (typeid(*mesg) == typeid(fit::LengthMesg)) {
-      fit::LengthMesg *length = dynamic_cast<fit::LengthMesg*>(mesg.get());
-
-      if (record_local_num_ != FIT_UINT8_INVALID) {
-        fit::RecordMesg record;
-        record.SetLocalNum(record_local_num_);
-
-        record.SetTimestamp(length->GetTimestamp());
-
-        if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
-          active_length_counter++;
-          record.SetDistance(static_cast<FIT_FLOAT32>(active_length_counter) *
-              session_->GetPoolLength());
-          record.SetSpeed(length->GetAvgSpeed());
-          record.SetCadence(length->GetAvgSwimmingCadence());
-        } else if (length->GetLengthType() == FIT_LENGTH_TYPE_IDLE) {
-          record.SetDistance(static_cast<FIT_FLOAT32>(active_length_counter) *
-              session_->GetPoolLength());
-          record.SetFieldUINT16Value(kRecordAvgSpeedFieldNum, FIT_UINT16_INVALID);
-          record.SetCadence(FIT_UINT8_INVALID);
-        }
-
-        for (std::vector<fit::RecordMesg>::const_reverse_iterator temp_record = temp_data_.rbegin()
-            ; temp_record != temp_data_.rend(); ++temp_record ) {
-
-          if (temp_record->GetTimestamp() <= length->GetTimestamp()) {
-            current_temp = temp_record->GetTemperature();
-            break;
-          }
-        }
-
-        if (current_temp != FIT_SINT8_INVALID)
-          record.SetTemperature(current_temp);
-
-        encode.Write(record);
-      }
-      encode.Write(*length);
-    } else {
-      encode.Write(*mesg);
-    }
+    encode.Write(*mesg);
   }
-
 
   if (!encode.Close())
     throw std::runtime_error("Error writing file");
@@ -213,21 +133,6 @@ void swt::Fr920SwimFile::Save(const std::string &filename, bool convert/*=false*
   }
 
   fit_file.close();
-}
-
-
-bool swt::Fr920SwimFile::LengthsInLapHaveSameTimestamp(fit::LapMesg *lap) {
-
-  FIT_MESSAGE_INDEX first_length_index = lap->GetFirstLengthIndex();
-  FIT_MESSAGE_INDEX last_length_index = first_length_index + lap->GetNumLengths() - 1;
-  FIT_DATE_TIME timestamp = lengths_.at(first_length_index)->GetTimestamp();
-
-  for(unsigned int index = first_length_index; index <= last_length_index; index++) {
-    if (lengths_.at(index)->GetTimestamp() != timestamp)
-      return false;
-  }
-  return true;
-
 }
 
 // The first_length_index field of lap message is corrupted in some files.
@@ -561,27 +466,48 @@ void swt::Fr920SwimFile::UpdateSession() {
   session_->SetTotalDistance(total_distance);
 }
 
-void swt::Fr920SwimFile::SplitSetTimestamp(fit::LengthMesg *existing_length, fit::LengthMesg *added_length) {
-  fit::LapMesg *lap = GetLap(existing_length->GetMessageIndex());
+void swt::Fr920SwimFile::UpdateRecords() {
 
-  if (!LengthsInLapHaveSameTimestamp(lap)) {
-    // In latest watches (june 2019 an after) length messages are added to the file when
-    // the user hit the lap/pause button. All length have the same timestamp which is the
-    // same as the timestamp of the lap message.
+  auto length = lengths_.begin();
+  auto first_length = lengths_.begin();
+  FIT_FLOAT32 distance = 0;
+  FIT_FLOAT32 pool_length = session_->GetPoolLength();
 
-    FIT_DATE_TIME timestamp_lag = 0;
-    if (existing_length->GetTimestamp() > (existing_length->GetStartTime() +
-          static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime())))
-      timestamp_lag = existing_length->GetTimestamp() - (existing_length->GetStartTime() +
-          static_cast<FIT_DATE_TIME>(existing_length->GetTotalTimerTime()));
+  for (const std::unique_ptr<fit::Mesg> &mesg : mesgs_) {
+    if (typeid(*mesg) == typeid(fit::RecordMesg)) {
+      fit::RecordMesg *record = dynamic_cast<fit::RecordMesg*>(mesg.get());
 
+      if (record->IsDistanceValid()) {
 
-    FIT_FLOAT32 total_timer_time = existing_length->GetTotalTimerTime() / 2;
-    
-    added_length->SetTimestamp( existing_length->GetStartTime() + 
-        static_cast<FIT_DATE_TIME>(total_timer_time) + timestamp_lag);
+        if (record->GetTimestamp() < 
+            ((*first_length)->GetStartTime() + static_cast<FIT_DATE_TIME>((*first_length)->GetTotalTimerTime()))) {
+          record->SetDistance(0);
+          record->SetFieldUINT16Value(kRecordAvgSpeedFieldNum, FIT_UINT16_INVALID);
+          record->SetCadence(FIT_UINT8_INVALID);
+        } else {
+          while (length != lengths_.end()) {
 
+            if (record->GetTimestamp() >= ((*length)->GetStartTime() + static_cast<FIT_DATE_TIME>((*length)->GetTotalTimerTime()))) {
+
+              if ((*length)->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE)
+                distance += pool_length;
+
+              length++;
+            } else {
+              break;
+            } 
+          }   
+          if ((*(length -1))->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
+            record->SetDistance(distance);
+            record->SetSpeed((*(length-1))->GetAvgSpeed());
+            record->SetCadence((*(length-1))->GetAvgSwimmingCadence());
+          } else {
+            record->SetDistance(distance);
+            record->SetFieldUINT16Value(kRecordAvgSpeedFieldNum, FIT_UINT16_INVALID);
+            record->SetCadence(FIT_UINT8_INVALID);
+          }
+        }
+      }
+    }
   }
 }
-
-

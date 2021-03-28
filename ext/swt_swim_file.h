@@ -52,7 +52,7 @@ namespace swt
       void LoadHrData(std::istream& istream);
       virtual void Merge(FIT_MESSAGE_INDEX length_index);
       void Recalculate();
-      virtual void Save(const std::string &filename, bool convert=false) const = 0;
+      virtual void Save(const std::string &filename, bool convert=false) = 0;
       void SetFitProtocolVersion (fit::ProtocolVersion protocol_version);
       virtual void Split(FIT_MESSAGE_INDEX length_index);
 

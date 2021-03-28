@@ -17,7 +17,7 @@ namespace swt
 
       FIT_UINT16 GetProduct() const {return kTomtom;}
       void Merge(FIT_MESSAGE_INDEX length_index);
-      void Save(const std::string &filename, bool convert=false) const;
+      void Save(const std::string &filename, bool convert=false);
 
     private:
       const FIT_UINT16 kTomtom = 5;

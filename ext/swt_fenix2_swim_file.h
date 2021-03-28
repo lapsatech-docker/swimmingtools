@@ -14,7 +14,7 @@ namespace swt
       void Delete(FIT_MESSAGE_INDEX length_index);
       void RepairLapNumLengths();
       void RepairPoolLength();
-      void Save(const std::string &filename, bool convert=false) const;
+      void Save(const std::string &filename, bool convert=false) ;
 
     private:
       static const FIT_UINT8 kLapSwolfFieldNum = 73;

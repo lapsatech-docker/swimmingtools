@@ -87,7 +87,7 @@ void swt::Fenix2SwimFile::RepairPoolLength() {
   }
 }
 
-void swt::Fenix2SwimFile::Save(const std::string &filename, bool convert/*=false*/) const {
+void swt::Fenix2SwimFile::Save(const std::string &filename, bool convert/*=false*/) {
   unsigned short active_length_counter = 0;
   FIT_FLOAT32 pool_length = session_->GetPoolLength();
 

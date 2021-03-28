@@ -234,7 +234,7 @@ void swt::TomtomSwimFile::Merge(FIT_MESSAGE_INDEX length_index) {
   UpdateSession();
 }
 
-void swt::TomtomSwimFile::Save(const std::string &filename, bool convert/*=false*/) const {
+void swt::TomtomSwimFile::Save(const std::string &filename, bool convert/*=false*/) {
 
   if (convert) {
     GarminSwimFile gs;
