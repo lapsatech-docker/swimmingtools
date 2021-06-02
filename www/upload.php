@@ -51,7 +51,7 @@ try {
     $error = $_FILES['fitFile']['name'];
 
   $error .= ': '.$ex->getMessage();
-} catch (Exception $ex) {
+} catch (Throwable $ex) {
   swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
 
   $error = 'Unexpected error has been logged, try again or '
