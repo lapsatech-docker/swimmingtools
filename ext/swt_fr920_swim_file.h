@@ -19,9 +19,9 @@ namespace swt
       static const FIT_UINT8 kLapAvgStrokeCountFieldNnum = 90;
       static const FIT_UINT8 kLapAvgStrokeDistanceFieldNum = 37;
       static const FIT_UINT8 kLapAvgSpeedFieldNum = 14;
-      static const FIT_UINT8 kLapEnhancedAvgSpeedFieldNum = 124;
+      static const FIT_UINT8 kLapEnhancedAvgSpeedFieldNum = 110;
       static const FIT_UINT8 kLapMaxSpeedFieldNum = 15;
-      static const FIT_UINT8 kLapEnhancedMaxSpeedFieldNum = 125;
+      static const FIT_UINT8 kLapEnhancedMaxSpeedFieldNum = 111;
       static const FIT_UINT8 kLapMovingTimeFieldNnum = 70;
       static const FIT_UINT8 kLapSwolfFieldNum = 73;
       static const FIT_UINT8 kLengthAvgSpeedFieldNum = 6;
