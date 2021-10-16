@@ -64,9 +64,7 @@ class DB {
 
   public static function convertFileIdToPath($file_id)
   {
-    $sub_dir = $file_id % 1000;
-    $sub_dir = sprintf('%03d', $sub_dir);
-    return 'data'.DIRECTORY_SEPARATOR.$sub_dir.DIRECTORY_SEPARATOR.$file_id;
+    return 'data'.DIRECTORY_SEPARATOR.$file_id;
   }
 
   public static function createFileFromUpload($upload)
