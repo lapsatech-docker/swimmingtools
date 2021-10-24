@@ -17,8 +17,9 @@ class DB {
   public static function getConnection()
   {
     if (!isset(self::$dbh)) {
-      self::$dbh = new \PDO('mysql:host=localhost;dbname=swtdb', 'apache', 'b1ozvc30');
+      self::$dbh = new \PDO('sqlite:data/swt.sqlite3', '', '');
       self::$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+      self::$dbh->exec( 'PRAGMA foreign_keys = ON;' );
     }
     return self::$dbh;
   }
@@ -49,16 +50,12 @@ class DB {
     }
   }
 
-  public static function addFile($filename, $uploaded = NULL)
+  public static function addFile($filename)
   {
     $dbh = self::getConnection();
-    $sql = 'INSERT INTO files (name, uploaded) VALUES (?,?)';
+    $sql = 'INSERT INTO files (name) VALUES (?)';
     $sth = $dbh->prepare($sql);
-    if (is_null($uploaded)) {
-      $sth->execute([$filename, NULL]);
-    } else {
-      $sth->execute([$filename, date('Y-m-d H:i:s', $uploaded)]);
-    }
+    $sth->execute([$filename]);
     return $dbh->lastInsertId();
   }
 
