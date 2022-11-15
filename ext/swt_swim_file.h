@@ -36,7 +36,7 @@ namespace swt
       virtual bool CanMerge(FIT_MESSAGE_INDEX length_index, std::string *error) const;
       bool CanSplitChangeStrokeDelete(FIT_MESSAGE_INDEX length_index,std::string *error) const;
       void ChangeStroke(FIT_MESSAGE_INDEX length_index, FIT_SWIM_STROKE stroke, ChangeStrokeOption option);
-      void ChangePoolSize(FIT_FLOAT32 new_size_metric, FIT_DISPLAY_MEASURE display_measure); 
+      virtual void ChangePoolSize(FIT_FLOAT32 new_size_metric, FIT_DISPLAY_MEASURE display_measure);
       virtual void Delete(FIT_MESSAGE_INDEX length_index) = 0;
       virtual FIT_UINT16 GetProduct() const;
       float GetSoftwareVersion() const {return software_version_;}

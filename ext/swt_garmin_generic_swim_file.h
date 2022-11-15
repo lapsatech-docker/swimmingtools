@@ -8,8 +8,12 @@ namespace swt
   {
     public:
       GarminGenericSwimFile();
+      void Merge(FIT_MESSAGE_INDEX length_index);
+      void ChangePoolSize(FIT_FLOAT32 new_size_metric, FIT_DISPLAY_MEASURE display_measure);
+
 
     private:
+      void DeletePersonalRecords();
       void UpdateLap(fit::LapMesg *lap);
       void UpdateSession();
   };
