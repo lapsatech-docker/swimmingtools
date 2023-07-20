@@ -54,6 +54,14 @@ std::unique_ptr<swt::SwimFile> swt::ProductReader::Read(std::istream &istream)
     throw FileNotValidException("File is not an activity file");
   }
 
+  if (manufacturer_ != FIT_MANUFACTURER_GARMIN && 
+      manufacturer_ != FIT_MANUFACTURER_TOMTOM) {
+    std::string message = "This Device is not supported. See list of supported devices above ("
+      + std::to_string(manufacturer_) + "/" 
+      + std::to_string(product_) + ")";
+    throw FileNotValidException(message);
+  }
+
   FIT_UINT16 numSessions = activity_->GetNumSessions();
   if (numSessions != FIT_UINT16_INVALID && numSessions > 1)
     throw FileNotValidException("Multi sport Files are not supported");
