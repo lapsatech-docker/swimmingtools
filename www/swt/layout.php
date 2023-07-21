@@ -58,6 +58,21 @@ class Layout {
       </div>
     </div>
     <div class="content">
+      <div style="color: #D8000C;background-color: #FFBABA" class="section">
+        <h2 style="color:black;background:red">
+        Swimmingwatchtools will close on August 31, 2023
+      </h2>
+      <p> This tool is 10 years old. Although
+      it still performs well and still does what it was intended to, it is becoming increasingly
+      hard to maintain and is due for a complete rewrite. Unfortunately, I don't have time and don't have the
+      interest to maintain, support and upgrade it anymore. So I will be pulling the plug at the end of this
+      summer. For those that might be interested I'm leaving a link to the 
+      <a href="https://bitbucket.org/swimmingwatchtools/phpeditor">source code</a>. If you want
+      to take charge, and get the domain name, leave me a message through the <a href="contact">contact</a> form. Finally,
+      I want to thank all of you who have used the tool, and submitted one of the 275000 files.
+      Have a great summer and keep swimming.
+      </p> 
+    </div>
 <?php 
   }
 
