@@ -306,14 +306,15 @@ bool swt::SwimFile::IsValid(std::string *error) const {
 
   for (fit::LengthMesg *length : lengths_)
   {
-    if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE) {
+    if (length->GetLengthType() == FIT_LENGTH_TYPE_ACTIVE &&
+        length->GetSwimStroke() != FIT_SWIM_STROKE_DRILL) {
       hasActiveLength = true;
       break;
     }
   }
 
   if (!hasActiveLength)
-    *error = "File is empty (no lengths)";
+    *error = "File is empty (no lengths) or has only drills";
   else if (lengths_.size() != (lengths_.at(lengths_.size()-1)->GetMessageIndex() + 1))
     *error = "File failed Validation";
 
