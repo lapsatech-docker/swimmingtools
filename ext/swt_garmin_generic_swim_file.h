@@ -14,8 +14,6 @@ namespace swt
 
     private:
       void DeletePersonalRecords();
-      void UpdateLap(fit::LapMesg *lap);
-      void UpdateSession();
   };
 }
 #endif

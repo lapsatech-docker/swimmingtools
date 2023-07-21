@@ -302,7 +302,6 @@ void swt::Fr920SwimFile::UpdateLap(fit::LapMesg *lap) {
 
   FIT_FLOAT32 max_speed = 0;
   FIT_FLOAT32 total_distance = 0;
-  FIT_UINT16 total_calories = 0;
 
   FIT_UINT16 first_length_index = lap->GetFirstLengthIndex();
   FIT_UINT16 last_length_index = static_cast<FIT_UINT16>(lap->GetFirstLengthIndex() +
@@ -323,11 +322,6 @@ void swt::Fr920SwimFile::UpdateLap(fit::LapMesg *lap) {
         if (swim_stroke != length->GetSwimStroke())
           swim_stroke = FIT_SWIM_STROKE_MIXED;
       }
-      // Prior to version 2.50, calories were cumulative
-      if (software_version_ >= 250)
-        total_calories = static_cast<FIT_UINT16>(total_calories + length->GetTotalCalories());
-      else
-        total_calories = length->GetTotalCalories();
 
       if (length->GetAvgSpeed() != FIT_FLOAT32_INVALID &&
           max_speed < length->GetAvgSpeed()) {
@@ -375,7 +369,6 @@ void swt::Fr920SwimFile::UpdateLap(fit::LapMesg *lap) {
       if (lap->HasField(kLapEnhancedMaxSpeedFieldNum)) lap->SetEnhancedMaxSpeed(max_speed);
       FIT_FLOAT32 avg_time_per_length = moving_time / num_active_lengths;
       LapSetSwolf(lap, static_cast<FIT_UINT16>(round(avg_stroke_count + avg_time_per_length)));
-      lap->SetTotalCalories(total_calories);
     }
   }
 }
@@ -395,7 +388,6 @@ void swt::Fr920SwimFile::UpdateSession() {
   FIT_SWIM_STROKE swim_stroke = FIT_SWIM_STROKE_INVALID;
 
   FIT_FLOAT32 max_speed = 0;
-  FIT_UINT16 total_calories = 0;
   FIT_FLOAT32 total_distance = 0;
   FIT_FLOAT32 total_distance_without_drills = 0;
 
@@ -430,10 +422,6 @@ void swt::Fr920SwimFile::UpdateSession() {
   for (fit::LapMesg *lap: laps_) {
     if (lap->GetNumActiveLengths() > 0) {
       num_lengths_in_active_laps += lap->GetNumLengths();
-
-      if (lap->GetTotalCalories() != FIT_UINT16_INVALID)
-        total_calories = static_cast<FIT_UINT16>(total_calories + lap->GetTotalCalories());
-
     }
   }
 
@@ -462,7 +450,6 @@ void swt::Fr920SwimFile::UpdateSession() {
   if (session_->HasField(kSessionEnhancedMaxSpeedFieldNum))  session_->SetEnhancedMaxSpeed(max_speed);
   FIT_FLOAT32 avgTimePerLength = moving_time_without_drills / num_active_lengths_without_drills;
   SessionSetSwolf(static_cast<FIT_UINT16>(round(avg_stroke_count + avgTimePerLength)));
-  session_->SetTotalCalories(total_calories);
   session_->SetTotalDistance(total_distance);
 }
 
