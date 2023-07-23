@@ -45,12 +45,14 @@ try {
       }
 
       $mail = new PHPMailer();
+      $mail->CharSet = 'utf-8';
       $mail->From = 'contact-forms@swimmingwatchtools.com';
       $mail->FromName = 'Contact Form';
-      $mail->addAddress('swimmingwatchtools@gmail.com');
+      // put email address you want messages to be sent
+      $mail->addAddress('');
       $mail->addReplyTo($email);
       $mail->isHTML(true);
-      $mail->Subject = 'Contact Form - Swimming Watch Data Editor';
+      $mail->Subject = 'Swimmingwatchtools.com - Contact Form';
       $mail->Body = $body;
 
       if ($mail->send()) {
@@ -84,20 +86,7 @@ case OUTPUT_FORM:
   <h2>
     Problems with the site, suggestions, comments? Your messages are welcomed
   </h2>
-  <p>Hi, I'm Stephane, I'm a Garmin Swim User and programmer of this 
-  application. I live in Montreal, Quebec, Canada. I like to run, bike and
-  swim...for fun. I'm also a fan of sport devices. I bought a Garmin swim 
-  because I was frustrated with my swimming and wanted to improve. The 
-  Garmin Swim is great because it allows me to tell if I am improving or 
-  not. It gives me the metrics I need. Although, it has been pretty accurate,
-  sometimes I would swim in a crowded lane, and would have to slow down and
-  switch to breaststroke, while looking for an opportunity to pass. As a 
-  result, I would get an extra length added to my session, which would have
-  an effect on my average and maximum speed. As I read the support forums on
-  the Garmin web site, I would see others users wishing they could edit 
-  their data on Garmin Connect. To this day, Garmin has not provided this 
-  feature. So I decided to give it a try, and this application is the result. 
-  Bug reports, suggestions, and nice comments are welcomed.</p>
+  <p>Put some text here</p>
   <form action="contact" method="post">
     <p>Email: 
       <?php if (!empty($email_error)) echo '<span class="warning">'.$email_error.'</span>';?>
