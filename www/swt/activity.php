@@ -1,6 +1,7 @@
 <?php
 namespace swt;
 
+#[\AllowDynamicProperties]
 class Activity
 {
   const SEARCHING = 0;

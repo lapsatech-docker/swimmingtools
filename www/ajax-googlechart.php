@@ -167,7 +167,7 @@ HEREDOC;
 
   $time  = new DateTime();
   $time->setTimezone(new DateTimeZone('UTC'));
-  $time->setTimestamp($moving_time);
+  $time->setTimestamp(round($moving_time));
   if ($time->format('H') > 0)
     $time = $time->format('G:i:s');
   else
@@ -175,7 +175,7 @@ HEREDOC;
 
   $pace = new DateTime();
   $pace->setTimezone(new DateTimeZone('UTC'));
-  $pace->setTimestamp(100 * $avg_time_per_length / $pool_size);
+  $pace->setTimestamp(round(100 * $avg_time_per_length / $pool_size));
   $pace = intval($pace->format('i')).':'.$pace->format('s');
 
   $avg_strokes_per_length = ($stroke_count / $num_active_lengths_without_drills);
