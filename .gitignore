@@ -1,15 +1,1 @@
-/backup/
-/doc/
-/ext/*
-!/ext/swt*
-!/ext/fit*
-!/ext/config.m4
-/ext/*lo
-/ext/*la
-/fit_files/*
-!fit_files/test
-fit_files/test/output
-/www/data/
-*.swp
-tags
-Result
+.*
