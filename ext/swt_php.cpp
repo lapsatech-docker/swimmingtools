@@ -112,7 +112,7 @@ PHP_METHOD(swt_SwimFile, changePoolSize) {
   try {
     swim_file->ChangePoolSize(new_size_metric, display_measure);
   } catch (std::exception &ex) {
-    zend_throw_exception(zend_exception_get_default(TSRMLS_C), ex.what(), 0);
+    zend_throw_exception(zend_exception_get_default(TSRM_H), ex.what(), 0);
   }
 }
 
