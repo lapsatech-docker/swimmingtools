@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Release.Name }}-http
+  labels:
+    app: {{ $.Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $.Release.Name }}
+      podServe: http
+  template:
+    metadata:
+      labels:
+        app: {{ $.Release.Name }}
+        podServe: http
+    spec:
+      containers:
+      - name: nginx
+        image:  docker.io/lapsatech/swimmingtools-nginx:{{ include "func.string.imageTag" $ }}
+        imagePullPolicy: Always
+        env:
+        - name: NGINX_SERVER_NAME
+          value: {{ include "func.string.appHost" $ | quote }}
+        - name: NGINX_LISTEN
+          value: {{ include "func.string.nginxPort" $ | quote }}
+        - name: NGINX_PHP_ADDR
+          value: "127.0.0.1:{{- include "func.string.phpPort" $ -}}"
+        ports:
+        - name: http
+          containerPort: {{ include "func.string.nginxPort" $ }}
+          protocol: TCP
+      - name: php
+        image: docker.io/lapsatech/swimmingtools-php-fpm:{{ include "func.string.imageTag" $ }}
+        imagePullPolicy: Always
+        ports:
+        - name: php
+          containerPort: {{ include "func.string.phpPort" $ }}
+          protocol: TCP

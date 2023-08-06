@@ -1,0 +1,12 @@
+app:
+   host: localhost
+   port: 80
+
+nginx:
+  port: 8080
+
+php:
+  port: 9000 
+
+image:
+  tag: latest
