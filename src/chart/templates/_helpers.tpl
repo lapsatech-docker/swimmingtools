@@ -14,6 +14,10 @@
   {{- $.Values.php.port -}} 
 {{- end -}}
 
+{{- define "func.string.imageRepositoryName" -}}
+  {{- $.Values.image.repositoryName -}}
+{{- end -}}
+
 {{- define "func.string.imageTag" -}}
   {{- $.Values.image.tag -}}
 {{- end -}}
