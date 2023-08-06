@@ -8,10 +8,8 @@ on:
 
 jobs:
 
-  build:
-
+  build-images:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -26,11 +24,11 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./src/docker-php-fpm
-          push: true
+          push: github.ref == 'refs/heads/master'
           tags: lapsatech/swimmingtools-php-fpm:latest
       - name: Build and puhs NGINX image
         uses: docker/build-push-action@v4
         with:
           context: ./src/docker-nginx
-          push: true
+          push: github.ref == 'refs/heads/master'
           tags: lapsatech/swimmingtools-nginx:latest
