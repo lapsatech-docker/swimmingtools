@@ -18,3 +18,7 @@ jobs:
       run: docker build --progress=plain --no-cache -t lapsatech/swimmingtools-php-fpm:latest ./src/docker-php-fpm
     - name: Build the NGINX image
       run: docker build --progress=plain --no-cache -t lapsatech/swimmingtools-nginx:latest   ./src/docker-nginx
+    - name: Push PHP FRM image
+      run: docker push lapsatech/swimmingtools-php-fpm:latest
+    - name: Push NGINX image
+      run: docker push lapsatech/swimmingtools-nginx:latest
