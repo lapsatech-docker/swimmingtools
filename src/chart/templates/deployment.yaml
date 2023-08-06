@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image:  docker.io/lapsatech/swimmingtools-nginx:{{ include "func.string.imageTag" $ }}
+        image:  docker.io/lapsatech/swt-nginx:{{ include "func.string.imageTag" $ }}
         imagePullPolicy: Always
         env:
         - name: NGINX_SERVER_NAME
@@ -32,7 +32,7 @@ spec:
           containerPort: {{ include "func.string.nginxPort" $ }}
           protocol: TCP
       - name: php
-        image: docker.io/lapsatech/swimmingtools-php-fpm:{{ include "func.string.imageTag" $ }}
+        image: docker.io/lapsatech/swt-php-fpm:{{ include "func.string.imageTag" $ }}
         imagePullPolicy: Always
         ports:
         - name: php

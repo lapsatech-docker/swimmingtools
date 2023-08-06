@@ -25,16 +25,16 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build swimmingtools-php-fpm image
+    - name: Build swt-php-fpm image
       uses: docker/build-push-action@v4
       with:
         context: ./src/docker-php-fpm
         push: ${{ github.ref == 'refs/heads/master' }}
-        tags: lapsatech/swimmingtools-php-fpm:latest
+        tags: lapsatech/swt-php-fpm:latest
 
-    - name: Build swimmingtools-nginx image
+    - name: Build swt-nginx image
       uses: docker/build-push-action@v4
       with:
         context: ./src/docker-nginx
         push: ${{ github.ref == 'refs/heads/master' }}
-        tags: lapsatech/swimmingtools-nginx:latest
+        tags: lapsatech/swt-nginx:latest
