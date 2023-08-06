@@ -33,6 +33,6 @@ jobs:
         run: |
           if [ "${GITHUB_REF#refs/heads/}" = "master" ]
           then
-            push lapsatech/swimmingtools-php-fpm:latest || exit $?
-            push lapsatech/swimmingtools-php-nginx:latest || exit $?
+            docker push lapsatech/swimmingtools-php-fpm:latest || exit $?
+            docker push lapsatech/swimmingtools-php-nginx:latest || exit $?
           fi
