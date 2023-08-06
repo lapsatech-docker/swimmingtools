@@ -13,12 +13,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the PHP FPM image
-      run: docker build --progress=plain --no-cache -t lapsatech/swimmingtools-php-fpm:latest ./src/docker-php-fpm
-    - name: Build the NGINX image
-      run: docker build --progress=plain --no-cache -t lapsatech/swimmingtools-nginx:latest   ./src/docker-nginx
-    - name: Push PHP FRM image
-      run: docker push lapsatech/swimmingtools-php-fpm:latest
-    - name: Push NGINX image
-      run: docker push lapsatech/swimmingtools-nginx:latest
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and puhs PHP-FRM image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./src/docker-php-fpm
+          push: true
+          tags: lapsatech/swimmingtools-php-fpm:latest
+      - name: Build and puhs NGINX image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./src/docker-nginx
+          push: true
+          tags: lapsatech/swimmingtools-nginx:latest
