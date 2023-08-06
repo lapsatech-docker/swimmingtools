@@ -29,7 +29,7 @@ jobs:
         run: |
           docker build --progress=plain --no-cache -t lapsatech/swimmingtools-php-fpm:latest ./src/docker-php-fpm
       - name: Build NGINX image
--       run: |
+        run: |
           docker build --progress=plain --no-cache -t lapsatech/swimmingtools-nginx:latest   ./src/docker-nginx
       - name: Push images
           if [ "${GITHUB_REF#refs/heads/}" = "master" ]
