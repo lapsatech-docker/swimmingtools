@@ -10,3 +10,4 @@ php:
 
 image:
   tag: latest
+  repositoryName: docker.io
