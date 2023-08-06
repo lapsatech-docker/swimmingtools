@@ -8,31 +8,28 @@ on:
 
 jobs:
 
-  build:
-
+  build-images:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build PHP FPM image
-        run: |
-          docker build --progress=plain --no-cache -t lapsatech/swimmingtools-php-fpm:latest ./src/docker-php-fpm
-      - name: Build NGINX image
-        run: |
-          docker build --progress=plain --no-cache -t lapsatech/swimmingtools-nginx:latest   ./src/docker-nginx
-      - name: Push images
-        run: |
-          if [ "${GITHUB_REF#refs/heads/}" = "master" ]
-          then
-            docker push lapsatech/swimmingtools-php-fpm:latest || exit $?
-            docker push lapsatech/swimmingtools-php-nginx:latest || exit $?
-          fi
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      if: ${{ github.ref == 'refs/heads/master' }}
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build lapsatech/swimmingtools-php-fpm image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./src/docker-php-fpm
+        push: ${{ github.ref == 'refs/heads/master' }}
+        tags: lapsatech/swimmingtools-nginx:latest
+    - name: Build lapsatech/swimmingtools-php-fpm image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./src/docker-nginx
+        push: ${{ github.ref == 'refs/heads/master' }}
+        tags: lapsatech/swimmingtools-nginx:latest
