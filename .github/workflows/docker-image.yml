@@ -24,11 +24,11 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./src/docker-php-fpm
-          push: github.ref == 'refs/heads/master'
+          push: ${{ github.ref == 'refs/heads/master' }}
           tags: lapsatech/swimmingtools-php-fpm:latest
       - name: Build and puhs NGINX image
         uses: docker/build-push-action@v4
         with:
           context: ./src/docker-nginx
-          push: github.ref == 'refs/heads/master'
+          push: ${{ github.ref == 'refs/heads/master' }}
           tags: lapsatech/swimmingtools-nginx:latest
