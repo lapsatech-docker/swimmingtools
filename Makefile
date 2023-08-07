@@ -27,7 +27,7 @@ install-local: push-php push-nginx uninstall
 	     --debug \
 	     --reset-values \
 	     --set image.repositoryName=localhost:5000 \
-       --set app.host=swt.local
+	     --set app.host=swt.local
 
 install:
 	helm upgrade swt ./src/chart/ \
