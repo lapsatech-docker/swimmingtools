@@ -281,9 +281,7 @@ function deleteBtn_onClick() {
 
 function handleQueryResponse(response) {
   if (response.isError()) {
-    statusLbl.innerHTML = 'Unexpected error has been logged, '
-      + '<a href="contact">Contact developer</a> or '
-      + '<a href="upload">Upload</a> new file'
+    statusLbl.innerHTML = 'Unexpected error has been logged <a href="upload">Upload</a> new file'
     statusLbl.className = 'warning';
   } else {
     dataTable = response.getDataTable();

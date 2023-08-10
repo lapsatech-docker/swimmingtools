@@ -54,8 +54,7 @@ try {
 } catch (Throwable $ex) {
   swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
 
-  $error = 'Unexpected error has been logged, try again or '
-    .'<a href="contact">Contact web site owner</a>';
+  $error = 'Unexpected error has been logged, try again';
 }
 
 swt\Layout::header('Swimming Watch Tools - Upload', swt\Layout::TAB_UPLOAD);
@@ -139,8 +138,7 @@ function onGetSendOptions(options, deviceXml, data) {
 function onAfterFinishSendData(response, activityStatusElement) {
   if (response.status != 200) {
     $('statusText').innerHTML = '<span class="warning">Unexpected Error have'
-      + ' been logged, <a href="upload">try again</a> or <a href="contact">Contact</a>'
-      + ' developer</span>';
+      + ' been logged, <a href="upload">try again</a></span>';
     activityStatusElement.innerHTML = 'Error';
   } else {
     if (response.responseJSON.status == 'ok') {
@@ -229,5 +227,4 @@ function manualUploadForm_Onsubmit() {
 }
 </script>
 <?php
-swt\Layout::analytics();
 swt\Layout::footer();

@@ -62,6 +62,5 @@ try
   swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
 }
 
-swt\Layout::header('Swimming Watch Data Editor - Contact', swt\Layout::TAB_CONTACT);
 echo $error;
 swt\Layout::footer();

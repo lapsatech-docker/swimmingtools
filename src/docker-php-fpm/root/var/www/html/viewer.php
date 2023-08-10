@@ -336,8 +336,7 @@ try {
 \swt\Layout::TAB_VIEWER,
 "Analyze your Garmin Swim Data");
 if (!isset($activity)) {
-  echo '<p class="warning">Unexpected error has been log, try again or '
-   .'<a href="contact">Contact developper</a> if it persists.</p>';
+  echo '<p class="warning">Unexpected error has been log, try again</p>';
 } else {
 ?>
 <div class="section">
@@ -379,8 +378,7 @@ try {
   echo summaryTable();
 } catch (Exception $ex) {
   swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
-  echo '<p class="warning">Unexpected error has been logged. '.
-    '<a href="contact">Contact developer</a> if it persists.</p>';
+  echo '<p class="warning">Unexpected error has been logged</p>';
 }
 ?>
 </td><td>
@@ -397,8 +395,7 @@ try {
   echo bestTimesTable();
 } catch (Exception $ex) {
   swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
-  echo '<p class="warning">Unexpected error has been logged. '.
-    '<a href="contact">Contact developer</a> if it persists.</p>';
+  echo '<p class="warning">Unexpected error has been logged.</p>';
 }
 ?>
 </div>
@@ -468,8 +465,7 @@ try {
    echo lengthsTable();
 } catch (Exception $ex) {
   swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
-  echo '<p class="warning">Unexpected error has been logged. '.
-    '<a href="contact">Contact developer</a> if it persists.</p>';
+  echo '<p class="warning">Unexpected error has been logged.</p>';
 }
 ?>
 </div>
@@ -501,5 +497,4 @@ try {
 <script type="text/javascript" src="scripts/viewer2.js"></script>
 <?php
 } // end if isset($activity)
-swt\Layout::analytics();
 swt\Layout::footer();

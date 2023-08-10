@@ -50,9 +50,7 @@ try {
 
   swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
 } catch (Exception $ex) {
-  echo "{status:'error',message:'Unexpected error has been logged, try again or "
-    .'<a href="contact">Contact web site owner</a>'
-    ."'}";
+  echo "{status:'error',message:'Unexpected error has been logged, try again'}";
 
   swt\DB::addErrorLogEntry($file_id, $ex->getFile(), $ex);
 }
