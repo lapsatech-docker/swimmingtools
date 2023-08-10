@@ -8,8 +8,8 @@ RUN true \
   && ./configure \
   && make -j "$(nproc)" \
   && make test \
-  && mkdir -pv   /target/root/$(php-config --extension-dir) \
-  && cp    -v -t /target/root/$(php-config --extension-dir) ./modules/swt.so \ 
+  && mkdir -pv   /target/root$(php-config --extension-dir) \
+  && cp    -v -t /target/root$(php-config --extension-dir) ./modules/swt.so \ 
   && true
 
 
