@@ -61,5 +61,4 @@ spl_autoload_register();
   to fix them, feel free to use this site.</p>
 </div>
 <?php
-swt\Layout::analytics();
 swt\Layout::footer();

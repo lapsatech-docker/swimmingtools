@@ -501,5 +501,4 @@ try {
 <script type="text/javascript" src="scripts/viewer2.js"></script>
 <?php
 } // end if isset($activity)
-swt\Layout::analytics();
 swt\Layout::footer();

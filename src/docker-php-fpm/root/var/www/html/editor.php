@@ -145,7 +145,6 @@ style="background-color:white;padding:5px;border:1px solid black;display:none;po
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript" src="/scripts/editor10.js"></script>
 <?php
-swt\layout::analytics();
 swt\Layout::footer();
 
 

@@ -128,5 +128,4 @@ spl_autoload_register();
 
 </div>
 <?php
-swt\Layout::analytics();
 swt\Layout::footer();

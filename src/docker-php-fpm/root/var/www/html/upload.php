@@ -229,5 +229,4 @@ function manualUploadForm_Onsubmit() {
 }
 </script>
 <?php
-swt\Layout::analytics();
 swt\Layout::footer();
