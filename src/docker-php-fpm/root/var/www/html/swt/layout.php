@@ -8,7 +8,6 @@ class Layout {
   const TAB_EDITOR = 3;
   const TAB_VIEWER = 4;
   const TAB_USER_GUIDE = 5;
-  const TAB_CONTACT = 6;
 
   static function header($title, $active_tab, $description = '') {
 ?>
@@ -53,25 +52,8 @@ class Layout {
           <li><a href="editor" class="<?=$active_tab == self::TAB_EDITOR ? "selected" : "";?>">Editor</a></li>
           <li><a href="viewer" class="<?=$active_tab == self::TAB_VIEWER ? "selected" : "";?>">Viewer</a></li>
           <li><a href="help" class="<?=$active_tab == self::TAB_USER_GUIDE ? "selected" : "";?>">User's Guide</a></li>
-          <li><a href="contact" class="<?=$active_tab == self::TAB_CONTACT ? "selected" : "";?>">Contact</a></li>
         </ul>
       </div>
-    </div>
-    <div class="content">
-      <div style="color: #D8000C;background-color: #FFBABA" class="section">
-        <h2 style="color:black;background:red">
-        Swimmingwatchtools will close on August 31, 2023
-      </h2>
-      <p> This tool is 10 years old. Although
-      it still performs well and still does what it was intended to, it is becoming increasingly
-      hard to maintain and is due for a complete rewrite. Unfortunately, I don't have time and don't have the
-      interest to maintain, support and upgrade it anymore. So I will be pulling the plug at the end of this
-      summer. For those that might be interested I'm leaving a link to the 
-      <a href="https://bitbucket.org/swimmingwatchtools/phpeditor">source code</a>. If you want
-      to take charge, and get the domain name, leave me a message through the <a href="contact">contact</a> form. Finally,
-      I want to thank all of you who have used the tool, and submitted one of the 275000 files.
-      Have a great summer and keep swimming.
-      </p> 
     </div>
 <?php 
   }

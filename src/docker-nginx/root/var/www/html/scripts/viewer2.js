@@ -68,8 +68,7 @@ function initializePaceChart()
 
   if (lengthsData_.getNumberOfRows() == 0) {
     paceChart_ = document.getElementById('paceChart');
-    paceChart_.innerHTML = '<p class="warning">Unexpected error has been logged. '
-      + '<a href="contact">Contact developper if it persists</p>';
+    paceChart_.innerHTML = '<p class="warning">Unexpected error has been logged.</p>';
   } else {
 
     var maxPace = lengthsData_.getValue(0,LENGTH_PACE);
